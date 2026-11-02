@@ -119,6 +119,11 @@ exit code. Invalid inputs and unreadable or unwritable paths exit 2.
 
 ## Landing page
 
+Published at <https://simota.github.io/deslop/>. Pages serves the static
+files only, so pasted text there gets the browser's partial scan, labelled
+as such; the four bundled samples show their full `detect.py` scans. Run it
+locally for the complete detector:
+
 ```sh
 make serve                       # http://127.0.0.1:8765/
 python3 site/serve.py --port 8080
