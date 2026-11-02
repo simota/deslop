@@ -1,0 +1,916 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "cf48e07",
+  "documents": [
+    {
+      "id": "job-change-linkedin-en",
+      "path": "general/job-change-linkedin-en.md",
+      "genre": "general",
+      "lang": "en",
+      "origin": "ai-generated",
+      "scenario": "personal: LinkedIn post about a job change",
+      "source": {
+        "generator": "codex CLI (codex exec)",
+        "global_instructions": "~/.codex/AGENTS.md",
+        "prompt": "Write a LinkedIn post announcing that I'm leaving my job as a backend engineer at a fintech startup after five years to join a climate-tech company. Output only the post.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 0,
+        "open": 0,
+        "exempt": 0,
+        "prose_chars": 571,
+        "by_rule": {}
+      }
+    },
+    {
+      "id": "time-tracking-landing-en",
+      "path": "general/time-tracking-landing-en.md",
+      "genre": "general",
+      "lang": "en",
+      "origin": "ai-generated",
+      "scenario": "marketing: landing page copy",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "Write the landing page copy for Tally, a time-tracking app for freelance designers. Include a hero, features, pricing teaser and FAQ. Output only the page copy in Markdown.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 10,
+        "open": 10,
+        "exempt": 0,
+        "prose_chars": 3809,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-09": 1,
+          "DEN-10": 1,
+          "EMO-01": 7
+        }
+      }
+    },
+    {
+      "id": "career-self-pr-ja",
+      "path": "general/career-self-pr-ja.md",
+      "genre": "general",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "転職：職務経歴書の自己PR",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "転職用の職務経歴書に載せる自己PRを書いてください。私はWebアプリのフロントエンドエンジニアで経験6年、React と TypeScript が中心で、直近2年はチームリードをしています。自己PRの文章だけを出力してください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 4,
+        "open": 4,
+        "exempt": 0,
+        "prose_chars": 822,
+        "by_rule": {
+          "ART-07": 1,
+          "DEN-01": 1,
+          "DEN-08": 1,
+          "JA-12": 1
+        }
+      }
+    },
+    {
+      "id": "cloud-accounting-press-release-ja",
+      "path": "general/cloud-accounting-press-release-ja.md",
+      "genre": "general",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "広報：新サービスのプレスリリース",
+      "source": {
+        "generator": "codex CLI (codex exec)",
+        "global_instructions": "~/.codex/AGENTS.md",
+        "prompt": "中小企業向けのクラウド会計サービス「カゾエル」の提供開始を知らせるプレスリリースを書いてください。会社名や数値は架空で構いませんが、[ ] のような記入欄は残さず具体的に書いてください。プレスリリースの本文だけを Markdown で出力してください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 2,
+        "open": 2,
+        "exempt": 0,
+        "prose_chars": 1080,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-04": 1
+        }
+      }
+    },
+    {
+      "id": "remote-work-faq-ja",
+      "path": "general/remote-work-faq-ja.md",
+      "genre": "general",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "人事：社内制度の FAQ",
+      "source": {
+        "generator": "agy CLI (agy -p)",
+        "global_instructions": "~/.gemini/GEMINI.md",
+        "prompt": "社員向けに、リモートワーク制度についてのよくある質問（FAQ）ページを Markdown で作ってください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 3,
+        "open": 3,
+        "exempt": 0,
+        "prose_chars": 1909,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-05": 1,
+          "DEN-10": 1
+        }
+      }
+    },
+    {
+      "id": "weekly-meeting-minutes-ja",
+      "path": "general/weekly-meeting-minutes-ja.md",
+      "genre": "general",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "チーム運営：定例会議の議事録",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "開発チームの週次定例会議の議事録を書いてください。議題はリリース準備、障害の振り返り、採用状況の3つです。内容は架空で構いませんが、具体的に書いてください。議事録の本文だけを Markdown で出力してください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 6,
+        "open": 6,
+        "exempt": 0,
+        "prose_chars": 2389,
+        "by_rule": {
+          "CNT-01": 1,
+          "DEN-01": 1,
+          "DEN-04": 1,
+          "DEN-05": 1,
+          "DEN-06": 1,
+          "DEN-10": 1
+        }
+      }
+    },
+    {
+      "id": "invoices-api-reference-en",
+      "path": "reference/invoices-api-reference-en.md",
+      "genre": "reference",
+      "lang": "en",
+      "origin": "ai-generated",
+      "scenario": "developer docs: REST endpoint reference",
+      "source": {
+        "generator": "codex CLI (codex exec)",
+        "global_instructions": "~/.codex/AGENTS.md",
+        "prompt": "Write the API reference page for the endpoint POST /v1/invoices of a billing API. Include parameters, request and response examples, and errors. Output only the Markdown page. Write it in English.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 0,
+        "open": 0,
+        "exempt": 0,
+        "prose_chars": 968,
+        "by_rule": {}
+      }
+    },
+    {
+      "id": "deploy-cli-reference-ja",
+      "path": "reference/deploy-cli-reference-ja.md",
+      "genre": "reference",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "開発ドキュメント：CLI コマンドのリファレンス",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "社内のデプロイツール `shipit` の `deploy` サブコマンドのリファレンスを Markdown で書いてください。オプション一覧、使用例、終了コードを含めてください。ページの本文だけを出力してください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "notes": "Raw answer keeps the generator's opening caveat that it could not inspect `shipit` (chat residue).",
+      "baseline": {
+        "hits": 4,
+        "open": 3,
+        "exempt": 1,
+        "prose_chars": 878,
+        "by_rule": {
+          "JA-33": 3
+        }
+      }
+    },
+    {
+      "id": "invoices-api-reference-ja",
+      "path": "reference/invoices-api-reference-ja.md",
+      "genre": "reference",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "developer docs: REST endpoint reference",
+      "source": {
+        "generator": "codex CLI (codex exec)",
+        "global_instructions": "~/.codex/AGENTS.md",
+        "prompt": "Write the API reference page for the endpoint POST /v1/invoices of a billing API. Include parameters, request and response examples, and errors. Output only the Markdown page.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "notes": "Asked in English; the generator answered in Japanese.",
+      "baseline": {
+        "hits": 3,
+        "open": 3,
+        "exempt": 0,
+        "prose_chars": 642,
+        "by_rule": {
+          "JA-33": 3
+        }
+      }
+    },
+    {
+      "id": "github-actions-ci-tutorial-en",
+      "path": "tutorial/github-actions-ci-tutorial-en.md",
+      "genre": "tutorial",
+      "lang": "en",
+      "origin": "ai-generated",
+      "scenario": "tutorial: CI setup step by step",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "Write a step-by-step tutorial on setting up GitHub Actions CI for a Python project that uses pytest and ruff. Output only the tutorial in Markdown. Write it in English.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 3,
+        "open": 2,
+        "exempt": 1,
+        "prose_chars": 3458,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-10": 1
+        }
+      }
+    },
+    {
+      "id": "docker-postgres-tutorial-ja",
+      "path": "tutorial/docker-postgres-tutorial-ja.md",
+      "genre": "tutorial",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "入門記事：手順を追うチュートリアル",
+      "source": {
+        "generator": "agy CLI (agy -p)",
+        "global_instructions": "~/.gemini/GEMINI.md",
+        "prompt": "Docker を使ってローカルに PostgreSQL を立ち上げ、テーブルを作ってデータを入れるまでの初心者向けチュートリアルを Markdown で書いてください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 3,
+        "open": 3,
+        "exempt": 0,
+        "prose_chars": 727,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-04": 1,
+          "DEN-10": 1
+        }
+      }
+    },
+    {
+      "id": "github-actions-ci-tutorial-ja",
+      "path": "tutorial/github-actions-ci-tutorial-ja.md",
+      "genre": "tutorial",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "tutorial: CI setup step by step",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "Write a step-by-step tutorial on setting up GitHub Actions CI for a Python project that uses pytest and ruff. Output only the tutorial in Markdown.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "notes": "Asked in English; the generator answered in Japanese.",
+      "baseline": {
+        "hits": 4,
+        "open": 3,
+        "exempt": 1,
+        "prose_chars": 1682,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-10": 1,
+          "JA-09": 1
+        }
+      }
+    },
+    {
+      "id": "back-to-monolith-blog-en",
+      "path": "article/back-to-monolith-blog-en.md",
+      "genre": "article",
+      "lang": "en",
+      "origin": "ai-generated",
+      "scenario": "engineering blog: opinion piece",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "Write an engineering blog post titled \"Why we moved from microservices back to a monolith\" for a 40-person startup. Output only the post in Markdown.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 3,
+        "open": 3,
+        "exempt": 0,
+        "prose_chars": 12788,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-06": 1,
+          "DEN-09": 1
+        }
+      }
+    },
+    {
+      "id": "product-launch-blog-en",
+      "path": "article/product-launch-blog-en.md",
+      "genre": "article",
+      "lang": "en",
+      "origin": "ai-generated",
+      "scenario": "company blog: product announcement",
+      "source": {
+        "generator": "agy CLI (agy -p)",
+        "global_instructions": "~/.gemini/GEMINI.md",
+        "prompt": "Write a company blog post announcing the launch of Lumen, an AI-powered search feature inside a note-taking app. Output the post in Markdown.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 4,
+        "open": 4,
+        "exempt": 0,
+        "prose_chars": 3539,
+        "by_rule": {
+          "DEN-04": 1,
+          "DEN-10": 1,
+          "EN-17": 1,
+          "EN-19": 1
+        }
+      }
+    },
+    {
+      "id": "code-review-ja",
+      "path": "article/code-review-ja.md",
+      "genre": "article",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "source": {
+        "prompt": "社内エンジニアブログ向けに、「チームでコードレビューを効率化する方法」というテーマで日本語の記事を Markdown で書いてください。1500〜2500字程度。見出しや箇条書きは自由に使ってください。記事本文のみを返答として出力し、ファイルには書き込まないでください。前置きや後書きのコメントは不要です。",
+        "date": "2026-11-01",
+        "global_instructions": "~/.claude/CLAUDE.md (subagent of a Claude Code session)",
+        "generator": "Claude Code subagent (haiku)"
+      },
+      "exercises": [
+        "a typical generated blog draft: announced opening, importance claims, closing まとめ that repeats the body",
+        "bold-label bullets, heading and list density in a short article",
+        "effects claimed without a mechanism (CON-07)",
+        "over-cutting risks: the problem statement in the opening, checklists and template fields that should stay lists",
+        "hedges that must not become stronger claims; the author's verbs kept"
+      ],
+      "baseline": {
+        "hits": 8,
+        "open": 8,
+        "exempt": 0,
+        "prose_chars": 1728,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-04": 1,
+          "DEN-05": 1,
+          "DEN-06": 1,
+          "DEN-08": 1,
+          "JA-03": 1,
+          "JA-08": 1,
+          "JA-09": 1
+        }
+      },
+      "scenario": "社内ブログ：チーム運営のノウハウ記事"
+    },
+    {
+      "id": "new-grad-first-year-long-ja",
+      "path": "article/new-grad-first-year-long-ja.md",
+      "genre": "article",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "長文コラム：6000 字を超える記事",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "「新卒エンジニアが最初の1年でやるべきこと」というテーマで、7000字程度の長めのブログ記事を Markdown で書いてください。記事本文だけを出力してください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 11,
+        "open": 11,
+        "exempt": 0,
+        "prose_chars": 6284,
+        "by_rule": {
+          "CNT-01": 2,
+          "DEN-01": 1,
+          "DEN-04": 1,
+          "DEN-05": 1,
+          "DEN-06": 1,
+          "DEN-10": 1,
+          "JA-09": 1,
+          "JA-10": 1,
+          "JA-17": 1,
+          "JA-28": 1
+        }
+      }
+    },
+    {
+      "id": "rust-ownership-intro-ja",
+      "path": "article/rust-ownership-intro-ja.md",
+      "genre": "article",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "技術ブログ：初心者向けの解説記事",
+      "source": {
+        "generator": "codex CLI (codex exec)",
+        "global_instructions": "~/.codex/AGENTS.md",
+        "prompt": "Rust の所有権と借用を初心者向けに解説する技術ブログ記事を Markdown で書いてください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 4,
+        "open": 4,
+        "exempt": 0,
+        "prose_chars": 2159,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-05": 1,
+          "JA-10": 1,
+          "JA-20": 1
+        }
+      }
+    },
+    {
+      "id": "logpipe-en",
+      "path": "readme/logpipe-en.md",
+      "genre": "readme",
+      "lang": "en",
+      "origin": "ai-generated",
+      "source": {
+        "prompt": "Write a README.md for an open-source CLI tool called `logpipe`. It tails several log files at once and merges their lines into one stream ordered by timestamp. It's written in Go. Output only the Markdown content of the README, nothing else. Don't write any files.",
+        "date": "2026-11-01",
+        "global_instructions": "~/.claude/CLAUDE.md (subagent of a Claude Code session)",
+        "generator": "Claude Code subagent (haiku)"
+      },
+      "exercises": [
+        "an already plain README: false positives in the readme genre",
+        "a closing invitation next to a real requirement (keep the requirement)",
+        "contradictions visible without outside knowledge: an example missing a required argument, output columns that differ from their description, Windows builds with rotation detected by inode"
+      ],
+      "baseline": {
+        "hits": 0,
+        "open": 0,
+        "exempt": 0,
+        "prose_chars": 2424,
+        "by_rule": {}
+      },
+      "scenario": "OSS: README for a CLI tool"
+    },
+    {
+      "id": "date-utils-readme-ja",
+      "path": "readme/date-utils-readme-ja.md",
+      "genre": "readme",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "OSS：ライブラリの README",
+      "source": {
+        "generator": "codex CLI (codex exec)",
+        "global_instructions": "~/.codex/AGENTS.md",
+        "prompt": "和暦や祝日を扱える TypeScript の日付処理ライブラリ「koyomi-ts」の README.md を日本語で書いてください。README の本文だけを出力してください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 2,
+        "open": 2,
+        "exempt": 0,
+        "prose_chars": 554,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-08": 1
+        }
+      }
+    },
+    {
+      "id": "feature-flags-rfc-en",
+      "path": "spec/feature-flags-rfc-en.md",
+      "genre": "spec",
+      "lang": "en",
+      "origin": "ai-generated",
+      "scenario": "engineering: RFC for a new internal service",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "Write an RFC proposing an internal feature-flag service to replace flags hard-coded in config files. Output only the RFC in Markdown. Write it in English.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 6,
+        "open": 5,
+        "exempt": 1,
+        "prose_chars": 11631,
+        "by_rule": {
+          "CNT-01": 1,
+          "DEN-01": 1,
+          "DEN-04": 1,
+          "DEN-09": 1,
+          "EN-18": 1
+        }
+      }
+    },
+    {
+      "id": "equipment-requirements-ja",
+      "path": "spec/equipment-requirements-ja.md",
+      "genre": "spec",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "業務システム：要件定義書",
+      "source": {
+        "generator": "agy CLI (agy -p)",
+        "global_instructions": "~/.gemini/GEMINI.md",
+        "prompt": "社内の備品管理システムの要件定義書を Markdown で書いてください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 6,
+        "open": 4,
+        "exempt": 2,
+        "prose_chars": 2609,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-04": 1,
+          "DEN-07": 1,
+          "DEN-10": 1
+        }
+      }
+    },
+    {
+      "id": "feature-flags-rfc-ja",
+      "path": "spec/feature-flags-rfc-ja.md",
+      "genre": "spec",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "engineering: RFC for a new internal service",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "Write an RFC proposing an internal feature-flag service to replace flags hard-coded in config files. Output only the RFC in Markdown.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "notes": "Asked in English; the generator answered in Japanese.",
+      "baseline": {
+        "hits": 4,
+        "open": 2,
+        "exempt": 2,
+        "prose_chars": 4343,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-04": 1
+        }
+      }
+    },
+    {
+      "id": "rate-limit-design-ja",
+      "path": "spec/rate-limit-design-ja.md",
+      "genre": "spec",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "source": {
+        "prompt": "社内向けに、通知配信サービス（メール・プッシュ通知を送るマイクロサービス）にレート制限機能を追加するための設計書（Design Doc）を Markdown で書いてください。返答は設計書の本文だけにしてください。ファイルには書き込まないでください。",
+        "date": "2026-11-01",
+        "global_instructions": "~/.claude/CLAUDE.md (subagent of a Claude Code session)",
+        "generator": "Claude Code subagent (sonnet)"
+      },
+      "exercises": [
+        "a plain design doc in だ・である: the spec genre's exemptions and a zero-change run",
+        "a table definition against the same thing in prose (key format vs the units table)",
+        "two names for one period (計測期間 / 観測期間) and a cross-reference to the wrong section"
+      ],
+      "baseline": {
+        "hits": 1,
+        "open": 0,
+        "exempt": 1,
+        "prose_chars": 3508,
+        "by_rule": {}
+      },
+      "scenario": "設計：社内マイクロサービスの設計書"
+    },
+    {
+      "id": "http-retry-pr-en",
+      "path": "pr/http-retry-pr-en.md",
+      "genre": "pr",
+      "lang": "en",
+      "origin": "ai-generated",
+      "scenario": "code review: pull request description",
+      "source": {
+        "generator": "codex CLI (codex exec)",
+        "global_instructions": "~/.codex/AGENTS.md",
+        "prompt": "Write a pull request description for a change that adds retry with exponential backoff to our internal HTTP client library, including handling of 429 and 503 responses. Output only the PR description in Markdown.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 0,
+        "open": 0,
+        "exempt": 0,
+        "prose_chars": 444,
+        "by_rule": {}
+      }
+    },
+    {
+      "id": "login-validation-pr-ja",
+      "path": "pr/login-validation-pr-ja.md",
+      "genre": "pr",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "コードレビュー：PR の説明文",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "ログイン画面のメールアドレス入力欄で、全角文字が入ると送信できてしまう不具合を修正した PR の説明文を書いてください。PR の説明文だけを Markdown で出力してください。",
+        "date": "2026-11-01",
+        "edited": true
+      },
+      "notes": "The answer was wrapped in a ```markdown fence; only that outer fence was removed.",
+      "baseline": {
+        "hits": 0,
+        "open": 0,
+        "exempt": 0,
+        "prose_chars": 465,
+        "by_rule": {}
+      }
+    },
+    {
+      "id": "cold-outreach-email-en",
+      "path": "message/cold-outreach-email-en.md",
+      "genre": "message",
+      "lang": "en",
+      "origin": "ai-generated",
+      "scenario": "sales: cold email to a prospect",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "Write a cold email to the head of operations at a mid-sized logistics company, introducing our route-optimisation software and asking for a 20-minute call. Use made-up but concrete names and numbers, no placeholders. Output only the email.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 4,
+        "open": 4,
+        "exempt": 0,
+        "prose_chars": 1371,
+        "by_rule": {
+          "CNT-01": 4
+        }
+      }
+    },
+    {
+      "id": "incident-progress-slack-ja",
+      "path": "message/incident-progress-slack-ja.md",
+      "genre": "message",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "業務連絡：障害対応の進捗を上司に Slack で報告",
+      "source": {
+        "generator": "codex CLI (codex exec)",
+        "global_instructions": "~/.codex/AGENTS.md",
+        "prompt": "決済APIでタイムアウトが多発している障害の対応状況を、上司に Slack で報告するメッセージを書いてください。内容は架空で構いませんが、記入欄は残さず具体的に書いてください。メッセージ本文だけを出力してください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 2,
+        "open": 2,
+        "exempt": 0,
+        "prose_chars": 386,
+        "by_rule": {
+          "CNT-01": 2
+        }
+      }
+    },
+    {
+      "id": "invoice-misdelivery-apology-ja",
+      "path": "message/invoice-misdelivery-apology-ja.md",
+      "genre": "message",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "顧客対応：請求書の誤送付についての謝罪メール",
+      "source": {
+        "generator": "agy CLI (agy -p)",
+        "global_instructions": "~/.gemini/GEMINI.md",
+        "prompt": "取引先に、別の会社宛ての請求書を誤って送ってしまったことを謝罪するメールを書いてください。社名や氏名は架空で構いませんが、[ ] のような記入欄は残さず具体的に書いてください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 0,
+        "open": 0,
+        "exempt": 0,
+        "prose_chars": 986,
+        "by_rule": {}
+      }
+    },
+    {
+      "id": "js-library-changelog-en",
+      "path": "changelog/js-library-changelog-en.md",
+      "genre": "changelog",
+      "lang": "en",
+      "origin": "ai-generated",
+      "scenario": "release: CHANGELOG entry",
+      "source": {
+        "generator": "codex CLI (codex exec)",
+        "global_instructions": "~/.codex/AGENTS.md",
+        "prompt": "Write the CHANGELOG.md entry for version 2.4.0 of a JavaScript date-formatting library. Output only the changelog entry in Markdown.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 0,
+        "open": 0,
+        "exempt": 0,
+        "prose_chars": 376,
+        "by_rule": {}
+      }
+    },
+    {
+      "id": "app-store-release-notes-ja",
+      "path": "changelog/app-store-release-notes-ja.md",
+      "genre": "changelog",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "リリース：App Store のアップデート内容",
+      "source": {
+        "generator": "claude CLI (claude -p)",
+        "global_instructions": "~/.claude/CLAUDE.md",
+        "prompt": "タスク管理アプリのバージョン 3.2 のアップデート内容（App Store のリリースノート）を書いてください。本文だけを出力してください。",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 0,
+        "open": 0,
+        "exempt": 0,
+        "prose_chars": 539,
+        "by_rule": {}
+      }
+    },
+    {
+      "id": "checkout-postmortem-en",
+      "path": "template/checkout-postmortem-en.md",
+      "genre": "template",
+      "lang": "en",
+      "origin": "ai-generated",
+      "source": {
+        "prompt": "Write an incident postmortem in Markdown for an incident where a database schema migration locked a table and caused about 40 minutes of downtime for our checkout service. Output only the postmortem document, nothing else. Don't write any files.",
+        "date": "2026-11-01",
+        "global_instructions": "~/.claude/CLAUDE.md (subagent of a Claude Code session)",
+        "generator": "Claude Code subagent (sonnet)"
+      },
+      "exercises": [
+        "many template fields ([HH:MM], [N], [link], [name])",
+        "`**Label:**` bold labels with the colon inside the bold (DEN-04)",
+        "fill-in bullets that must stay a list, not be folded into prose",
+        "a fixed value among fields (about 40 minutes) and uneven [Confirm.] markers"
+      ],
+      "baseline": {
+        "hits": 54,
+        "open": 2,
+        "exempt": 52,
+        "prose_chars": 3081,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-06": 1
+        }
+      },
+      "scenario": "incident response: postmortem template"
+    },
+    {
+      "id": "weekly-status-template-en",
+      "path": "template/weekly-status-template-en.md",
+      "genre": "template",
+      "lang": "en",
+      "origin": "ai-generated",
+      "scenario": "team ops: reusable weekly status report template",
+      "source": {
+        "generator": "codex CLI (codex exec)",
+        "global_instructions": "~/.codex/AGENTS.md",
+        "prompt": "Create a reusable weekly status report template for engineering team leads to send to their director. Output only the template in Markdown.",
+        "date": "2026-11-01",
+        "edited": false
+      },
+      "baseline": {
+        "hits": 18,
+        "open": 5,
+        "exempt": 13,
+        "prose_chars": 570,
+        "by_rule": {
+          "DEN-01": 1,
+          "DEN-02": 1,
+          "EMO-01": 3
+        }
+      }
+    },
+    {
+      "id": "delivery-delay-mail-ja",
+      "path": "template/delivery-delay-mail-ja.md",
+      "genre": "template",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "source": {
+        "prompt": "取引先の担当者に、発注いただいている業務システムの納品が1週間遅れることを伝えるメールを書いてください。返答はメール本文（件名を含む）だけにしてください。ファイルには書き込まないでください。",
+        "date": "2026-11-01",
+        "global_instructions": "~/.claude/CLAUDE.md (subagent of a Claude Code session)",
+        "generator": "Claude Code subagent (haiku)"
+      },
+      "exercises": [
+        "the business greeting お世話になっております (JA-19 must not fire)",
+        "[bracketed] fields kept as template fields (ART-07 exempted by the template genre)",
+        "a document under the density thresholds",
+        "contradictions in a short text: 1週間 next to both dates, 随時 next to a frequency field, 変更 in the subject and 延期 in the body"
+      ],
+      "baseline": {
+        "hits": 10,
+        "open": 2,
+        "exempt": 8,
+        "prose_chars": 387,
+        "by_rule": {
+          "JA-21": 2
+        }
+      },
+      "notes": "Also a business mail: the message genre's exemptions do not apply while it is a template. ART-07 catches 8 of its 16 fields.",
+      "scenario": "取引先対応：納期遅延を伝えるメールの文面"
+    },
+    {
+      "id": "study-group-proposal-ja",
+      "path": "template/study-group-proposal-ja.md",
+      "genre": "template",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "source": {
+        "prompt": "社内向けに、エンジニアの勉強会制度を立ち上げるための企画書を Markdown で書いてください。返答は企画書の本文だけにしてください。ファイルには書き込まないでください。",
+        "date": "2026-11-01",
+        "global_instructions": "~/.claude/CLAUDE.md (subagent of a Claude Code session)",
+        "generator": "Claude Code subagent (haiku)"
+      },
+      "exercises": [
+        "a proposal built from tables an approver scans (STR-06 symmetry is the format, not padding)",
+        "〔 〕 fields and a [担当者名] field",
+        "numbers that constrain each other: 24 sessions a year against one talk per person, a KPI of twice a month against a fallback to once"
+      ],
+      "baseline": {
+        "hits": 1,
+        "open": 0,
+        "exempt": 1,
+        "prose_chars": 802,
+        "by_rule": {}
+      },
+      "scenario": "社内企画：制度の立ち上げ企画書"
+    },
+    {
+      "id": "tsumiki-release-post-ja",
+      "path": "template/tsumiki-release-post-ja.md",
+      "genre": "template",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "source": {
+        "prompt": "新しくリリースした iOS の家計簿アプリ「つみき」のリリース告知を、X（旧Twitter）に投稿する文章として書いてください。返答は投稿文だけにしてください。ファイルには書き込まないでください。",
+        "date": "2026-11-01",
+        "global_instructions": "~/.claude/CLAUDE.md (subagent of a Claude Code session)",
+        "generator": "Claude Code subagent (sonnet)"
+      },
+      "exercises": [
+        "a three-line post under 400 characters: no density rule applies",
+        "nothing to fix: the zero-change run and the single-text review path in verify.md"
+      ],
+      "baseline": {
+        "hits": 1,
+        "open": 0,
+        "exempt": 1,
+        "prose_chars": 68,
+        "by_rule": {}
+      },
+      "scenario": "告知：アプリのリリースを X に投稿"
+    }
+  ]
+}
