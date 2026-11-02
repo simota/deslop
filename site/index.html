@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deslop — 機械生成の文体を削り、書かれた事実だけを残すエージェントスキル &amp; 検出器</title>
+  <meta name="description" content="deslop は日本語・英語の Markdown と平文から、チャット応答の残骸、AI特有の過剰語彙、出典のない統計、水増しされた構造を取り除くエージェントスキル（Claude Code / Codex / Antigravity 対応）です。81の決定論的ルールと24の観点、事実保存検査（preserve_check.py）を備え、Python 3.10+ 標準ライブラリのみで動作します。">
+  <meta property="og:title" content="deslop — 機械生成の文体を削り、書かれた事実だけを残す">
+  <meta property="og:description" content="81の決定論的ルール＋24の構造・内容観点。原文にない事実は1文字も足さず、数値・URL・コードブロックの生存を契約検査（contract_check.py）で保証する日英対応エージェントスキル。">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%23141413'/%3E%3Ctext x='7' y='22' font-family='monospace' font-weight='bold' font-size='18' fill='%23FDFCF9'%3Ed%3C/text%3E%3Cline x1='5' y1='20' x2='27' y2='12' stroke='%23FF8A7A' stroke-width='2.5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "deslop",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "macOS, Linux, Windows (Python 3.10+)",
+    "description": "An agent skill and deterministic prose linter that rewrites Japanese and English documents until nothing in them reads as machine-generated, without adding facts.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">メインコンテンツへ移動</a>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#hero" class="brand-logo" aria-label="deslop トップへ">
+        <span class="brand-mark" aria-hidden="true">d</span>
+        <span>deslop</span>
+        <span class="brand-tag">JA / EN · stdlib</span>
+      </a>
+
+      <nav class="main-nav" aria-label="主要ナビゲーション">
+        <button type="button" id="mobile-menu-toggle" class="mobile-menu-btn" aria-expanded="false" aria-controls="main-nav-links" aria-label="メニューを開く">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M3 5H17M3 10H17M3 15H17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <ul id="main-nav-links" class="nav-links">
+          <li><a href="#live-detector">ライブ検出器</a></li>
+          <li><a href="#three-layers">3層の除去原理</a></li>
+          <li><a href="#pipeline">実行契約 (6 Phases)</a></li>
+          <li><a href="#genres">10種のジャンル</a></li>
+          <li><a href="#rule-atlas">全81ルール＋24観点</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+        <div class="header-actions">
+          <a href="#install" class="btn btn-primary btn-sm">導入する<span class="header-cta-sub">&nbsp;(make link)</span></a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <!-- Hero Section -->
+    <section id="hero" class="hero-section">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow-badge">
+            AGENT SKILL &amp; PROSE LINTER · CLAUDE CODE / CODEX / ANTIGRAVITY
+          </div>
+          <h1 class="hero-title">
+            <span class="nowrap"><span class="redline-word">機械生成の文体</span>を削り、</span><br>
+            <span class="nowrap">書かれた事実だけを残す。</span>
+          </h1>
+          <p class="hero-lead">
+            <code>deslop</code> は日本語と英語の Markdown・平文から、チャット応答の残骸、AI特有の宣伝語彙、出典のない統計、水増しされた段落構造を取り除くエージェントスキルです。原文にない事実は1文字も足さず、数値・URL・コードブロックの生存を <code>preserve_check.py</code> と <code>contract_check.py</code> で機械的に検証します。
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="#live-detector" class="btn btn-primary">
+              <span>ライブ検出器で試す</span>
+              <span aria-hidden="true">↓</span>
+            </a>
+            <a href="#install" class="btn btn-secondary">
+              <span>エージェントに導入する</span>
+            </a>
+          </div>
+
+          <div class="quick-command-box" aria-label="クイックインストールコマンド">
+            <div class="quick-command-header">
+              <span>QUICK INSTALL · Python 3.10+ stdlib</span>
+              <span>外部依存 0 · Exit 0 / 1</span>
+            </div>
+            <div class="quick-command-row">
+              <code id="hero-cmd" class="quick-command-code">make link &amp;&amp; make detect TARGET=docs/</code>
+              <button type="button" class="copy-chip" data-copy-target="hero-cmd">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Right: Interactive Redline Proof Sheet -->
+        <div class="proof-sheet-card" aria-label="実際のフィクスチャによる赤入れ校正と書き換え結果の比較">
+          <div class="proof-sheet-toolbar">
+            <div class="proof-file-meta">
+              <span id="hero-file-label">examples/before.ja.md</span>
+              <div class="segmented-tabs" role="group" aria-label="サンプル言語切替">
+                <button type="button" class="seg-tab is-active" data-hero-lang="ja">日本語</button>
+                <button type="button" class="seg-tab" data-hero-lang="en">English</button>
+              </div>
+            </div>
+            <div class="segmented-tabs" role="tablist" aria-label="表示モード切替">
+              <button type="button" role="tab" aria-selected="true" class="seg-tab is-active" data-hero-mode="redline">赤入れ検出 (30)</button>
+              <button type="button" role="tab" aria-selected="false" class="seg-tab" data-hero-mode="after">書き換え後 (0)</button>
+              <button type="button" role="tab" aria-selected="false" class="seg-tab" data-hero-mode="before">原文</button>
+            </div>
+          </div>
+
+          <div id="hero-proof-stats" class="proof-stats-bar"></div>
+          <div id="hero-proof-body" class="proof-sheet-body" tabindex="0" aria-live="polite"></div>
+
+          <div class="proof-sheet-footer">
+            <div class="legend-inline">
+              <span class="legend-item"><span class="legend-dot" style="background:var(--accent-redline);"></span>規則ヒット (削除・修正)</span>
+              <span class="legend-item"><span class="legend-dot" style="background:var(--cue-fg);"></span>構造キュー (STR/CON)</span>
+              <span class="legend-item"><span class="legend-dot" style="background:var(--preserve-fg);"></span>保護された事実 (数値・コード・URL)</span>
+            </div>
+            <span>実フィクスチャ: <code>examples/before.*.md</code> → <code>after.*.md</code></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quantitative Proof Strip -->
+    <section id="proof-strip" class="proof-strip" aria-label="リポジトリの検証済み仕様指標">
+      <div class="container">
+        <div class="proof-strip-grid">
+          <div class="strip-metric">
+            <div class="strip-number">81<span>rules</span></div>
+            <div class="strip-label">決定論的検出ルール</div>
+            <div class="strip-note">ART 9 · JA 33 · EN 27 · EMO 1 · CNT 1 · DEN 10</div>
+          </div>
+          <div class="strip-metric">
+            <div class="strip-number">24<span>perspectives</span></div>
+            <div class="strip-label">内容・構造の読解観点</div>
+            <div class="strip-note">Content 8種 ＋ Structure 16種（11種を自動キュー）</div>
+          </div>
+          <div class="strip-metric">
+            <div class="strip-number">10<span>genres</span></div>
+            <div class="strip-label">文書ジャンル別チューニング</div>
+            <div class="strip-note">readme / reference / spec / article / pr / template 等</div>
+          </div>
+          <div class="strip-metric">
+            <div class="strip-number">429<span>tests</span></div>
+            <div class="strip-label">オフライン回帰テスト</div>
+            <div class="strip-note">make check でルール・ドキュメント整合性を常時検証</div>
+          </div>
+          <div class="strip-metric">
+            <div class="strip-number">0<span>deps</span></div>
+            <div class="strip-label">外部パッケージ依存ゼロ</div>
+            <div class="strip-note">Python 3.10+ 標準ライブラリのみで単体動作</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 1: Live Detector Sandbox -->
+    <section id="live-detector" class="section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-kicker">INTERACTIVE DETECTOR WORKBENCH</span>
+          <h2 class="section-title">ブラウザ上で <code>detect.py</code> の赤入れと<span class="nowrap">ジャンル別判定を試す</span></h2>
+          <p class="section-desc">
+            リポジトリ内の実際のサンプル文書（<code>examples/</code> および <code>corpus/</code>）を切り替えるか、「Markdown編集」タブで任意の日本語・英語テキストを入力してください。選択したジャンル（<code>--genre</code>）に応じて免除ルールと密度閾値がリアルタイムに反映されます。
+          </p>
+        </div>
+
+        <div class="workbench">
+          <div class="workbench-controls">
+            <div class="control-group">
+              <label for="sample-select" class="control-label">サンプル文書:</label>
+              <select id="sample-select" class="select-input">
+                <option value="ja_cache">日本語：キャッシュ設定ガイド (examples/before.ja.md)</option>
+                <option value="en_cache">English: Tile Caching Guide (examples/before.en.md)</option>
+                <option value="ja_review">日本語：社内技術ブログ (corpus/article/code-review-ja.md)</option>
+                <option value="ja_cli_ref">日本語：CLIリファレンス (corpus/reference/deploy-cli-reference-ja.md)</option>
+              </select>
+
+              <label for="genre-select" class="control-label">ジャンル (--genre):</label>
+              <select id="genre-select" class="select-input">
+                <option value="general">general (一般散文)</option>
+                <option value="readme">readme (README)</option>
+                <option value="reference">reference (API/CLI仕様)</option>
+                <option value="tutorial">tutorial (チュートリアル)</option>
+                <option value="article">article (技術記事・ブログ)</option>
+                <option value="spec">spec (要件定義・RFC)</option>
+                <option value="pr">pr (PR説明文)</option>
+                <option value="message">message (メール・連絡)</option>
+                <option value="changelog">changelog (変更履歴)</option>
+                <option value="template">template (入力テンプレート)</option>
+              </select>
+            </div>
+
+            <div class="segmented-tabs" role="group" aria-label="エディタ表示切替">
+              <button type="button" class="seg-tab is-active" data-wb-view="annotated">校正ハイライト表示</button>
+              <button type="button" class="seg-tab" data-wb-view="edit">Markdownを自由編集</button>
+              <button type="button" class="seg-tab" data-wb-view="after">書き換え後 (After)</button>
+            </div>
+          </div>
+
+          <div class="workbench-grid">
+            <div class="workbench-left">
+              <div class="pane-subbar">
+                <span>DOCUMENT BUFFER (フロントマター・コードブロック・URL自動マスク)</span>
+                <span>UTF-8 Markdown</span>
+              </div>
+              <div id="workbench-left-content"></div>
+            </div>
+
+            <div class="workbench-right">
+              <div class="term-subbar">
+                <span id="detector-source-label">DETECT.PY OUTPUT</span>
+                <div id="detector-summary-badges" class="summary-badges"></div>
+              </div>
+              <div id="detector-hits-list" class="detector-hits-list" tabindex="0" aria-label="検出結果一覧"></div>
+              <div class="density-panel">
+                <div style="color:var(--term-muted);">DOCUMENT DENSITY METRICS (400字以上で判定、見出し・リスト比率は1,500字以上)</div>
+                <div id="detector-density-grid" class="density-grid"></div>
+              </div>
+            </div>
+          </div>
+          <div class="workbench-footer">
+            <div class="workbench-footer-cmd">
+              <span class="workbench-footer-label">CLI EQUIVALENT:</span>
+              <code id="workbench-cli-cmd">python3 skills/deslop/scripts/detect.py --genre general examples/before.ja.md</code>
+            </div>
+            <div class="workbench-footer-actions">
+              <button type="button" class="copy-chip" data-copy-target="workbench-cli-cmd">コマンドをコピー</button>
+              <a href="#install" class="btn btn-primary btn-sm">エージェントに導入する →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: The Three Layers -->
+    <section id="three-layers" class="section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-kicker">WHY SYNONYM SWAPS FAIL</span>
+          <h2 class="section-title">単語の言い換えではなく、「内容 → 構造 → 語彙」<span class="nowrap">の順で削る</span></h2>
+          <p class="section-desc">
+            「重要」を「肝心」に、「leverage」を「utilize」に置き換えても機械生成の臭いは消えません。<code>deslop</code> は語彙に触れる前に、まず文が運ぶ情報量と文書の骨格を検査します。
+          </p>
+        </div>
+
+        <div class="layers-stack">
+          <!-- Layer 1: Content -->
+          <article class="layer-card">
+            <div class="layer-card-header">
+              <div>
+                <span class="layer-order">PASS 01 · CONTENT PERSPECTIVES (CON-01 – CON-08 / CNT-01)</span>
+                <h3 class="layer-name">1. 内容パス：4つのテストを通過しない主張は、言い換えず削除する</h3>
+              </div>
+              <span class="brand-tag">reference/content.md</span>
+            </div>
+            <div class="layer-body">
+              <div>
+                <p style="margin-top:0; color:var(--ink-secondary); font-size:0.92rem;">
+                  各段落のすべての主張を以下の4つのテストにかけます。1つでも落ちた文は、美辞麗句に書き換えるのではなく削除の対象です。根拠のない数値が議論の前提になっている場合は勝手に書き換えず、<code>decisions</code> に記録して著者の判断を仰ぎます。
+                </p>
+                <ul class="four-tests-list">
+                  <li class="test-item"><strong>1. Information (情報テスト / CON-01)</strong>：その文を読んだ後、読者が新しく知る事実は何か？「〜が重要です」しかなければ削除する。</li>
+                  <li class="test-item"><strong>2. Substitution (置換テスト / CON-01, CON-07)</strong>：主語を別の製品やライブラリに置き換えてもそのまま成り立つ文なら、その対象について何も語っていない。</li>
+                  <li class="test-item"><strong>3. Reader (読者テスト / CON-02, CON-05)</strong>：想定読者が目的を果たすために必要か？毎日使う用語の定義や数合わせの一般論は削る。</li>
+                  <li class="test-item"><strong>4. Support (裏づけテスト / CON-03, CNT-01)</strong>：文書内の測定値・コード・リンクで裏づけられているか？無出典の「約30%改善」は装飾なら削除、前提なら要出典として報告する。</li>
+                </ul>
+              </div>
+              <div>
+                <table class="diff-table" aria-label="内容パスの処置例">
+                  <thead>
+                    <tr>
+                      <th>検出される空疎な内容</th>
+                      <th>判定ルール</th>
+                      <th>deslop の処置</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="mark-slop">現代のWebアプリケーションにおいて、キャッシュは重要な役割を果たしています。</span></td>
+                      <td><span class="rule-pill tier-lexical">JA-03</span> <span class="rule-pill tier-cue">CON-01</span></td>
+                      <td><strong>全文削除</strong>（情報テスト・置換テスト不合格。どの技術にも当てはまる前置き）</td>
+                    </tr>
+                    <tr>
+                      <td><span class="mark-slop">多くの企業が導入しており、約30%が改善を実感していると言われています。</span></td>
+                      <td><span class="rule-pill tier-content">CNT-01</span> <span class="rule-pill tier-lexical">JA-31</span> <span class="rule-pill tier-cue">CON-03</span></td>
+                      <td><strong>全文削除＋<code>preservation</code>記録</strong>（段落内に出典リンクや計測値がない装飾統計）</td>
+                    </tr>
+                    <tr>
+                      <td><span class="mark-slop">キャッシュを活用することで、レスポンス速度の向上が可能になります。</span></td>
+                      <td><span class="rule-pill tier-lexical">JA-07</span> <span class="rule-pill tier-cue">CON-07</span></td>
+                      <td><strong>仕組みの記述へ置換または削除</strong>（メカニズム抜きの効能主張を排し、設定値の説明へ直結）</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </article>
+
+          <!-- Layer 2: Structure -->
+          <article class="layer-card">
+            <div class="layer-card-header">
+              <div>
+                <span class="layer-order">PASS 02 · STRUCTURAL PERSPECTIVES (STR-01 – STR-16)</span>
+                <h3 class="layer-name">2. 構造パス：予告開幕・反復まとめ・機械的な3項目リストを解体する</h3>
+              </div>
+              <span class="brand-tag">reference/structure.md</span>
+            </div>
+            <div class="layer-body">
+              <div>
+                <p style="margin-top:0; color:var(--ink-secondary); font-size:0.92rem;">
+                  単語単位の正規表現だけでは見抜けない「文書の骨格のクセ」は、16の構造観点の対象です。<code>detect.py</code>（<code>cues.py</code>）が文書の形状から11種類の構造キューを行番号付きで自動抽出し、エージェントの精読箇所をガイドします。
+                </p>
+                <ul class="four-tests-list">
+                  <li class="test-item"><strong>STR-01 Announced opening</strong>：「本記事では〜を解説します」やタイトルの反復で始まる第1段落を削除し、1文目から本題に入る。</li>
+                  <li class="test-item"><strong>STR-02 Closing that restates</strong>：「## まとめ」「In conclusion」で本文を繰り返す最終節を削除する。</li>
+                  <li class="test-item"><strong>STR-05 / DEN-04 Over-structuring</strong>：1つの説明を細切れにした「<code>**ラベル**: 説明</code>」箇条書きを自然な散文に戻す。</li>
+                  <li class="test-item"><strong>STR-16 Voice drift</strong>：途中で「です・ます」と常体が混ざる文体ブレや表記揺れを著者の <code>voice</code> に統一する。</li>
+                </ul>
+              </div>
+              <div>
+                <table class="diff-table" aria-label="構造パスの処置例">
+                  <thead>
+                    <tr>
+                      <th>検出される構造パターン</th>
+                      <th>自動キュー / 規則</th>
+                      <th>deslop の処置</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>## キャッシュとは？</code> / <code>## 設定のポイント</code></td>
+                      <td><span class="rule-pill tier-cue">STR-14</span> <span class="rule-pill tier-lexical">JA-17</span></td>
+                      <td>読者の疑問形を借りたSEO見出しを廃止し、対象を表す名詞見出し（<code># キャッシュ設定</code>）に統合。</td>
+                    </tr>
+                    <tr>
+                      <td><code>- **TTL**: 有効期限を設定することができます。</code><br><code>- **容量**: 上限を設定することができます。</code></td>
+                      <td><span class="rule-pill tier-density">DEN-04</span> <span class="rule-pill tier-cue">STR-05</span></td>
+                      <td>太字ラベル付き箇条書きを解き、「<code>tilecache</code> のキャッシュ設定は TTL、容量、退避方式の3項目です。」と散文で記述。</td>
+                    </tr>
+                    <tr>
+                      <td><code>## まとめ</code><br><code>いかがでしたか？(...) 参考になれば幸いです！</code></td>
+                      <td><span class="rule-pill tier-cue">STR-02</span> <span class="rule-pill tier-lexical">JA-09</span> <span class="rule-pill tier-artifact">ART-04</span></td>
+                      <td>まとめ節とチャット挨拶を削除し、新しい情報である公式ドキュメントURLの案内1文のみを残す。</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </article>
+
+          <!-- Layer 3: Wording & Density -->
+          <article class="layer-card">
+            <div class="layer-card-header">
+              <div>
+                <span class="layer-order">PASS 03 &amp; 04 · SENTENCES, WORDS &amp; DENSITY (ART / JA / EN / EMO / DEN)</span>
+                <h3 class="layer-name">3. 文・語彙・密度パス：チャット残骸とインフレ語彙を根絶する</h3>
+              </div>
+              <span class="brand-tag">reference/patterns.md</span>
+            </div>
+            <div class="layer-body">
+              <div>
+                <p style="margin-top:0; color:var(--ink-secondary); font-size:0.92rem;">
+                  Wikipedia「Signs of AI writing」、PubMed抄録の過剰語彙研究（Kobak et al. 2025 / Juzek and Ward 2025）、日本語AI文体分析に基づき整備されたルールセットで、残った文の贅肉を落とします。
+                </p>
+                <ul class="four-tests-list">
+                  <li class="test-item"><strong>Artifact (ART-01 – ART-09)</strong>：「承知しました」「Certainly!」「I hope this helps」「<code>utm_source=chatgpt.com</code>」「<code>oaicite</code>」「<code>[会社名]</code>」等のチャット残骸。引用内を除き免除不可。</li>
+                  <li class="test-item"><strong>Japanese Lexical (JA-01 – JA-33)</strong>：「〜と言っても過言ではありません」「〜することができます」「シームレス」「単なる〜ではなく」「深掘り」「〜となっております」。</li>
+                  <li class="test-item"><strong>English Lexical (EN-01 – EN-27)</strong>：<code>delve</code>, <code>tapestry</code>, <code>leverage</code>, <code>seamless</code>, <code>plays a crucial role</code>, <code>isn't just X — it's Y</code>。</li>
+                  <li class="test-item"><strong>Density (DEN-01 – DEN-10)</strong>：太字密度、ダッシュ密度、感嘆符比率、同じ文末の4連続（<code>〜できます。</code>×4）、文長の変動係数（CV &lt; 0.3）。</li>
+                </ul>
+              </div>
+              <div>
+                <table class="diff-table" aria-label="語彙・密度パスの処置例">
+                  <thead>
+                    <tr>
+                      <th>カテゴリ</th>
+                      <th>検出される表現の例</th>
+                      <th>処置の原則</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>チャット残骸</strong><br><code>ART-01..09</code></td>
+                      <td><code>Certainly! Here's a revised...</code><br><code>参考になれば幸いです</code><br><code>contentReference[oaicite:2]</code></td>
+                      <td>無条件で削除（<code>template</code> ジャンルの <code>ART-07</code> 空欄フィールド、および引用文内のみ例外）。</td>
+                    </tr>
+                    <tr>
+                      <td><strong>冗長文末・翻訳調</strong><br><code>JA-04, JA-05, JA-24</code></td>
+                      <td><code>設定することができます</code><br><code>〜という観点において</code><br><code>XはYを可能にします</code></td>
+                      <td><code>設定できます</code> / <code>設定します</code> のように主語と動詞で直接記述。</td>
+                    </tr>
+                    <tr>
+                      <td><strong>生成モデルの断り書き</strong><br><code>JA-33, EN-25</code></td>
+                      <td><code>実際の仕様は確認できていません。一般的なCLIを参考にした仮の内容です。</code></td>
+                      <td>依頼者向けの口調は直しつつ、<strong>「未確認の仮仕様である」という事実の限界は絶対に消さず</strong>平叙文で残し <code>decisions</code> に計上。</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: 6-Phase Run Contract -->
+    <section id="pipeline" class="section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-kicker">DETERMINISTIC RUN CONTRACT</span>
+          <h2 class="section-title">「AIが勝手に事実やコードを書き換える」を許さない<span class="nowrap">6フェーズ実行契約</span></h2>
+          <p class="section-desc">
+            Claude Code、Codex、Antigravity のどのエージェントから実行しても同じ品質を保証するため、<code>deslop</code> は5つの Python スクリプトで各フェーズの入出力を縛り、最後に <code>contract_check.py</code> が原本スナップショットから再計算して合否を判定します。
+          </p>
+        </div>
+
+        <div class="phase-stepper" role="tablist" aria-label="6フェーズ実行パイプライン">
+          <button type="button" role="tab" aria-selected="true" class="phase-step-btn is-active" data-phase-idx="0">
+            <span class="phase-num">01 · SNAPSHOT</span>
+            <span class="phase-title">INVENTORY</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" class="phase-step-btn" data-phase-idx="1">
+            <span class="phase-num">02 · REGISTER</span>
+            <span class="phase-title">VOICE</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" class="phase-step-btn" data-phase-idx="2">
+            <span class="phase-num">03 · SCAN</span>
+            <span class="phase-title">DETECT</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" class="phase-step-btn" data-phase-idx="3">
+            <span class="phase-num">04 · TOP-DOWN</span>
+            <span class="phase-title">REWRITE</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" class="phase-step-btn" data-phase-idx="4">
+            <span class="phase-num">05 · FACTS=OK</span>
+            <span class="phase-title">VERIFY</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" class="phase-step-btn" data-phase-idx="5">
+            <span class="phase-num">06 · CONTRACT</span>
+            <span class="phase-title">REPORT</span>
+          </button>
+        </div>
+
+        <div id="phase-detail-container" class="phase-detail-panel" aria-live="polite"></div>
+
+        <!-- 5 Fact Preservation Guarantees (preserve_check.py) -->
+        <div class="preserve-matrix" aria-label="preserve_check.py が保護する5種類の事実">
+          <div class="preserve-matrix-head">
+            <span class="preserve-badge">PRESERVE_CHECK.PY · FACT IDENTITY ENGINE</span>
+            <span>原本 (<code>original/</code>) と作業コピー間で1つでも無断の消失・追加があれば Exit 1 で差し戻す5種の事実要素</span>
+          </div>
+          <div class="preserve-cards-grid">
+            <div class="preserve-item">
+              <code>code_block</code>
+              <strong>コードブロック完全不変</strong>
+              <p>フェンス（<code>```</code> / <code>~~~</code>）やインデントコード、リスト内コードブロックを SHA-256（先頭12桁）で照合。1文字の変更も許しません。</p>
+            </div>
+            <div class="preserve-item">
+              <code>inline_code</code>
+              <strong>インラインコード・識別子</strong>
+              <p><code>`ttl_seconds`</code> や <code>`--canary-percent`</code> など、行をまたぐコードスパンや引用内の識別子の消失・捏造を検出します。</p>
+            </div>
+            <div class="preserve-item">
+              <code>number</code>
+              <strong>数値・符号・指数・全角数字</strong>
+              <p><code>-10</code> → <code>10</code> の符号脱落、<code>.5</code> → <code>5</code>、<code>10⁻³</code>、全角数字まで厳密に区別。装飾統計を削る場合は <code>preservation</code> に理由が必須です。</p>
+            </div>
+            <div class="preserve-item">
+              <code>url</code>
+              <strong>URL・リンク先・参照定義</strong>
+              <p>裸のURL、<code>&lt;https://...&gt;</code>、インラインリンク、参照定義リンク（<code>[id]: target</code>）の完全一致を検証し、勝手に短縮・改変させません。</p>
+            </div>
+            <div class="preserve-item">
+              <code>footnote</code>
+              <strong>脚注の参照と定義のペア</strong>
+              <p>本文中の脚注参照（<code>[^1]</code>）と末尾の定義（<code>[^1]: ...</code>）を別個に検査。定義だけ残して本文の出典参照を消す行為も検出します。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: 10 Genres -->
+    <section id="genres" class="section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-kicker">GENRE-AWARE DETECTION</span>
+          <h2 class="section-title">10種類の文書ジャンルを理解し、<span class="nowrap">正当な慣習を誤爆しない</span></h2>
+          <p class="section-desc">
+            APIリファレンスの太字パラメータ名、READMEのインストール手順リスト、メール末尾の <code>お気軽にお問い合わせください</code>、テンプレートの <code>[担当者名]</code> はAIスロップではなく文書の機能です。<code>--genre</code> がジャンルごとの免除規則と密度上限を自動適用します。
+          </p>
+        </div>
+
+        <div class="genre-explorer">
+          <div class="genre-selector-list" role="tablist" aria-label="文書ジャンル一覧">
+            <button type="button" class="genre-btn is-active" data-genre-id="readme"><span>README</span><code>readme</code></button>
+            <button type="button" class="genre-btn" data-genre-id="reference"><span>API / Reference</span><code>reference</code></button>
+            <button type="button" class="genre-btn" data-genre-id="article"><span>Blog / Article</span><code>article</code></button>
+            <button type="button" class="genre-btn" data-genre-id="spec"><span>Spec / RFC</span><code>spec</code></button>
+            <button type="button" class="genre-btn" data-genre-id="tutorial"><span>Tutorial</span><code>tutorial</code></button>
+            <button type="button" class="genre-btn" data-genre-id="pr"><span>PR Description</span><code>pr</code></button>
+            <button type="button" class="genre-btn" data-genre-id="message"><span>Email / Message</span><code>message</code></button>
+            <button type="button" class="genre-btn" data-genre-id="changelog"><span>Changelog</span><code>changelog</code></button>
+            <button type="button" class="genre-btn" data-genre-id="template"><span>Template</span><code>template</code></button>
+            <button type="button" class="genre-btn" data-genre-id="general"><span>General Prose</span><code>general</code></button>
+          </div>
+
+          <div id="genre-detail-card" class="genre-detail-card" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Rule & Perspective Atlas -->
+    <section id="rule-atlas" class="section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-kicker">COMPLETE RULE &amp; PERSPECTIVE ATLAS</span>
+          <h2 class="section-title">全81決定論的ルール＋24観点の<span class="nowrap">リファレンス辞典</span></h2>
+          <p class="section-desc">
+            <code>skills/deslop/scripts/rules.json</code> および <code>reference/patterns.md</code>・<code>structure.md</code>・<code>content.md</code> に定義されたすべての検査項目を検索・フィルタリングできます。
+          </p>
+        </div>
+
+        <div class="atlas-toolbar">
+          <div class="atlas-filter-tabs" role="group" aria-label="ルールカテゴリ絞り込み">
+            <button type="button" class="filter-chip is-active" data-atlas-filter="all">すべて (105)</button>
+            <button type="button" class="filter-chip" data-atlas-filter="artifact">Artifact 残骸 (9)</button>
+            <button type="button" class="filter-chip" data-atlas-filter="ja">日本語語彙 JA (33)</button>
+            <button type="button" class="filter-chip" data-atlas-filter="en">英語語彙 EN (27)</button>
+            <button type="button" class="filter-chip" data-atlas-filter="density">密度・統計・絵文字 (12)</button>
+            <button type="button" class="filter-chip" data-atlas-filter="perspective">構造・内容観点 STR/CON (24)</button>
+          </div>
+
+          <div class="atlas-search-wrap">
+            <span id="atlas-count" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--ink-muted);">105 / 105 件を表示中</span>
+            <input type="search" id="atlas-search-input" class="atlas-search" placeholder="ルールID・語彙で検索 (例: JA-04, delve, まとめ)" aria-label="ルール検索">
+          </div>
+        </div>
+
+        <div id="atlas-grid" class="atlas-grid" tabindex="0" aria-label="ルール一覧"></div>
+      </div>
+    </section>
+
+    <!-- Section 6: FAQ & Install -->
+    <section id="install" class="section">
+      <div class="container">
+        <div class="faq-install-grid">
+          <!-- Left: FAQ -->
+          <div id="faq">
+            <span class="section-kicker">TECHNICAL FAQ</span>
+            <h2 class="section-title">導入前のよくある質問</h2>
+            <div class="faq-list">
+              <details class="faq-item" open>
+                <summary>AI検出器（AI Detector）のスコアを回避するためのツールですか？</summary>
+                <div class="faq-answer">
+                  いいえ。<code>deslop</code> はAI検出器のスコアを目標とせず、スコアの報告も行いません。また、人間らしさを偽装するために意図的な誤字やスラング、不自然な改行を混ぜることも一切禁止しています。目的は「責任ある人間の著者が署名できる品質の文章にすること」であり、披露義務がある場面でのAI利用隠蔽は明確に拒否します。
+                </div>
+              </details>
+              <details class="faq-item" open>
+                <summary>書き換え中にコードブロックや設定値、URLが壊れることはありませんか？</summary>
+                <div class="faq-answer">
+                  <code>preserve_check.py</code> が原文スナップショット（<code>original/</code>）と書き換え後の文書を比較し、数値（符号・小数点・指数・全角数字を含む）、URL、Markdownリンク先、インラインコード、コードブロック、脚注のすべてを照合します。コードブロックは絶対に編集されず、数値やリンクが1つでも無断で消えたり追加されたりした場合は契約検査（<code>contract_check.py</code>）が失敗（Exit 1）します。
+                </div>
+              </details>
+              <details class="faq-item">
+                <summary>Git管理外のファイルや、コミット前の変更があるファイルを上書きしませんか？</summary>
+                <div class="faq-answer">
+                  直接上書き（in-placeモード）が既定になるのは、すべての対象ファイルが Git で追跡されており、未コミットの変更がない場合だけです。それ以外の場合や、原本を残したい場合は自動的にコピーモード（<code>snapshot.py --copy</code>）で動作し、書き換え結果は実行ディレクトリの <code>&lt;out&gt;/rewritten/</code> に出力されます。
+                </div>
+              </details>
+              <details class="faq-item">
+                <summary>ファイルを書き換えずに「どこがAIっぽいか」だけ診断できますか？</summary>
+                <div class="faq-answer">
+                  できます。エージェントに「どこがAIっぽく読めるか診断して」と尋ねれば <code>DETECT</code> フェーズの後に停止し、ファイルを一切変更せずにヒット箇所と構造所見を報告します。また、CLIから <code>make detect TARGET=docs/</code> または <code>python3 skills/deslop/scripts/detect.py docs/</code> を単体実行することも可能です。
+                </div>
+              </details>
+              <details class="faq-item">
+                <summary>動作に必要な環境や追加パッケージは何ですか？</summary>
+                <div class="faq-answer">
+                  Python 3.10 以上の標準ライブラリのみで動作します。<code>pip install</code> や <code>npm install</code> は一切不要です。そのため、<code>make link</code> でシンボリックリンクを作成するだけでどのディレクトリからでも即座に自己完結して動作します。
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <!-- Right: Install & CLI -->
+          <div>
+            <span class="section-kicker">GET STARTED IN 10 SECONDS</span>
+            <h2 class="section-title">エージェントへの導入と<span class="nowrap">単体CLI実行</span></h2>
+            <p class="section-desc" style="margin-bottom:20px;">
+              お使いのコーディングエージェントまたはCI環境を選択してコマンドをコピーしてください。インストールされていないホストは <code>make link</code> 時に自動でスキップされます。
+            </p>
+
+            <div class="install-card">
+              <div class="host-tabs" role="tablist" aria-label="導入先ホスト選択">
+                <button type="button" class="host-tab is-active" data-host-tab="all">All Hosts</button>
+                <button type="button" class="host-tab" data-host-tab="claude">Claude Code</button>
+                <button type="button" class="host-tab" data-host-tab="codex">Codex</button>
+                <button type="button" class="host-tab" data-host-tab="agy">Antigravity</button>
+                <button type="button" class="host-tab" data-host-tab="cli">Standalone CLI</button>
+              </div>
+              <div id="install-commands-body" aria-live="polite"></div>
+
+              <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--term-border); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; font-family:var(--font-mono); font-size:0.75rem; color:var(--term-muted);">
+                <span>終了コード仕様: 0 = ヒットなし / 1 = 未処理ヒットあり / 2 = 引数エラー</span>
+                <a href="#live-detector" style="color:var(--term-amber); text-decoration:none;">↑ ライブ検出器へ戻る</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong style="font-family:var(--font-mono); color:var(--ink-primary);">deslop</strong>
+        <span> — Remove every trace of machine-generated style without adding anything the document does not say.</span>
+      </div>
+      <div class="footer-links">
+        <a href="#hero">Top</a>
+        <a href="#live-detector">Detector</a>
+        <a href="#three-layers">3 Layers</a>
+        <a href="#pipeline">Run Contract</a>
+        <a href="#genres">Genres</a>
+        <a href="#rule-atlas">81 Rules</a>
+        <a href="#install">Install</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
