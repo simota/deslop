@@ -27,9 +27,12 @@ endif
 # Make's path functions split on spaces, including spaces in the checkout.
 # Remove earlier filenames until the remaining suffix names the loaded file.
 # A failed lookup must stop before an install target can create a bad link.
+# GNU Make 3.81 reads a literal '#' inside $(shell ...) as a comment, so the
+# shell's prefix-strip operator comes in through a variable.
+HASH    := \#
 REPO    := $(shell makefile=$(call shell_quote,$(MAKEFILE_LIST)); \
 	while [ ! -f "$$makefile" ]; do \
-	  makefile_tail=$${makefile#* }; \
+	  makefile_tail=$${makefile$(HASH)* }; \
 	  [ "$$makefile_tail" != "$$makefile" ] || exit 1; \
 	  makefile=$$makefile_tail; \
 	done; \
