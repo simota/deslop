@@ -14,7 +14,9 @@ import snapshot
 class SnapshotConsistentBytesTests(unittest.TestCase):
     def test_source_changes_after_read_do_not_corrupt_snapshot(self):
         with tempfile.TemporaryDirectory() as tmp:
-            base = Path(tmp)
+            # snapshot.py resolves its inputs; match that so the hook below
+            # still fires when the temp dir sits behind a symlink (macOS /tmp).
+            base = Path(tmp).resolve()
             docs = base / "docs"
             docs.mkdir()
             source = docs / "guide.md"
