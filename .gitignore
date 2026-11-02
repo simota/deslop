@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# artifacts/: keep docs, sources, final outputs and the assets stage.html loads;
+# intermediate iterations and regenerable files stay local.
+artifacts/lp/screenshots/initial/
+artifacts/lp/screenshots/iterations/
+artifacts/promo/previews/v*/
+artifacts/promo/assets/soundtrack.wav
+artifacts/promo/assets/ui-*.png
+!artifacts/promo/assets/ui-workbench.png
+!artifacts/promo/assets/ui-workbench-after.png
