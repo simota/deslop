@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>deslop — Promo Film Stage (1920x1080)</title>
+<style>
+  :root {
+    --bg-paper: #F6F3EC;
+    --bg-surface: #FDFCF9;
+    --bg-subtle: #ECE7DC;
+    --ink-primary: #141413;
+    --ink-secondary: #4A4742;
+    --ink-muted: #656058;
+    --border-hairline: #D6CFC2;
+    --border-strong: #9E9689;
+
+    --accent-redline: #B8281C;
+    --redline-fg: #9E1F14;
+    --redline-bg: #FDECE9;
+
+    --cue-fg: #7C4308;
+    --cue-bg: #FDF2DF;
+
+    --den-fg: #1E467A;
+    --den-bg: #E8F0FA;
+
+    --preserve-fg: #0F5938;
+    --preserve-bg: #E2F4EB;
+
+    --term-bg: #121211;
+    --term-surface: #1C1B19;
+    --term-text: #F2EFE9;
+    --term-muted: #A39E93;
+    --term-red: #FF8A7A;
+    --term-green: #6EE7B7;
+    --term-amber: #FCD34D;
+
+    --font-display: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', Georgia, serif;
+    --font-sans: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--bg-paper);
+    color: var(--ink-primary);
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
+  }
+
+  #stage {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--bg-paper);
+  }
+
+  .scene-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(158, 150, 137, 0.14) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(158, 150, 137, 0.14) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  /* Persistent Editorial Chrome */
+  .top-chrome {
+    position: absolute;
+    top: 24px;
+    left: 64px;
+    right: 64px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 120;
+    border-bottom: 1px solid rgba(158, 150, 137, 0.35);
+    padding-bottom: 10px;
+  }
+
+  .brand-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--ink-primary);
+    color: var(--bg-surface);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(20,20,19,0.18);
+  }
+  .brand-icon::after {
+    content: '';
+    position: absolute;
+    width: 26px;
+    height: 3px;
+    background: var(--term-red);
+    transform: rotate(-22deg);
+    border-radius: 2px;
+  }
+
+  .brand-name {
+    font-family: var(--font-mono);
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .brand-sub {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: rgba(20, 20, 19, 0.07);
+    color: var(--ink-secondary);
+    letter-spacing: 0.04em;
+  }
+
+  .chrome-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+
+  .scene-indicator {
+    padding: 4px 12px;
+    border-radius: 4px;
+    background: rgba(184, 40, 28, 0.12);
+    color: var(--accent-redline);
+    font-weight: 700;
+  }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-paper);
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  .rule-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 5px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .tag-red {
+    background: var(--accent-redline);
+    color: #FFFFFF;
+    box-shadow: 0 3px 10px rgba(184, 40, 28, 0.22);
+  }
+  .tag-amber {
+    background: var(--cue-fg);
+    color: #FFFFFF;
+  }
+  .tag-blue {
+    background: var(--den-fg);
+    color: #FFFFFF;
+  }
+  .tag-green {
+    background: var(--preserve-fg);
+    color: #FFFFFF;
+  }
+
+  .paper-card {
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-hairline);
+    border-radius: 16px;
+    box-shadow: 0 22px 54px rgba(20, 20, 19, 0.08), 0 4px 14px rgba(20, 20, 19, 0.04);
+  }
+
+  .terminal-card {
+    background: var(--term-bg);
+    color: var(--term-text);
+    border: 1.5px solid #2E2C28;
+    border-radius: 16px;
+    box-shadow: 0 26px 64px rgba(0, 0, 0, 0.36);
+  }
+
+  .strike-span {
+    position: relative;
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .strike-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 52%;
+    height: 3.5px;
+    background: var(--accent-redline);
+    border-radius: 2px;
+    transform-origin: left center;
+    transform: scaleX(0);
+  }
+
+  /* Cinematic Subtitle Pill */
+  .subtitle-bar {
+    position: absolute;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    z-index: 130;
+    padding: 8px 26px;
+    border-radius: 999px;
+    background: rgba(20, 20, 19, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #FDFCF9;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .subtitle-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--term-red);
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- Top Chrome -->
+  <div class="top-chrome" id="top-chrome">
+    <div class="brand-pill">
+      <div class="brand-icon">d</div>
+      <span class="brand-name">deslop</span>
+      <span class="brand-sub" id="chrome-sub">AGENT SKILL &amp; DETERMINISTIC PROSE LINTER · JA / EN</span>
+    </div>
+    <div class="chrome-right">
+      <span class="scene-indicator" id="chrome-phase">01 / REDLINE HOOK</span>
+      <span style="opacity:0.8;">PYTHON 3.10+ STDLIB · 0 DEPS</span>
+    </div>
+  </div>
+
+  <!-- SCENE 1: THE HOOK (0.0s - 4.5s) -->
+  <div class="scene" id="scene-1" style="z-index:10;">
+    <img src="../assets/bg-editorial-paper.jpg" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.25; filter:contrast(1.05);" />
+    <div class="scene-grid"></div>
+    <div style="position:absolute; inset:88px 64px 70px 64px; display:grid; grid-template-columns: 1.02fr 0.98fr; gap:42px; align-items:center;">
+      <!-- Left: Dramatic Editorial Hook -->
+      <div id="s1-left">
+        <div style="display:inline-flex; align-items:center; gap:10px; padding:7px 14px; border-radius:6px; background:var(--redline-bg); border:1px solid rgba(184,40,28,0.32); color:var(--redline-fg); font-family:var(--font-mono); font-size:15px; font-weight:700; margin-bottom:20px;">
+          <span>REDLINE PROOFING FOR AI-GENERATED PROSE</span>
+          <span class="rule-tag tag-red">81 RULES + 24 PERSPECTIVES</span>
+        </div>
+        <h1 style="font-family:var(--font-display); font-size:60px; line-height:1.32; font-weight:700; color:var(--ink-primary); letter-spacing:-0.02em; margin-bottom:22px;">
+          <span style="white-space:nowrap;">その技術文書、</span><br>
+          <span style="white-space:nowrap; display:inline-flex; align-items:center; gap:10px;">
+            <span style="position:relative; display:inline-block; background:var(--redline-bg); color:var(--accent-redline); padding:2px 14px 6px; border-radius:8px; border:2px solid rgba(184,40,28,0.4);">
+              AIの「水増し」
+              <span id="s1-title-strike" style="position:absolute; left:8px; right:8px; bottom:7px; height:4px; background:var(--accent-redline); border-radius:2px; transform-origin:left center;"></span>
+            </span>
+            <span style="background:var(--accent-redline); color:#fff; font-family:var(--font-mono); font-size:14px; padding:4px 10px; border-radius:5px; line-height:1.2; transform:translateY(-4px);">DEL: CON-01</span>
+            <span>が</span>
+          </span><br>
+          <span style="white-space:nowrap;">透けていませんか。</span>
+        </h1>
+        <p style="font-size:23px; line-height:1.65; color:var(--ink-secondary); font-weight:500; margin-bottom:26px;">
+          <strong style="color:var(--ink-primary); font-size:25px;">機械生成の文体を削り、書かれた事実だけを残す。</strong><br>
+          原文にない事実は1文字も足さず、数値・URL・コードブロックの生存を機械的に保証する日英対応エージェントスキル。
+        </p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <div style="padding:10px 18px; border-radius:8px; background:var(--ink-primary); color:var(--bg-surface); font-family:var(--font-mono); font-size:16px; font-weight:700;">Claude Code</div>
+          <div style="padding:10px 18px; border-radius:8px; background:var(--ink-primary); color:var(--bg-surface); font-family:var(--font-mono); font-size:16px; font-weight:700;">Codex</div>
+          <div style="padding:10px 18px; border-radius:8px; background:var(--ink-primary); color:var(--bg-surface); font-family:var(--font-mono); font-size:16px; font-weight:700;">Antigravity</div>
+          <div style="padding:10px 18px; border-radius:8px; background:var(--preserve-bg); border:1.5px solid var(--preserve-fg); color:var(--preserve-fg); font-family:var(--font-mono); font-size:16px; font-weight:700;">Standalone CLI (Exit 0/1)</div>
+        </div>
+      </div>
+
+      <!-- Right: Live Redline Strike Sheet -->
+      <div class="paper-card" id="s1-sheet" style="padding:26px 32px; position:relative; overflow:hidden;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid var(--border-hairline); padding-bottom:12px; margin-bottom:16px; font-family:var(--font-mono); font-size:15px;">
+          <span style="font-weight:700; color:var(--ink-primary);">TARGET: examples/before.ja.md</span>
+          <span style="padding:5px 12px; border-radius:6px; background:var(--redline-bg); color:var(--redline-fg); font-weight:700;">DETECT.PY : 30 HITS · 3 CUES</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:13px; font-size:19px; line-height:1.48;">
+          <!-- Row 1 -->
+          <div style="padding:12px 16px; border-radius:10px; background:#FAF7F0; border-left:4px solid var(--accent-redline);">
+            <div style="font-family:var(--font-mono); font-size:11.5px; color:var(--ink-muted); margin-bottom:3px;">LINE 01 · INFLATED TITLE &amp; DECORATIVE EMOJI</div>
+            <div>
+              <span># キャッシュ設定：パフォーマンスを</span>
+              <span class="strike-span" style="background:var(--redline-bg); color:var(--redline-fg);">
+                最大限に引き出す完全ガイド 🚀
+                <span class="strike-bar" id="s1-bar-1"></span>
+              </span>
+            </div>
+            <div id="s1-badge-1" style="margin-top:7px; display:flex; gap:8px;">
+              <span class="rule-tag tag-red">JA-06 最大限に引き出</span>
+              <span class="rule-tag tag-red">JA-14 完全ガイド</span>
+              <span class="rule-tag tag-red">EMO-01 🚀</span>
+            </div>
+          </div>
+
+          <!-- Row 2 -->
+          <div style="padding:12px 16px; border-radius:10px; background:#FAF7F0; border-left:4px solid var(--cue-fg);">
+            <div style="font-family:var(--font-mono); font-size:11.5px; color:var(--ink-muted); margin-bottom:3px;">LINE 03 &amp; 05 · ANNOUNCED OPENING &amp; QUESTION HEADING</div>
+            <div>
+              <span class="strike-span" style="background:var(--cue-bg); color:var(--cue-fg);">
+                本記事では詳しく解説します。 / ## キャッシュとは？
+                <span class="strike-bar" id="s1-bar-2"></span>
+              </span>
+            </div>
+            <div id="s1-badge-2" style="margin-top:7px; display:flex; gap:8px;">
+              <span class="rule-tag tag-red">JA-08 本記事では</span>
+              <span class="rule-tag tag-amber">STR-01 予告開幕</span>
+              <span class="rule-tag tag-amber">STR-14 疑問形見出し</span>
+            </div>
+          </div>
+
+          <!-- Row 3 -->
+          <div style="padding:12px 16px; border-radius:10px; background:#FAF7F0; border-left:4px solid var(--den-fg);">
+            <div style="font-family:var(--font-mono); font-size:11.5px; color:var(--ink-muted); margin-bottom:3px;">LINE 07 · UNSOURCED STATISTIC &amp; EMPTY PUFFERY</div>
+            <div>
+              <span class="strike-span" style="background:var(--redline-bg); color:var(--redline-fg);">
+                約30%が改善を実感していると言われています…過言ではありません。
+                <span class="strike-bar" id="s1-bar-3"></span>
+              </span>
+            </div>
+            <div id="s1-badge-3" style="margin-top:7px; display:flex; gap:8px;">
+              <span class="rule-tag tag-blue">CNT-01 無出典統計 (30%)</span>
+              <span class="rule-tag tag-red">JA-31 と言われています</span>
+              <span class="rule-tag tag-red">JA-02 過言ではありません</span>
+            </div>
+          </div>
+
+          <!-- Row 4 -->
+          <div style="padding:12px 16px; border-radius:10px; background:#FAF7F0; border-left:4px solid var(--accent-redline);">
+            <div style="font-family:var(--font-mono); font-size:11.5px; color:var(--ink-muted); margin-bottom:3px;">LINE 27 &amp; 29 · RESTATING SUMMARY &amp; CHAT ARTIFACT</div>
+            <div>
+              <span class="strike-span" style="background:var(--redline-bg); color:var(--redline-fg);">
+                ## まとめ　いかがでしたか？…参考になれば幸いです！
+                <span class="strike-bar" id="s1-bar-4"></span>
+              </span>
+            </div>
+            <div id="s1-badge-4" style="margin-top:7px; display:flex; gap:8px;">
+              <span class="rule-tag tag-red">JA-09 ## まとめ</span>
+              <span class="rule-tag tag-amber">STR-02 反復まとめ</span>
+              <span class="rule-tag tag-red">ART-04 チャット挨拶残骸</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 2: THE PROBLEM & CONTRAST (4.5s - 9.5s) -->
+  <div class="scene" id="scene-2" style="z-index:20;">
+    <div class="scene-grid"></div>
+    <div style="position:absolute; inset:88px 64px 70px 64px; display:flex; flex-direction:column; justify-content:space-between;">
+      <div style="text-align:center; max-width:1460px; margin:0 auto;">
+        <div style="font-family:var(--font-mono); font-size:14.5px; font-weight:700; color:var(--accent-redline); letter-spacing:0.08em; margin-bottom:6px;">WHY "MAKE IT SOUND HUMAN" FAILS</div>
+        <h2 style="font-family:var(--font-display); font-size:48px; font-weight:700; line-height:1.24; color:var(--ink-primary);">
+          <span style="white-space:nowrap;">「AIっぽさを消して」と頼むだけでは、</span><br>
+          <span style="white-space:nowrap;">別のAI語彙に置き換わり、大切な事実まで壊れる。</span>
+        </h2>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:36px; align-items:stretch; height:640px;">
+        <!-- Left Card -->
+        <div class="paper-card" id="s2-card-left" style="padding:32px 34px; border-top:6px solid var(--accent-redline); display:flex; flex-direction:column; justify-content:space-between; background:#FFFDFB;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <span style="font-family:var(--font-mono); font-size:15px; font-weight:700; color:var(--redline-fg); background:var(--redline-bg); padding:6px 14px; border-radius:6px;">✕ 従来の口頭指示・AI言い換えツール</span>
+              <span style="font-family:var(--font-mono); font-size:13.5px; color:var(--ink-muted);">SYNONYM SWAP &amp; FACT DRIFT</span>
+            </div>
+            <h3 style="font-size:28px; font-weight:700; margin-bottom:14px; color:var(--ink-primary);">1. 類語へのすり替えで「水増し構造」が残る</h3>
+            <div style="padding:15px 18px; border-radius:10px; background:#F8F4EC; border:1px solid var(--border-hairline); font-family:var(--font-mono); font-size:18.5px; line-height:1.68; margin-bottom:20px;">
+              <div>「<span style="color:var(--redline-fg); text-decoration:line-through;">重要な役割</span>」 → 「<span style="color:var(--cue-fg); font-weight:700;">肝心な役割</span>」 <span style="font-size:14px; color:var(--redline-fg);">(情報量ゼロのまま)</span></div>
+              <div>「<span style="color:var(--redline-fg); text-decoration:line-through;">leverage</span>」 &nbsp;&nbsp;&nbsp;→ 「<span style="color:var(--cue-fg); font-weight:700;">utilize</span>」 &nbsp;&nbsp;&nbsp;<span style="font-size:14px; color:var(--redline-fg);">(インフレ語彙の連鎖)</span></div>
+            </div>
+
+            <h3 style="font-size:28px; font-weight:700; margin-bottom:14px; color:var(--ink-primary);">2. 設定値・URL・コードを無断で改変・削除</h3>
+            <div style="padding:15px 18px; border-radius:10px; background:var(--redline-bg); border:1.5px dashed var(--accent-redline); font-family:var(--font-mono); font-size:17.5px; line-height:1.65; color:var(--redline-fg);">
+              <div>- 既定値 <code>ttl_seconds = 300</code> を勝手に「数分間」へ丸める</div>
+              <div>- コードブロック内の識別子やリンク先 URL を無断改変</div>
+              <div>- 人間らしさを偽装するため故意に誤字やスラングを混入</div>
+            </div>
+          </div>
+
+          <div style="padding:13px 18px; border-radius:8px; background:#2A1210; color:#FFABA0; font-family:var(--font-mono); font-size:15.5px; display:flex; justify-content:space-between; align-items:center;">
+            <span>STATUS: UNVERIFIED REWRITE</span>
+            <strong>FACT LOSS DETECTED (EXIT 1)</strong>
+          </div>
+        </div>
+
+        <!-- Right Card -->
+        <div class="paper-card" id="s2-card-right" style="padding:32px 34px; border-top:6px solid var(--preserve-fg); display:flex; flex-direction:column; justify-content:space-between; background:var(--bg-surface);">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <span style="font-family:var(--font-mono); font-size:15px; font-weight:700; color:var(--preserve-fg); background:var(--preserve-bg); padding:6px 14px; border-radius:6px;">✓ deslop（決定論的検査 × 実行契約）</span>
+              <span style="font-family:var(--font-mono); font-size:13.5px; color:var(--preserve-fg); font-weight:700;">DELETE FIRST · PRESERVE FACTS</span>
+            </div>
+            <h3 style="font-size:28px; font-weight:700; margin-bottom:14px; color:var(--ink-primary);">1. 言い換えではなく「削除ファースト」</h3>
+            <div style="padding:15px 18px; border-radius:10px; background:var(--preserve-bg); border:1px solid rgba(15,89,56,0.28); font-size:18.5px; line-height:1.68; margin-bottom:20px; color:var(--ink-primary);">
+              <div>・読者に新しい情報を与えない文（<code>CON-01</code>）は<strong>全文削除</strong></div>
+              <div>・予告開幕（<code>STR-01</code>）や反復まとめ（<code>STR-02</code>）を解体し本題へ直結</div>
+            </div>
+
+            <h3 style="font-size:28px; font-weight:700; margin-bottom:14px; color:var(--ink-primary);">2. 原本スナップショットと5種の事実保存検査</h3>
+            <div style="padding:15px 18px; border-radius:10px; background:#F4F7F5; border:1.5px solid var(--preserve-fg); font-family:var(--font-mono); font-size:17px; line-height:1.65; color:var(--ink-primary);">
+              <div>✓ <code>code_block</code> (SHA-256完全一致・編集絶対禁止)</div>
+              <div>✓ <code>inline_code</code> / <code>number</code> (符号・指数・全角数字まで照合)</div>
+              <div>✓ <code>url</code> (リンク先完全保持) / <code>footnote</code> (参照と定義の対)</div>
+            </div>
+          </div>
+
+          <div style="padding:13px 18px; border-radius:8px; background:var(--preserve-fg); color:#FFFFFF; font-family:var(--font-mono); font-size:15.5px; display:flex; justify-content:space-between; align-items:center;">
+            <span>preserve_check.py &amp; contract_check.py</span>
+            <strong>EXIT 0 · CONTRACT OK</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 3: LIVE REDLINE TRANSFORMATION (9.5s - 17.5s) -->
+  <div class="scene" id="scene-3" style="z-index:30;">
+    <div class="scene-grid"></div>
+    <div style="position:absolute; inset:88px 64px 70px 64px; display:grid; grid-template-columns: 1.12fr 0.88fr; gap:34px; align-items:stretch;">
+      <!-- Left: Proof Sheet Morphing (Two-stage Collapse -> Expand, zero mid-frame ghosting!) -->
+      <div class="paper-card" style="padding:26px 30px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1.5px solid var(--border-hairline); margin-bottom:14px;">
+            <div>
+              <span style="font-family:var(--font-mono); font-size:12.5px; color:var(--ink-muted); display:block;">ACTUAL REPOSITORY FIXTURE</span>
+              <strong style="font-family:var(--font-mono); font-size:22px; color:var(--ink-primary);">examples/before.ja.md → after.ja.md</strong>
+            </div>
+            <div id="s3-mode-pill" style="padding:6px 14px; border-radius:8px; font-family:var(--font-mono); font-size:15px; font-weight:700; background:var(--redline-bg); color:var(--redline-fg);">
+              DETECT.PY : 30 HITS FOUND
+            </div>
+          </div>
+
+          <!-- Stats Bar -->
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; padding:12px 16px; border-radius:10px; background:var(--bg-subtle); margin-bottom:16px; font-family:var(--font-mono);">
+            <div>
+              <div style="font-size:12px; color:var(--ink-muted);">OPEN RULE HITS</div>
+              <div id="s3-stat-hits" style="font-size:25px; font-weight:700; color:var(--accent-redline);">30 hits (3 cues)</div>
+            </div>
+            <div>
+              <div style="font-size:12px; color:var(--ink-muted);">PROSE CHARACTERS</div>
+              <div id="s3-stat-chars" style="font-size:25px; font-weight:700; color:var(--ink-primary);">396 文字</div>
+            </div>
+            <div>
+              <div style="font-size:12px; color:var(--ink-muted);">PRESERVED FACTS</div>
+              <div style="font-size:20px; font-weight:700; color:var(--preserve-fg);">数値2 · URL1 · TOML1</div>
+            </div>
+          </div>
+
+          <div style="position:relative; height:570px;">
+            <!-- BEFORE / REDLINE VIEW -->
+            <div id="s3-before-box" style="position:absolute; inset:0; font-size:17.5px; line-height:1.55; display:flex; flex-direction:column; gap:9px;">
+              <div class="s3-cut-row" style="padding:9px 14px; border-radius:8px; background:var(--redline-bg); color:var(--redline-fg); border-left:4px solid var(--accent-redline);">
+                <strong># キャッシュ設定ガイド：<span style="text-decoration:line-through;">パフォーマンスを最大限に引き出す完全ガイド 🚀</span></strong>
+                <span class="rule-tag tag-red" style="margin-left:8px;">JA-06 / JA-14 / EMO-01</span>
+              </div>
+              <div class="s3-cut-row" style="padding:9px 14px; border-radius:8px; background:var(--cue-bg); color:var(--cue-fg); text-decoration:line-through; border-left:4px solid var(--cue-fg);">
+                本記事では、`tilecache` のキャッシュ設定について詳しく解説します。
+                <span class="rule-tag tag-amber" style="margin-left:8px;">STR-01 予告開幕 / JA-08</span>
+              </div>
+              <div class="s3-cut-row" style="padding:9px 14px; border-radius:8px; background:var(--redline-bg); color:var(--redline-fg); text-decoration:line-through; border-left:4px solid var(--accent-redline);">
+                ## キャッシュとは？ 現代のWebにおいて重要な役割…約30%が実感していると言われています…過言ではありません。
+                <span class="rule-tag tag-blue" style="margin-left:8px;">CNT-01 無出典統計 / JA-02</span>
+              </div>
+              <div class="s3-cut-row" style="padding:9px 14px; border-radius:8px; background:var(--den-bg); color:var(--den-fg); border-left:4px solid var(--den-fg);">
+                ## 設定のポイント（<strong>- **TTL**: 設定することができます ×3連続</strong>）
+                <span class="rule-tag tag-blue" style="margin-left:8px;">DEN-04 太字箇条書き / JA-04</span>
+              </div>
+              <div id="s3-kept-core" style="padding:13px 16px; border-radius:10px; background:var(--preserve-bg); border:2px solid var(--preserve-fg); color:var(--ink-primary); font-weight:600;">
+                TTL は <code style="background:#fff; padding:2px 6px; border-radius:4px;">`ttl_seconds`</code>（既定値 <strong>300</strong> 秒）、容量は <code style="background:#fff; padding:2px 6px; border-radius:4px;">`max_entries`</code>（既定値 <strong>10000</strong> 件）で指定 + <code>[cache]</code> TOML + 公式URL
+                <span class="rule-tag tag-green" style="margin-left:8px;">PRESERVED FACTS (LOCKED)</span>
+              </div>
+              <div class="s3-cut-row" style="padding:9px 14px; border-radius:8px; background:var(--redline-bg); color:var(--redline-fg); text-decoration:line-through; border-left:4px solid var(--accent-redline);">
+                ## まとめ いかがでしたか？飛躍的に向上させることが期待されます…参考になれば幸いです！
+                <span class="rule-tag tag-red" style="margin-left:8px;">STR-02 / JA-09 / ART-04</span>
+              </div>
+            </div>
+
+            <!-- AFTER CRYSTALLIZED VIEW -->
+            <div id="s3-after-box" style="position:absolute; inset:0; padding:22px 26px; border-radius:14px; background:var(--preserve-bg); border:2.5px solid var(--preserve-fg); display:flex; flex-direction:column; justify-content:space-between; opacity:0;">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                  <span class="rule-tag tag-green" style="font-size:14.5px; padding:6px 14px;">✓ REWRITTEN: examples/after.ja.md (105 CHARS · −73%)</span>
+                  <span style="font-family:var(--font-mono); font-size:14.5px; font-weight:700; color:var(--preserve-fg);">0 OPEN HITS · PRESERVE OK</span>
+                </div>
+                <div style="background:#FFFFFF; border:1px solid rgba(15,89,56,0.25); border-radius:10px; padding:20px 24px; font-size:20.5px; line-height:1.7; color:var(--ink-primary);">
+                  <div style="font-size:25px; font-weight:700; margin-bottom:10px;"># キャッシュ設定</div>
+                  <p style="margin-bottom:14px;">
+                    <code style="background:var(--preserve-bg); color:var(--preserve-fg); padding:2px 8px; border-radius:4px; font-family:var(--font-mono);">`tilecache`</code> のキャッシュ設定は TTL、容量、退避方式の3項目です。TTL は <code style="background:var(--preserve-bg); color:var(--preserve-fg); padding:2px 8px; border-radius:4px; font-family:var(--font-mono);">`ttl_seconds`</code> で指定し、既定値は <strong style="background:var(--preserve-bg); color:var(--preserve-fg); padding:2px 8px; border-radius:4px;">300</strong> 秒です。容量は <code style="background:var(--preserve-bg); color:var(--preserve-fg); padding:2px 8px; border-radius:4px; font-family:var(--font-mono);">`max_entries`</code> で指定し、既定値は <strong style="background:var(--preserve-bg); color:var(--preserve-fg); padding:2px 8px; border-radius:4px;">10000</strong> 件です。
+                  </p>
+                  <pre style="background:#141413; color:#F2EFE9; padding:12px 18px; border-radius:8px; font-family:var(--font-mono); font-size:17px; line-height:1.45; margin-bottom:12px;">[cache]
+ttl_seconds = 300
+max_entries = 10000</pre>
+                  <p style="font-size:19px;">
+                    詳細は <code style="background:var(--preserve-bg); color:var(--preserve-fg); padding:2px 8px; border-radius:4px; font-family:var(--font-mono);">https://example.com/tilecache/docs</code> を参照してください。
+                  </p>
+                </div>
+              </div>
+              <div style="font-family:var(--font-mono); font-size:14.5px; color:var(--preserve-fg); font-weight:700; display:flex; justify-content:space-between;">
+                <span>✓ コードブロック SHA-256 一致</span>
+                <span>✓ 数値 (300, 10000) 保存</span>
+                <span>✓ 装飾統計 (30%) 削除理由記録済</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Product Workbench UI (Uncropped contain fit!) + Live Terminal -->
+      <div style="display:flex; flex-direction:column; gap:18px; justify-content:space-between;">
+        <div class="paper-card" style="padding:14px 18px; overflow:hidden;">
+          <div style="font-family:var(--font-mono); font-size:13px; color:var(--ink-muted); margin-bottom:8px; display:flex; justify-content:space-between;">
+            <span>LIVE DETECTOR WORKBENCH (site/index.html)</span>
+            <span style="color:var(--preserve-fg); font-weight:700;">INTERACTIVE WEB UI</span>
+          </div>
+          <div style="position:relative; overflow:hidden; border-radius:10px; border:1px solid var(--border-hairline); height:370px; background:#FDFCF9; display:flex; align-items:flex-start; justify-content:center;">
+            <img id="s3-ui-before" src="../assets/ui-workbench.png" alt="Live Detector Workbench Before" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:top center;" />
+            <img id="s3-ui-after" src="../assets/ui-workbench-after.png" alt="Live Detector Workbench After" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:top center; opacity:0;" />
+            <div id="s3-scanline" style="position:absolute; left:0; right:0; height:3px; background:linear-gradient(90deg, transparent, var(--accent-redline), transparent); box-shadow:0 0 12px var(--accent-redline);"></div>
+          </div>
+        </div>
+
+        <div class="terminal-card" style="padding:20px 24px; flex:1; font-family:var(--font-mono); font-size:14.5px; line-height:1.6; display:flex; flex-direction:column; justify-content:space-between;">
+          <div style="color:var(--term-muted); border-bottom:1px solid #2E2C28; padding-bottom:8px; display:flex; justify-content:space-between;">
+            <span>$ python3 skills/deslop/scripts/detect.py examples/before.ja.md</span>
+            <span id="s3-term-badge" style="color:var(--term-red); font-weight:700;">EXIT 1 → EXIT 0</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:3.5px; margin:6px 0;">
+            <div style="color:var(--term-red);">before.ja.md:1:22  JA-06  最大限に引き出</div>
+            <div style="color:var(--term-red);">before.ja.md:1:36  EMO-01 🚀</div>
+            <div style="color:var(--term-red);">before.ja.md:7:65  CNT-01 30% (unsourced statistic)</div>
+            <div style="color:var(--term-red);">before.ja.md:7:161 JA-02  と言っても過言ではありません</div>
+            <div style="color:var(--term-red);">before.ja.md:29:1  ART-04 いかがでしたか / 参考になれば幸いです</div>
+            <div style="color:var(--term-amber);">before.ja.md:3     STR-01 cue: announced opening</div>
+            <div style="color:var(--term-amber);">before.ja.md:5     STR-14 cue: reader's question heading</div>
+          </div>
+          <div id="s3-term-footer" style="padding:9px 14px; border-radius:8px; background:rgba(110,231,183,0.14); border:1.5px solid rgba(110,231,183,0.4); color:var(--term-green); font-weight:700; display:flex; justify-content:space-between;">
+            <span>✓ after.ja.md: 0 hits, 0 open</span>
+            <span>✓ preserve_check &amp; contract_check: OK</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 4: 3 LAYERS & 10 GENRES (17.5s - 25.0s) -->
+  <div class="scene" id="scene-4" style="z-index:40;">
+    <div class="scene-grid"></div>
+    <div style="position:absolute; inset:86px 64px 82px 64px; display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div style="font-family:var(--font-mono); font-size:14.5px; font-weight:700; color:var(--accent-redline); letter-spacing:0.08em; margin-bottom:6px;">TOP-DOWN REWRITE ARCHITECTURE &amp; GENRE TUNING</div>
+        <h2 style="font-family:var(--font-display); font-size:46px; font-weight:700; color:var(--ink-primary); white-space:nowrap;">
+          単語の前に「内容と構造」を問う。10種の文書ジャンルも理解する。
+        </h2>
+      </div>
+
+      <!-- 3 Layers Horizontal Flow -->
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:26px;">
+        <div class="paper-card" id="s4-layer-1" style="padding:24px 26px; border-top:5px solid var(--accent-redline);">
+          <div style="font-family:var(--font-mono); font-size:14px; font-weight:700; color:var(--accent-redline); margin-bottom:8px;">PASS 01 · CONTENT (CON-01..08)</div>
+          <h3 style="font-size:25px; font-weight:700; margin-bottom:10px;">1. 内容パス（4つのテスト）</h3>
+          <p style="font-size:17px; color:var(--ink-secondary); line-height:1.6; margin-bottom:14px;">
+            <strong>Information / Substitution / Reader / Support</strong> の4テストを実施。別製品に置き換えても成り立つ空疎な文や無出典の装飾統計を<strong>言い換えず削除</strong>。
+          </p>
+          <div style="font-family:var(--font-mono); font-size:14px; padding:9px 12px; border-radius:6px; background:var(--redline-bg); color:var(--redline-fg); font-weight:700;">
+            例: 「重要な役割を果たしています」→ 全文削除
+          </div>
+        </div>
+
+        <div class="paper-card" id="s4-layer-2" style="padding:24px 26px; border-top:5px solid var(--cue-fg);">
+          <div style="font-family:var(--font-mono); font-size:14px; font-weight:700; color:var(--cue-fg); margin-bottom:8px;">PASS 02 · STRUCTURE (STR-01..16)</div>
+          <h3 style="font-size:25px; font-weight:700; margin-bottom:10px;">2. 構造パス（16観点＋自動キュー）</h3>
+          <p style="font-size:17px; color:var(--ink-secondary); line-height:1.6; margin-bottom:14px;">
+            <code>cues.py</code> が11種の構造キューを行番号付きで自動抽出。予告開幕、反復まとめ、機械的な3項目リストを解体し散文へ。
+          </p>
+          <div style="font-family:var(--font-mono); font-size:14px; padding:9px 12px; border-radius:6px; background:var(--cue-bg); color:var(--cue-fg); font-weight:700;">
+            例: 「## キャッシュとは？」「## まとめ」→ 解体・統合
+          </div>
+        </div>
+
+        <div class="paper-card" id="s4-layer-3" style="padding:24px 26px; border-top:5px solid var(--den-fg);">
+          <div style="font-family:var(--font-mono); font-size:14px; font-weight:700; color:var(--den-fg); margin-bottom:8px;">PASS 03 · WORDING &amp; DENSITY (81 RULES)</div>
+          <h3 style="font-size:25px; font-weight:700; margin-bottom:10px;">3. 語彙・密度パス（日英81規則）</h3>
+          <p style="font-size:17px; color:var(--ink-secondary); line-height:1.6; margin-bottom:14px;">
+            Wikipedia「Signs of AI writing」、PubMed抄録研究、日本語AI文体分析に基づく語彙・チャット残骸・太字/ダッシュ密度・文末連続を解消。
+          </p>
+          <div style="font-family:var(--font-mono); font-size:14px; padding:9px 12px; border-radius:6px; background:var(--den-bg); color:var(--den-fg); font-weight:700;">
+            例: 「設定することができます」→「設定します」
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom: 10 Genres Matrix Bar -->
+      <div class="paper-card" id="s4-genre-box" style="padding:22px 28px; background:#FAF8F3;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div>
+            <span style="font-family:var(--font-mono); font-size:13.5px; font-weight:700; color:var(--preserve-fg);">GENRE-AWARE EXEMPTIONS (--genre)</span>
+            <h3 style="font-size:23px; font-weight:700; color:var(--ink-primary);">10種類の文書ジャンルに応じ、正当な記述慣習を自動免除・密度閾値を調整</h3>
+          </div>
+          <code style="font-family:var(--font-mono); font-size:15.5px; background:var(--ink-primary); color:#fff; padding:7px 14px; border-radius:6px;">--genre docs/api.md=reference</code>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:12px;">
+          <div class="genre-pill" style="padding:11px 14px; border-radius:8px; background:#fff; border:1.5px solid var(--border-hairline); font-family:var(--font-mono);">
+            <strong style="font-size:16.5px; display:block;">readme</strong>
+            <span style="font-size:13px; color:var(--ink-secondary);">導入手順・箇条書き許容</span>
+          </div>
+          <div class="genre-pill" style="padding:11px 14px; border-radius:8px; background:#fff; border:1.5px solid var(--border-hairline); font-family:var(--font-mono);">
+            <strong style="font-size:16.5px; display:block;">reference</strong>
+            <span style="font-size:13px; color:var(--ink-secondary);">太字引数 DEN-01/04 免除</span>
+          </div>
+          <div class="genre-pill" style="padding:11px 14px; border-radius:8px; background:#fff; border:1.5px solid var(--border-hairline); font-family:var(--font-mono);">
+            <strong style="font-size:16.5px; display:block;">spec</strong>
+            <span style="font-size:13px; color:var(--ink-secondary);">RFC / 要件番号リスト許容</span>
+          </div>
+          <div class="genre-pill" style="padding:11px 14px; border-radius:8px; background:#fff; border:1.5px solid var(--border-hairline); font-family:var(--font-mono);">
+            <strong style="font-size:16.5px; display:block;">article</strong>
+            <span style="font-size:13px; color:var(--ink-secondary);">見出し・箇条書き厳格化</span>
+          </div>
+          <div class="genre-pill" style="padding:11px 14px; border-radius:8px; background:#fff; border:1.5px solid var(--border-hairline); font-family:var(--font-mono);">
+            <strong style="font-size:16.5px; display:block;">tutorial</strong>
+            <span style="font-size:13px; color:var(--ink-secondary);">手順・確認ステップ保持</span>
+          </div>
+          <div class="genre-pill" style="padding:11px 14px; border-radius:8px; background:#fff; border:1.5px solid var(--border-hairline); font-family:var(--font-mono);">
+            <strong style="font-size:16.5px; display:block;">pr</strong>
+            <span style="font-size:13px; color:var(--ink-secondary);">変更理由・テスト項目保持</span>
+          </div>
+          <div class="genre-pill" style="padding:11px 14px; border-radius:8px; background:#fff; border:1.5px solid var(--border-hairline); font-family:var(--font-mono);">
+            <strong style="font-size:16.5px; display:block;">message</strong>
+            <span style="font-size:13px; color:var(--ink-secondary);">返信案内 JA-21/EN-20 免除</span>
+          </div>
+          <div class="genre-pill" style="padding:11px 14px; border-radius:8px; background:#fff; border:1.5px solid var(--border-hairline); font-family:var(--font-mono);">
+            <strong style="font-size:16.5px; display:block;">changelog</strong>
+            <span style="font-size:13px; color:var(--ink-secondary);">変更履歴リスト構造免除</span>
+          </div>
+          <div class="genre-pill" style="padding:11px 14px; border-radius:8px; background:#fff; border:1.5px solid var(--border-hairline); font-family:var(--font-mono);">
+            <strong style="font-size:16.5px; display:block;">template</strong>
+            <span style="font-size:13px; color:var(--ink-secondary);">空欄フィールド ART-07 免除</span>
+          </div>
+          <div class="genre-pill" style="padding:11px 14px; border-radius:8px; background:#fff; border:1.5px solid var(--border-hairline); font-family:var(--font-mono);">
+            <strong style="font-size:16.5px; display:block;">general</strong>
+            <span style="font-size:13px; color:var(--ink-secondary);">標準散文向けの厳密検査</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 5: CLIMAX — 6-PHASE RUN CONTRACT & FACT PRESERVATION (25.0s - 32.5s) -->
+  <div class="scene" id="scene-5" style="z-index:50; background:var(--term-bg); color:var(--term-text);">
+    <img src="../assets/bg-redline-abstract.jpg" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.35;" />
+    <div style="position:absolute; inset:84px 64px 84px 64px; display:flex; flex-direction:column; justify-content:space-between; z-index:5;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:24px;">
+        <div>
+          <div style="font-family:var(--font-mono); font-size:14.5px; font-weight:700; color:var(--term-green); letter-spacing:0.08em; margin-bottom:6px;">DETERMINISTIC VERIFICATION PIPELINE</div>
+          <h2 style="font-family:var(--font-display); font-size:44px; font-weight:700; color:#FFFFFF; line-height:1.2; white-space:nowrap;">
+            事実は一文字も捏造しない。コードは一行も壊さない。
+          </h2>
+        </div>
+        <div id="s5-contract-stamp" style="padding:11px 20px; border-radius:10px; background:rgba(110, 231, 183, 0.16); border:2px solid var(--term-green); color:var(--term-green); font-family:var(--font-mono); font-size:18.5px; font-weight:700; white-space:nowrap;">
+          ✓ contract_check.py : EXIT 0 (contract ok)
+        </div>
+      </div>
+
+      <!-- 6-Phase Pipeline Stepper -->
+      <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:15px;">
+        <div class="s5-phase" style="padding:16px 18px; border-radius:12px; background:rgba(28,27,25,0.92); border:1.5px solid #3A3732; font-family:var(--font-mono);">
+          <div style="font-size:12.5px; color:var(--term-amber);">PHASE 01</div>
+          <div style="font-size:21px; font-weight:700; margin:4px 0;">INVENTORY</div>
+          <div style="font-size:12.5px; color:var(--term-muted); white-space:nowrap;">SHA-256 スナップショット</div>
+        </div>
+        <div class="s5-phase" style="padding:16px 18px; border-radius:12px; background:rgba(28,27,25,0.92); border:1.5px solid #3A3732; font-family:var(--font-mono);">
+          <div style="font-size:12.5px; color:var(--term-amber);">PHASE 02</div>
+          <div style="font-size:21px; font-weight:700; margin:4px 0;">VOICE</div>
+          <div style="font-size:12.5px; color:var(--term-muted); white-space:nowrap;">著者の文体・用語を固定</div>
+        </div>
+        <div class="s5-phase" style="padding:16px 18px; border-radius:12px; background:rgba(28,27,25,0.92); border:1.5px solid #3A3732; font-family:var(--font-mono);">
+          <div style="font-size:12.5px; color:var(--term-red);">PHASE 03</div>
+          <div style="font-size:21px; font-weight:700; margin:4px 0;">DETECT</div>
+          <div style="font-size:12.5px; color:var(--term-muted); white-space:nowrap;">81規則＋24観点スキャン</div>
+        </div>
+        <div class="s5-phase" style="padding:16px 18px; border-radius:12px; background:rgba(28,27,25,0.92); border:1.5px solid #3A3732; font-family:var(--font-mono);">
+          <div style="font-size:12.5px; color:var(--term-amber);">PHASE 04</div>
+          <div style="font-size:21px; font-weight:700; margin:4px 0;">REWRITE</div>
+          <div style="font-size:12.5px; color:var(--term-muted); white-space:nowrap;">内容→構造→文→語彙</div>
+        </div>
+        <div class="s5-phase" style="padding:16px 18px; border-radius:12px; background:rgba(28,27,25,0.92); border:1.5px solid #3A3732; font-family:var(--font-mono);">
+          <div style="font-size:12.5px; color:var(--term-green);">PHASE 05</div>
+          <div style="font-size:21px; font-weight:700; margin:4px 0;">VERIFY</div>
+          <div style="font-size:12.5px; color:var(--term-muted); white-space:nowrap;">残存0・事実保存・通読</div>
+        </div>
+        <div class="s5-phase" style="padding:16px 18px; border-radius:12px; background:rgba(28,27,25,0.92); border:1.5px solid #3A3732; font-family:var(--font-mono);">
+          <div style="font-size:12.5px; color:var(--term-green);">PHASE 06</div>
+          <div style="font-size:21px; font-weight:700; margin:4px 0;">REPORT</div>
+          <div style="font-size:12.5px; color:var(--term-muted); white-space:nowrap;">contract_check 完全検証</div>
+        </div>
+      </div>
+
+      <!-- 5 Fact Preservation Shields -->
+      <div style="background:rgba(28,27,25,0.94); border:1.5px solid #3A3732; border-radius:16px; padding:22px 28px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; font-family:var(--font-mono);">
+          <span style="color:var(--term-green); font-size:16px; font-weight:700;">PRESERVE_CHECK.PY · 5 FACT IDENTITY SHIELDS</span>
+          <span style="color:var(--term-muted); font-size:14px;">原本 (original/) と作業コピー間で1つでも無断の変更があれば Exit 1 で差し戻し</span>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:15px;">
+          <div class="s5-shield" style="padding:16px; border-radius:12px; background:#141413; border:1.5px solid #2E2C28;">
+            <code style="font-family:var(--font-mono); font-size:17px; color:var(--term-green); font-weight:700;">1. code_block</code>
+            <div style="font-size:17.5px; font-weight:700; margin:6px 0 5px;">コードブロック不変</div>
+            <div style="font-size:13.5px; color:var(--term-muted); line-height:1.55;">SHA-256（先頭12桁）で照合。<br>1文字の編集も許しません。</div>
+          </div>
+          <div class="s5-shield" style="padding:16px; border-radius:12px; background:#141413; border:1.5px solid #2E2C28;">
+            <code style="font-family:var(--font-mono); font-size:17px; color:var(--term-green); font-weight:700;">2. inline_code</code>
+            <div style="font-size:17.5px; font-weight:700; margin:6px 0 5px;">インライン識別子</div>
+            <div style="font-size:13.5px; color:var(--term-muted); line-height:1.55;"><code>`ttl_seconds`</code> 等の設定名や<br>識別子の消失を完全防止。</div>
+          </div>
+          <div class="s5-shield" style="padding:16px; border-radius:12px; background:#141413; border:1.5px solid #2E2C28;">
+            <code style="font-family:var(--font-mono); font-size:17px; color:var(--term-green); font-weight:700;">3. number</code>
+            <div style="font-size:17.5px; font-weight:700; margin:6px 0 5px;">数値・符号・指数</div>
+            <div style="font-size:13.5px; color:var(--term-muted); line-height:1.55;"><code>-10</code>、<code>10⁻³</code>、全角数字まで<br>厳密に区別し捏造を阻止。</div>
+          </div>
+          <div class="s5-shield" style="padding:16px; border-radius:12px; background:#141413; border:1.5px solid #2E2C28;">
+            <code style="font-family:var(--font-mono); font-size:17px; color:var(--term-green); font-weight:700;">4. url</code>
+            <div style="font-size:17.5px; font-weight:700; margin:6px 0 5px;">URL・リンク定義</div>
+            <div style="font-size:13.5px; color:var(--term-muted); line-height:1.55;">インライン・参照定義の<br>リンク先URLを完全保持。</div>
+          </div>
+          <div class="s5-shield" style="padding:16px; border-radius:12px; background:#141413; border:1.5px solid #2E2C28;">
+            <code style="font-family:var(--font-mono); font-size:17px; color:var(--term-green); font-weight:700;">5. footnote</code>
+            <div style="font-size:17.5px; font-weight:700; margin:6px 0 5px;">脚注の参照と定義</div>
+            <div style="font-size:13.5px; color:var(--term-muted); line-height:1.55;">本文の <code>[^1]</code> と末尾定義を<br>対で検証し出典脱落を阻止。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 Quantitative Proof Strip -->
+      <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:16px; font-family:var(--font-mono);">
+        <div style="padding:14px 20px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);">
+          <div style="font-size:36px; font-weight:700; color:#FFFFFF;">81 <span style="font-size:15px; color:var(--term-red);">rules</span></div>
+          <div style="font-size:14px; color:var(--term-muted);">決定論的検出ルール</div>
+        </div>
+        <div style="padding:14px 20px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);">
+          <div style="font-size:36px; font-weight:700; color:#FFFFFF;">24 <span style="font-size:15px; color:var(--term-amber);">perspectives</span></div>
+          <div style="font-size:14px; color:var(--term-muted);">内容・構造の読解観点</div>
+        </div>
+        <div style="padding:14px 20px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);">
+          <div style="font-size:36px; font-weight:700; color:#FFFFFF;">10 <span style="font-size:15px; color:var(--term-green);">genres</span></div>
+          <div style="font-size:14px; color:var(--term-muted);">文書ジャンル別自動調整</div>
+        </div>
+        <div style="padding:14px 20px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);">
+          <div style="font-size:36px; font-weight:700; color:#FFFFFF;">429 <span style="font-size:15px; color:var(--term-green);">tests</span></div>
+          <div style="font-size:14px; color:var(--term-muted);">オフライン回帰テスト</div>
+        </div>
+        <div style="padding:14px 20px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);">
+          <div style="font-size:36px; font-weight:700; color:#FFFFFF;">0 <span style="font-size:15px; color:var(--term-amber);">deps</span></div>
+          <div style="font-size:14px; color:var(--term-muted);">Python 3.10+ 標準ライブラリのみ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 6: FINALE & CTA (32.5s - 38.0s) -->
+  <div class="scene" id="scene-6" style="z-index:60;">
+    <img src="../assets/bg-editorial-paper.jpg" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.24;" />
+    <div class="scene-grid"></div>
+    <div style="position:absolute; inset:88px 64px 70px 64px; display:grid; grid-template-columns: 1.05fr 0.95fr; gap:44px; align-items:center;">
+      <div id="s6-left">
+        <div style="display:inline-flex; align-items:center; gap:14px; margin-bottom:22px;">
+          <div class="brand-icon" style="width:54px; height:54px; font-size:32px; border-radius:12px;">d</div>
+          <div>
+            <div style="font-family:var(--font-mono); font-size:36px; font-weight:700; line-height:1;">deslop</div>
+            <div style="font-family:var(--font-mono); font-size:14px; color:var(--ink-muted); margin-top:4px;">WRITING A CAREFUL HUMAN AUTHOR WOULD SIGN</div>
+          </div>
+        </div>
+
+        <h2 style="font-family:var(--font-display); font-size:50px; font-weight:700; line-height:1.26; color:var(--ink-primary); margin-bottom:22px;">
+          <span style="white-space:nowrap;">書かれていないことは、</span><br>
+          <span style="white-space:nowrap;">一文字も足さない。</span><br>
+          <span style="color:var(--accent-redline); white-space:nowrap;">責任ある著者が署名できる散文へ。</span>
+        </h2>
+
+        <p style="font-size:21.5px; line-height:1.68; color:var(--ink-secondary); margin-bottom:28px;">
+          外部パッケージ依存ゼロ。<code>make link</code> 1つでお使いのコーディングエージェントに導入し、<code>/deslop</code> または単体CLIで今すぐ検査・推敲を開始できます。
+        </p>
+
+        <div style="display:flex; gap:16px; align-items:center;">
+          <div style="padding:15px 26px; border-radius:10px; background:var(--accent-redline); color:#FFFFFF; font-size:20.5px; font-weight:700; box-shadow:0 12px 28px rgba(184,40,28,0.3); white-space:nowrap;">
+            今すぐエージェントに導入する →
+          </div>
+          <div style="padding:15px 22px; border-radius:10px; background:var(--bg-surface); border:1.5px solid var(--border-strong); font-family:var(--font-mono); font-size:17.5px; font-weight:700; white-space:nowrap;">
+            Claude Code · Codex · Antigravity
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Terminal Quick Start Card -->
+      <div class="terminal-card" id="s6-term" style="padding:32px 36px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #2E2C28; padding-bottom:14px; margin-bottom:20px; font-family:var(--font-mono);">
+          <span style="color:var(--term-green); font-size:15px; font-weight:700;">GET STARTED IN 10 SECONDS</span>
+          <span style="color:var(--term-muted); font-size:13px;">Python 3.10+ stdlib · MIT</span>
+        </div>
+
+        <div style="font-family:var(--font-mono); font-size:19px; line-height:1.78;">
+          <div style="color:var(--term-muted); font-size:14px;"># 1. Symlink into Claude Code, Codex, and Antigravity</div>
+          <div style="background:#1C1B19; padding:11px 18px; border-radius:8px; border-left:4px solid var(--term-green); margin:6px 0 16px; color:#FFFFFF; font-weight:700;">
+            $ make link
+          </div>
+
+          <div style="color:var(--term-muted); font-size:14px;"># 2. Run deterministic prose detector on your docs</div>
+          <div style="background:#1C1B19; padding:11px 18px; border-radius:8px; border-left:4px solid var(--term-amber); margin:6px 0 16px; color:#FFFFFF; font-weight:700;">
+            $ make detect TARGET=docs/
+          </div>
+
+          <div style="color:var(--term-muted); font-size:14px;"># 3. Or invoke the full 6-phase rewrite &amp; contract check</div>
+          <div style="background:#1C1B19; padding:11px 18px; border-radius:8px; border-left:4px solid var(--term-red); margin:6px 0 8px; color:#FFFFFF; font-weight:700;">
+            &gt; /deslop README.md docs/
+          </div>
+        </div>
+
+        <div style="margin-top:20px; padding-top:14px; border-top:1px solid #2E2C28; display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:14px; color:var(--term-green);">
+          <span>✓ 0 open hits</span>
+          <span>✓ 24 perspectives checked</span>
+          <span>✓ contract ok</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subtitle / Narrative Caption Bar -->
+  <div class="subtitle-bar" id="subtitle-bar">
+    <span class="subtitle-dot" id="subtitle-dot"></span>
+    <span id="subtitle-text">AIが書いた技術文書に潜む「水増し表現」や「無出典の統計」を、決定論的ルールで即座に赤入れ。</span>
+  </div>
+
+  <!-- Bottom Timeline Progress Bar -->
+  <div id="bottom-bar" style="position:absolute; left:0; right:0; bottom:0; height:6px; background:rgba(158,150,137,0.25); z-index:140;">
+    <div id="progress-fill" style="height:100%; width:0%; background:var(--accent-redline);"></div>
+  </div>
+</div>
+
+<script>
+  function clamp(v, lo, hi) {
+    return Math.max(lo, Math.min(hi, v));
+  }
+  function easeOutCubic(x) {
+    const t = clamp(x, 0, 1);
+    return 1 - Math.pow(1 - t, 3);
+  }
+  function easeInOutCubic(x) {
+    const t = clamp(x, 0, 1);
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  const SUBTITLES = [
+    { start: 0.0, end: 4.5, dot: '#FF8A7A', text: 'AIが下書きした文書に潜む「過剰な宣伝語彙」「無出典の数値」「チャット残骸」を瞬時に赤入れ検出。' },
+    { start: 4.5, end: 9.5, dot: '#FCD34D', text: '単なる言い換えではAI臭は消えません。deslop は空疎な文を削除し、数値・URL・コードを厳密に保護します。' },
+    { start: 9.5, end: 13.5, dot: '#FF8A7A', text: '実フィクスチャ before.ja.md（396文字）：detect.py が 30件の規則違反と3件の構造キューを特定。' },
+    { start: 13.5, end: 17.5, dot: '#6EE7B7', text: '贅肉を削ぎ落とし、設定値 (300, 10000)・TOML・公式URLを100%残して 105文字 (−73%) の after.ja.md へ。' },
+    { start: 17.5, end: 25.0, dot: '#FCD34D', text: '内容(4テスト) → 構造(24観点) → 語彙(81規則) の3層で推敲。10種のジャンル別免除で誤爆も防ぎます。' },
+    { start: 25.0, end: 32.5, dot: '#6EE7B7', text: 'preserve_check.py と contract_check.py が原本スナップショットと照合し、事実の捏造・欠落をゼロに。' },
+    { start: 32.5, end: 38.5, dot: '#6EE7B7', text: 'Python 3.10+ 標準ライブラリのみ・外部依存ゼロ。make link 1つで今すぐあなたのエージェントへ。' },
+  ];
+
+  window.setTime = function(t) {
+    const total = 38.0;
+    document.getElementById('progress-fill').style.width = ((t / total) * 100).toFixed(2) + '%';
+
+    // Update subtitle bar
+    const sub = SUBTITLES.find((s) => t >= s.start && t < s.end) || SUBTITLES[SUBTITLES.length - 1];
+    document.getElementById('subtitle-text').textContent = sub.text;
+    document.getElementById('subtitle-dot').style.background = sub.dot;
+
+    const scenes = [
+      { id: 'scene-1', start: 0.0, end: 4.5, label: '01 / REDLINE HOOK', dark: false },
+      { id: 'scene-2', start: 4.5, end: 9.5, label: '02 / WHY SYNONYM SWAPS FAIL', dark: false },
+      { id: 'scene-3', start: 9.5, end: 17.5, label: '03 / LIVE REDLINE (396 → 105 CHARS)', dark: false },
+      { id: 'scene-4', start: 17.5, end: 25.0, label: '04 / 3 LAYERS & 10 GENRES', dark: false },
+      { id: 'scene-5', start: 25.0, end: 32.5, label: '05 / 6-PHASE RUN CONTRACT', dark: true },
+      { id: 'scene-6', start: 32.5, end: 38.1, label: '06 / GET STARTED (MAKE LINK)', dark: false },
+    ];
+
+    // Layered Opaque Composite Transition:
+    // Incoming scene fades/slides in ON TOP OF the previous scene (which stays opacity: 1 until covered).
+    // Guarantees zero washout at any boundary frame!
+    // Crisp Editorial Curtain Wipe Transition:
+    // Incoming scene is 100% opaque (opacity: 1) and wipes across via clip-path over 0.24s BEFORE sc.start,
+    // so at sc.start and every frame, there is ZERO semi-transparent text ghosting between scenes!
+    const wipeDur = 0.24;
+    let active = scenes[0];
+    for (let i = 0; i < scenes.length; i++) {
+      const sc = scenes[i];
+      const nextSc = scenes[i + 1];
+      const el = document.getElementById(sc.id);
+      const inStart = i === 0 ? 0 : sc.start - wipeDur;
+      const outEnd = nextSc ? nextSc.start : sc.end;
+
+      if (t >= inStart && t < outEnd) {
+        el.style.opacity = '1';
+        if (i > 0 && t < sc.start) {
+          const p = easeInOutCubic((t - inStart) / wipeDur);
+          const rightInset = ((1 - p) * 100).toFixed(2);
+          el.style.clipPath = `inset(0 ${rightInset}% 0 0)`;
+        } else {
+          el.style.clipPath = 'none';
+        }
+      } else {
+        el.style.opacity = '0';
+        el.style.clipPath = 'none';
+      }
+      if (t >= sc.start && t < sc.end) {
+        active = sc;
+      }
+      el.style.transform = 'none';
+    }
+
+    // Top chrome theme adaptation
+    const chrome = document.getElementById('top-chrome');
+    const phaseEl = document.getElementById('chrome-phase');
+    phaseEl.textContent = active.label;
+    if (active.dark) {
+      chrome.style.color = '#F2EFE9';
+      document.getElementById('chrome-sub').style.background = 'rgba(255,255,255,0.12)';
+      document.getElementById('chrome-sub').style.color = '#D6CFC2';
+      phaseEl.style.background = 'rgba(110, 231, 183, 0.18)';
+      phaseEl.style.color = '#6EE7B7';
+    } else {
+      chrome.style.color = '#141413';
+      document.getElementById('chrome-sub').style.background = 'rgba(20,20,19,0.07)';
+      document.getElementById('chrome-sub').style.color = '#4A4742';
+      phaseEl.style.background = 'rgba(184, 40, 28, 0.12)';
+      phaseEl.style.color = '#B8281C';
+    }
+
+    // Scene 1: Redline strikes
+    {
+      const lt = t - 0.0;
+      const strikeP = easeOutCubic((lt - 0.25) / 0.45);
+      document.getElementById('s1-title-strike').style.transform = `scaleX(${strikeP})`;
+
+      const rows = [
+        { bar: 's1-bar-1', badge: 's1-badge-1', t0: 0.35 },
+        { bar: 's1-bar-2', badge: 's1-badge-2', t0: 0.75 },
+        { bar: 's1-bar-3', badge: 's1-badge-3', t0: 1.15 },
+        { bar: 's1-bar-4', badge: 's1-badge-4', t0: 1.55 },
+      ];
+      rows.forEach((r) => {
+        const bp = easeOutCubic((lt - r.t0) / 0.30);
+        document.getElementById(r.bar).style.transform = `scaleX(${bp})`;
+        const badgeP = easeOutCubic((lt - (r.t0 + 0.06)) / 0.25);
+        const bEl = document.getElementById(r.badge);
+        bEl.style.opacity = clamp(0.35 + badgeP * 0.65, 0, 1);
+      });
+    }
+
+    // Scene 2: Problem vs Solution cards
+    {
+      const lt = clamp(t - 4.5, 0, 5.0);
+      const pR = easeOutCubic((lt - 0.25) / 0.45);
+      const cR = document.getElementById('s2-card-right');
+      cR.style.transform = `translateY(${(1 - pR) * 14}px)`;
+    }
+
+    // Scene 3: Two-stage Collapse (lt 3.5..3.95) -> Expand (lt 3.95..4.4)
+    {
+      const lt = clamp(t - 9.5, 0, 8.0);
+      const beforeBox = document.getElementById('s3-before-box');
+      const afterBox = document.getElementById('s3-after-box');
+
+      const collapseP = easeInOutCubic((lt - 3.45) / 0.45);
+      const expandP = easeOutCubic((lt - 3.90) / 0.45);
+
+      beforeBox.style.opacity = (1 - collapseP).toFixed(3);
+      beforeBox.style.transform = `scaleY(${1 - collapseP * 0.25}) translateY(${-collapseP * 24}px)`;
+      beforeBox.style.transformOrigin = 'top center';
+
+      afterBox.style.opacity = expandP.toFixed(3);
+      afterBox.style.transform = `translateY(${(1 - expandP) * 18}px)`;
+
+      // Sync top-right Workbench UI from Before tab to After tab
+      document.getElementById('s3-ui-before').style.opacity = (1 - expandP).toFixed(3);
+      document.getElementById('s3-ui-after').style.opacity = expandP.toFixed(3);
+
+      // Scanline across the Workbench UI
+      const scanY = ((lt * 140) % 370).toFixed(1);
+      document.getElementById('s3-scanline').style.top = `${scanY}px`;
+      document.getElementById('s3-scanline').style.opacity = lt < 3.9 ? '0.85' : '0';
+
+      const morph = clamp((lt - 3.45) / 0.85, 0, 1);
+      const hitsVal = Math.round(30 * (1 - morph));
+      const charsVal = Math.round(396 - (396 - 105) * morph);
+      const hitsEl = document.getElementById('s3-stat-hits');
+      const charsEl = document.getElementById('s3-stat-chars');
+      const modePill = document.getElementById('s3-mode-pill');
+
+      if (lt < 3.90) {
+        hitsEl.textContent = `${hitsVal} hits (3 cues)`;
+        hitsEl.style.color = '#B8281C';
+        charsEl.textContent = `${charsVal} 文字`;
+        modePill.textContent = 'DETECT.PY : 30 HITS FOUND';
+        modePill.style.background = '#FDECE9';
+        modePill.style.color = '#9E1F14';
+      } else {
+        hitsEl.textContent = '0 open hits ✓';
+        hitsEl.style.color = '#0F5938';
+        charsEl.textContent = `${charsVal} 文字 (−73%)`;
+        modePill.textContent = 'VERIFY : 0 OPEN HITS · FACTS KEPT';
+        modePill.style.background = '#E2F4EB';
+        modePill.style.color = '#0F5938';
+      }
+    }
+
+    // Scene 4: 3 Layers + 10 Genres highlight
+    {
+      const lt = clamp(t - 17.5, 0, 7.5);
+      const activeGenreIdx = Math.floor(clamp((lt - 1.2) / 0.52, 0, 9));
+      document.querySelectorAll('.genre-pill').forEach((el, idx) => {
+        if (lt > 1.0 && idx === activeGenreIdx) {
+          el.style.borderColor = '#0F5938';
+          el.style.background = '#E2F4EB';
+          el.style.transform = 'translateY(-3px)';
+        } else {
+          el.style.borderColor = '#D6CFC2';
+          el.style.background = '#FFFFFF';
+          el.style.transform = 'none';
+        }
+      });
+    }
+
+    // Scene 5: Climax 6 Phases & 5 Fact Identity Shields
+    {
+      const lt = clamp(t - 25.0, 0, 7.5);
+      document.querySelectorAll('.s5-phase').forEach((el, idx) => {
+        const on = lt >= idx * 0.30;
+        el.style.borderColor = on ? '#6EE7B7' : '#3A3732';
+        el.style.transform = on ? 'translateY(-4px)' : 'none';
+      });
+      document.querySelectorAll('.s5-shield').forEach((el, idx) => {
+        const on = lt >= 0.9 + idx * 0.42;
+        el.style.borderColor = on ? '#6EE7B7' : '#2E2C28';
+        el.style.background = on ? 'rgba(15, 89, 56, 0.36)' : '#141413';
+      });
+      const stamp = document.getElementById('s5-contract-stamp');
+      const sp = easeOutCubic((lt - 3.4) / 0.45);
+      stamp.style.opacity = clamp(0.55 + sp * 0.45, 0, 1);
+      stamp.style.transform = `scale(${0.96 + sp * 0.04})`;
+    }
+  };
+
+  window.setTime(0);
+</script>
+</body>
+</html>
