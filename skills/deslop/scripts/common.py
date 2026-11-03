@@ -1,5 +1,6 @@
 """Shared helpers for the deslop scripts. Standard library only."""
 import fnmatch
+import functools
 import hashlib
 import json
 import os
@@ -62,7 +63,8 @@ def _html_closer(line, in_para=False):
 
 
 def indent(line):
-    line = line.expandtabs(4)
+    if "\t" in line:
+        line = line.expandtabs(4)
     return len(line) - len(line.lstrip(" "))
 
 
@@ -129,6 +131,22 @@ def _open_containers(line, offset, containers, in_para=False):
 
 
 def code_blocks(text, indented=True):
+    """Return (start, end, body_start, body_end) offsets of every code block.
+
+    Several views of one document parse the same text in turn, so the most
+    recent result is kept; each caller gets its own list. clear_caches()
+    releases it once a document is done.
+    """
+    return list(_code_blocks(text, bool(indented)))
+
+
+def clear_caches():
+    """Release the text and offsets kept for the most recent document."""
+    _code_blocks.cache_clear()
+
+
+@functools.lru_cache(maxsize=1)
+def _code_blocks(text, indented):
     """Return (start, end, body_start, body_end) offsets of every code block.
     start..end spans the block without its last newline; the body leaves out
     the fence lines. Fences open and close within three columns of the content
@@ -224,7 +242,7 @@ def code_blocks(text, indented=True):
             in_para, i = not (rule or heading or setext), i + 1
             continue
         i, in_para = last + 1, False
-    return blocks
+    return tuple(blocks)
 
 
 def sha256_bytes(data):

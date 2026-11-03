@@ -530,10 +530,14 @@ def protected_inline_spans(text, *, source=None, markdown=True, title_spans=None
 def code(text, markdown=True):
     """Code block bodies, and text with every block masked at its original offsets."""
     spans = code_blocks(text, indented=markdown)
-    rest = text
-    for start, end, _, _ in reversed(spans):
-        rest = rest[:start] + re.sub(r"[^\r\n]", " ", rest[start:end]) + rest[end:]
-    return [text[b:e] for _, _, b, e in spans], rest
+    # Blocks do not overlap: build the masked text in one pass instead of
+    # copying the whole document once per block.
+    pieces, pos = [], 0
+    for start, end, _, _ in spans:
+        pieces.extend((text[pos:start], re.sub(r"[^\r\n]", " ", text[start:end])))
+        pos = end
+    pieces.append(text[pos:])
+    return [text[b:e] for _, _, b, e in spans], "".join(pieces)
 
 
 def facts(text, markdown=True):

@@ -50,12 +50,23 @@ POLITE = re.compile(r"(?:です|ます|でした|ました|ません|でしょ�
 PLAIN = re.compile(r"(?:だ|である|だった|であった|ない|なかった|[うくすつぬふむゆるぐぶたい])$")
 
 
+def code_lines(text, markdown=True):
+    """Zero-based numbers of the lines that code blocks cover."""
+    code, pos, line = set(), 0, 0
+    # Blocks come in document order: count newlines from the previous block
+    # instead of from the start of the text for each one.
+    for start, end, _, _ in code_blocks(text, indented=markdown):
+        line += text.count("\n", pos, start)
+        last = line + text.count("\n", start, max(start, end - 1))
+        code.update(range(line, last + 1))
+        pos = start
+    return code
+
+
 def parse(text, prose, markdown=True):
     """Headings and blocks (para, list, code, table, quote) in document order.
     prose is text with code and URLs blanked, so offsets and lines agree."""
-    code = set()
-    for start, end, _, _ in code_blocks(text, indented=markdown):
-        code.update(range(text.count("\n", 0, start), text.count("\n", 0, max(start, end - 1)) + 1))
+    code = code_lines(text, markdown)
     out, cur, gap = [], None, False
     for i, line in enumerate(prose.split("\n")):
         n, s = i + 1, line.strip()
