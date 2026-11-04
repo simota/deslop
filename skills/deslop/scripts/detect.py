@@ -20,6 +20,7 @@ Exit 0 when no unexempted hit remains, 1 when some do, 2 on usage errors.
 """
 import argparse
 import bisect
+import functools
 import os
 import re
 import statistics
@@ -28,7 +29,7 @@ from pathlib import Path
 
 import cues
 import findings
-from common import (assign_genres, code_blocks, decode_text, genre_table, infer_genre, is_markdown, iter_docs,
+from common import (assign_genres, clear_caches, code_blocks, decode_text, genre_table, infer_genre, is_markdown, iter_docs,
                     load_json, load_rules, load_snapshot, sha256_bytes, write_json)
 from markdown_spans import _escaped, http_url_spans, inline_block_spans
 from preserve_check import LINK_LABEL, _reference_definitions, protected_inline_spans
@@ -53,6 +54,8 @@ SENTENCE_JA = re.compile(r"(?:「[^「」\n]*」|『[^『』\n]*』|「(?![^「�
                          r"|[^。！？!?\n「『])+[。！？!?]")
 ASCII_EDGE = re.compile(r"[A-Za-z0-9]")
 SENTENCE_EN = re.compile(r"[^.!?\n]+(?:[.!?]+(?=\s|$))")
+SENTENCE_TERMINAL_JA = re.compile(r"[。！？!?]")
+SENTENCE_TERMINAL_EN = re.compile(r"[.!?]")
 PARAGRAPH = re.compile(r"(?:^[ \t]*\S.*(?:\n|\Z))+", re.M)
 # A single figure, not one end of a range such as 15-30%.
 STAT_AMOUNT = r"[0-9０-９]+(?:[.,][0-9０-９]+)?"
@@ -76,7 +79,24 @@ SENTENCE_END = re.compile(r"[。！？!?]|\.(?:\s|$)")
 
 def blank(text, start, end):
     """Replace text[start:end] with spaces, keeping newlines and offsets."""
-    return text[:start] + re.sub(r"[^\n]", " ", text[start:end]) + text[end:]
+    return blank_spans(text, [(start, end)])
+
+
+def blank_spans(text, spans):
+    """Blank every (start, end) span in one pass over text.
+
+    Blanking is idempotent, so overlapping spans blank their union, exactly
+    as blanking them one at a time would, without copying the whole text
+    once per span.
+    """
+    pieces, end = [], 0
+    for start, stop in sorted(spans):
+        if stop <= end:
+            continue
+        start = max(start, end)
+        pieces.extend((text[end:start], re.sub(r"[^\n]", " ", text[start:stop])))
+        end = stop
+    return "".join(pieces) + text[end:]
 
 
 def mask_front_matter(text):
@@ -88,9 +108,7 @@ def mask_front_matter(text):
 def mask_blocks(text, markdown=True):
     """Mask front matter and fenced code, keeping paragraph boundaries."""
     text = mask_front_matter(text)
-    for start, end, _, _ in reversed(code_blocks(text, indented=markdown)):
-        text = blank(text, start, end)
-    return text
+    return blank_spans(text, [(start, end) for start, end, _, _ in code_blocks(text, indented=markdown)])
 
 
 def mask_code(text, markdown=True, *, url_spans=None):
@@ -100,28 +118,38 @@ def mask_code(text, markdown=True, *, url_spans=None):
     # Resolve code and destinations in the same order as the fact checker.
     # A backtick inside a URL cannot open code in the following prose. Keep
     # the URL itself visible here: artifact rules must still see its tokens.
+    codes = []
     for kind, start, end, _ in reversed(list(protected_inline_spans(text, source=source, markdown=markdown))):
         if kind == "inline_code":
-            text = blank(text, start, end)
+            codes.append((start, end))
         elif url_spans is not None:
             url_spans.append((start, end))
-    return text
+    return blank_spans(text, codes)
 
 
 def mask_urls(text, *, url_spans=None):
     """Mask complete destinations; keep labels, titles and invalid links as prose."""
     if url_spans is None:
         url_spans = [(start, end) for kind, start, end, _ in protected_inline_spans(text) if kind == "url"]
-    pieces, end = [], 0
-    for start, stop in sorted([*url_spans, *http_url_spans(text)]):
-        # An explicit link span can enclose a bare HTTP URL. Mask their
-        # union once, preserving all original offsets even when they overlap.
-        if stop <= end:
-            continue
-        start = max(start, end)
-        pieces.extend((text[end:start], re.sub(r"[^\n]", " ", text[start:stop])))
-        end = stop
-    return "".join(pieces) + text[end:]
+    # An explicit link span can enclose a bare HTTP URL. Mask their
+    # union once, preserving all original offsets even when they overlap.
+    return blank_spans(text, [*url_spans, *http_url_spans(text)])
+
+
+@functools.lru_cache(maxsize=1)
+def masked_views(text, markdown=True):
+    """(code_masked, prose) for one document: code blanked, then URLs too.
+
+    scan_text and perspective_cues read the same views of a document, so
+    the most recent result is kept instead of parsing its inline spans
+    twice; scan() releases it after each file. Masking front matter first
+    does not change them: a blanked header cannot match again.
+    """
+    url_spans = []
+    code_masked = mask_code(text, markdown, url_spans=url_spans)
+    # Reuse the original decisions: blanking code can make invalid link
+    # syntax look like a real destination and hide its surrounding prose.
+    return code_masked, mask_urls(code_masked, url_spans=url_spans)
 
 
 def language(text):
@@ -223,9 +251,14 @@ def join_lines(lines, lang):
 
 def sentences(prose, lang, markdown=True):
     pattern = SENTENCE_JA if lang == "ja" else SENTENCE_EN
+    terminal = SENTENCE_TERMINAL_JA if lang == "ja" else SENTENCE_TERMINAL_EN
     out = []
     for para in paragraphs(prose, markdown):
         s = join_lines(para, lang)
+        # Every sentence ends in a terminal mark. Without one the pattern
+        # cannot match, but would retry from every offset: quadratic time.
+        if not terminal.search(s):
+            continue
         out.extend(m.group(0).strip() for m in pattern.finditer(s) if len(m.group(0).strip()) > 3)
     return out
 
@@ -354,11 +387,7 @@ def scan_text(text, compiled, min_chars, markdown=True, limits=None):
     """Return (lang, metrics, hits) for one document's text. Pattern rules
     follow each paragraph's language, density rules the document's. limits
     replaces a density rule's bounds by rule id."""
-    url_spans = []
-    code_masked = mask_code(text, markdown, url_spans=url_spans)
-    # Reuse the original decisions: blanking code can make invalid link
-    # syntax look like a real destination and hide its surrounding prose.
-    prose = mask_urls(code_masked, url_spans=url_spans)
+    code_masked, prose = masked_views(text, bool(markdown))
     quotations = inline_quotation_spans(prose)
     lang = language(prose)
     raw_lines = text.split("\n")
@@ -428,9 +457,8 @@ def perspective_cues(text, lang, chars, min_chars, markdown=True, quiet=()):
     # The cue parser also classifies code blocks. It must see the same
     # metadata boundary as the detector, so a fence inside YAML cannot
     # consume the document body. Blanking preserves body text and offsets.
+    prose = masked_views(text, bool(markdown))[1]
     text = mask_front_matter(text)
-    url_spans = []
-    prose = mask_urls(mask_code(text, markdown, url_spans=url_spans), url_spans=url_spans)
     return cues.find(text, prose, lang, lambda part, language: sentences(part, language, markdown),
                      markdown, chars, min_chars, quiet)
 
@@ -491,6 +519,9 @@ def scan(files, root, rules, exemptions, genres=None, *, paths=None, contents=No
         quiet = {p["id"] for p in rules["perspectives"] if genre["id"] in p.get("quiet", [])}
         for c in perspective_cues(text, lang, m["chars"], rules["min_chars"], is_markdown(f), quiet):
             result["cues"].append({"path": rel, **c})
+        # Keep no document's text alive while the next one is scanned.
+        masked_views.cache_clear()
+        clear_caches()
         lines = text.split("\n")
         line_starts = [0]
         for line in lines[:-1]:
