@@ -68,7 +68,7 @@
       keep: "言語ごとの慣習的な挨拶・結び（「いつもお世話になっております」）、返信への誘い",
       remove: "AIチャットの結び（「参考になれば幸いです」）、依頼内容のくどい言い直し、過剰な謝罪の重ね掛け",
       adjust: "EN-20・JA-21（問い合わせへの誘い）を免除 / DEN-04 上限 0、DEN-05 上限 0、DEN-06 上限 0.3",
-      corpus: "corpus/message/invoice-misdelivery-apology-ja.md (986字: 0 hits → 0 open, 業務連絡の慣習を保持)",
+      corpus: "corpus/message/invoice-misdelivery-apology-ja.md (776字: 0 hits → 0 open, 業務連絡の慣習を保持)",
       cmd: "python3 skills/deslop/scripts/detect.py --genre message corpus/message/invoice-misdelivery-apology-ja.md"
     },
     changelog: {
@@ -163,9 +163,10 @@ examples/before.ja.md:5 STR-14 cue: heading phrased as the reader's question: ##
     {
       num: "PHASE 04",
       id: "REWRITE",
-      title: "REWRITE — 内容 → 構造 → 文 → 語のトップダウン推敲",
-      desc: "表面的な類語置換（`重要` → `肝心`、`leverage` → `utilize`）は行いません。まず内容パス（4つのテスト）で空疎な文を削除し、次に構造（予告・まとめ・過剰箇条書き）を整理し、最後に残った文と語を文書内の事実だけで直接書き直します。",
+      title: "REWRITE — 同じ原本から3候補を、内容 → 構造 → 文 → 語の順に推敲",
+      desc: "`comparison.py init` が原本を `candidates/A/`・`B/`・`C/` に複製し、それぞれ別の構成方針で完全な文書に書き直します（A: 原文の論旨の順序を保つ、B: 読者のタスク順に並べ替える、C: 反復を除き主張を根拠の隣へ寄せる）。表面的な類語置換（`重要` → `肝心`、`leverage` → `utilize`）は行いません。",
       points: [
+        "0. 3候補はすべて同じ original/ から作る（B が A の削除を引き継がない）",
         "1. Content: 情報・置換・読者・裏づけの4テストに落ちる主張を言い換えず削除",
         "2. Structure: 予告開幕（STR-01）と反復まとめ（STR-02）を削り、細切れの箇条書きを散文に戻す",
         "3. Sentences & Words: 残った文の冗長表現（JA-04 〜することができます 等）を簡潔化",
@@ -183,6 +184,54 @@ TTL は \`ttl_seconds\` で指定し、既定値は 300 秒です。
     },
     {
       num: "PHASE 05",
+      id: "REVIEW",
+      title: "REVIEW — 3候補を同じルーブリックで読み比べ、採点理由を記録",
+      desc: "各候補を原本と突き合わせて全文読み、主張の意味・条件・数値の帰属・手順の順序を確認します。忠実性 /30、構成 /25、明快さ /20、著者の文体 /15、簡潔さ /10 の5項目に、項目ごとの理由を付けて採点します。これは編集上の判断であり、AI検出器のスコアではありません。",
+      points: [
+        "事実や保護対象の変更、必要な情報の欠落、未解決ヒットがある候補は eligible: false（高得点でも勝てない）",
+        "長所・短所・review_note を候補ごとに findings.json の comparisons へ記録",
+        "委任できるホストでは、勝者を知らせずに別のレビュアーへ比較させる"
+      ],
+      code: `// findings.json の comparisons[].candidates[] (値は例示)
+{
+  "id": "A",
+  "approach": "Keep the argument order; move each condition beside its claim",
+  "eligible": true,
+  "scores": {
+    "fidelity":  {"score": 30, "reason": "All requirements and their conditions remain"},
+    "structure": {"score": 22, "reason": "Conditions are adjacent; setup still appears late"},
+    "clarity":   {"score": 18, "reason": "Subjects are explicit; the final paragraph is dense"},
+    "voice":     {"score": 15, "reason": "Register and glossary match the voice record"},
+    "concision": {"score": 9,  "reason": "The closing paragraph repeats the scope once"}
+  }
+}`
+    },
+    {
+      num: "PHASE 06",
+      id: "SELECT",
+      title: "SELECT — 最高得点の適格候補を選び、統合は再採点で勝つときだけ",
+      desc: "eligible な候補のうち合計点が最も高いものを選びます。同点なら忠実性、次に構成で決めます。他の候補の部分を組み合わせる場合は `candidates/merged/` に全文を書き、出典と寄与を記録して最初から採点し直し、最良の単独候補を上回ったときだけ採用します。",
+      points: [
+        "A・B・C は選ばれなかった候補も含めてすべて残す",
+        "選んだ候補を作業ファイルへコピーし、原本からの最終的な変更だけを findings に記録",
+        "final_sha256 で選んだ本文と記録を結び付ける"
+      ],
+      code: `// findings.json の comparisons[] (値は例示)
+{
+  "path": "examples/before.ja.md",
+  "selected": "merged",
+  "reason": "B's task order with A's condition paragraph scored 96 against B's 93",
+  "merged": {
+    "id": "merged",
+    "sources": [
+      {"candidate": "B", "contribution": "Reader's task order"},
+      {"candidate": "A", "contribution": "Conditions beside each requirement"}
+    ]
+  }
+}`
+    },
+    {
+      num: "PHASE 07",
       id: "VERIFY",
       title: "VERIFY — 残存ヒット0・事実保存検査・コールドリード",
       desc: "書き換え後に再度 `detect.py` と `preserve_check.py` を実行します。1件でも未処理ヒットや未申告の事実変更（数値・URL・コード・脚注の消失または追加）があれば Exit 1 となり、REWRITE へ差し戻されます。",
@@ -201,7 +250,7 @@ $ python3 skills/deslop/scripts/preserve_check.py /tmp/deslop-run
 # 削除した装飾統計「30」は preservation の理由記録と照合 → exit 0`
     },
     {
-      num: "PHASE 06",
+      num: "PHASE 08",
       id: "REPORT",
       title: "REPORT — 監査レポート生成と contract_check.py による最終証明",
       desc: "`findings.py report` が SHA-256 署名付きの `report.md` を生成し、最後に `contract_check.py` が原本スナップショットから全検査を再計算します。記録漏れやキュー無視（cued観点のN/A記録）があれば契約違反として失敗します。",
@@ -221,7 +270,7 @@ contract ok`
   const HOST_COMMANDS = {
     all: {
       label: "すべての導入済みエージェントに一括リンク（Claude Code / Codex / Antigravity）",
-      install: `git clone https://github.com/shingoimota/deslop.git
+      install: `git clone https://github.com/simota/deslop.git
 cd deslop
 make link`,
       verify: `make status
@@ -268,6 +317,67 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
       .replace(/"/g, "&quot;");
   }
 
+  // One choice at a time within a group of buttons. Tabs (role="tab") get
+  // aria-selected, roving focus and arrow, Home and End keys, as in the
+  // WAI-ARIA tabs pattern; other groups are toggle buttons with aria-pressed.
+  // onSelect runs on a user's choice, not for the initial state.
+  function bindChoices(buttons, onSelect, panel) {
+    buttons = Array.prototype.slice.call(buttons);
+    if (!buttons.length) return;
+    const isTabs = buttons[0].getAttribute("role") === "tab";
+
+    function mark(btn) {
+      buttons.forEach(function (b) {
+        const on = b === btn;
+        b.classList.toggle("is-active", on);
+        if (isTabs) {
+          b.setAttribute("aria-selected", on ? "true" : "false");
+          b.tabIndex = on ? 0 : -1;
+        } else {
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        }
+      });
+      if (panel) panel.setAttribute("aria-labelledby", btn.id);
+    }
+
+    function choose(btn) {
+      mark(btn);
+      onSelect(btn);
+    }
+
+    buttons.forEach(function (btn, i) {
+      if (isTabs && panel) {
+        if (!btn.id) btn.id = panel.id + "-tab-" + i;
+        btn.setAttribute("aria-controls", panel.id);
+      }
+      btn.addEventListener("click", function () { choose(btn); });
+      if (!isTabs) return;
+      btn.addEventListener("keydown", function (e) {
+        const last = buttons.length - 1;
+        const targets = { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: last };
+        if (!(e.key in targets)) return;
+        e.preventDefault();
+        const next = buttons[(targets[e.key] + buttons.length) % buttons.length];
+        next.focus();
+        choose(next);
+      });
+    });
+
+    mark(buttons.find(function (b) { return b.classList.contains("is-active"); }) || buttons[0]);
+  }
+
+  function prefersReducedMotion() {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  function announce(message) {
+    const status = document.getElementById("copy-status");
+    if (!status) return;
+    status.textContent = "";
+    // A changed text node is announced even when the message repeats.
+    setTimeout(function () { status.textContent = message; }, 50);
+  }
+
   function setupCopyButtons() {
     document.addEventListener("click", function (e) {
       const btn = e.target.closest("[data-copy-target], [data-copy-text]");
@@ -296,20 +406,33 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
         ta.style.opacity = "0";
         document.body.appendChild(ta);
         ta.select();
+        let copied = false;
         try {
-          document.execCommand("copy");
-          showCopied();
-        } catch (_) {}
+          copied = document.execCommand("copy");
+        } catch (_) {
+          copied = false;
+        }
         document.body.removeChild(ta);
+        if (copied) showCopied();
+        else showFailed();
+      }
+
+      function showState(cls, label, message) {
+        btn.classList.add(cls);
+        btn.textContent = label;
+        announce(message);
+        setTimeout(function () {
+          btn.classList.remove(cls);
+          btn.textContent = originalLabel;
+        }, 1600);
       }
 
       function showCopied() {
-        btn.classList.add("is-copied");
-        btn.textContent = "Copied!";
-        setTimeout(function () {
-          btn.classList.remove("is-copied");
-          btn.textContent = originalLabel;
-        }, 1600);
+        showState("is-copied", "Copied!", "クリップボードにコピーしました");
+      }
+
+      function showFailed() {
+        showState("is-copy-failed", "Copy failed", "コピーできませんでした。テキストを選択して手動でコピーしてください");
       }
     });
   }
@@ -320,52 +443,36 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
   let heroLang = "ja";
   let heroMode = "redline"; // "redline" | "after" | "before"
 
+  // index.html ships the Japanese redline view, so the first paint has the
+  // hero at full height; switching back to it reuses that markup.
+  let HERO_INITIAL = null;
+
   function renderHeroProof() {
     const container = document.getElementById("hero-proof-body");
     const statsBar = document.getElementById("hero-proof-stats");
     const fileLabel = document.getElementById("hero-file-label");
     if (!container || !statsBar) return;
+    if (!HERO_INITIAL) HERO_INITIAL = { stats: statsBar.innerHTML, redline: container.innerHTML };
+
+    const sample = DATA.samples[heroLang === "ja" ? "ja_cache" : "en_cache"];
+    const redlineTab = document.querySelector('[data-hero-mode="redline"]');
+    if (redlineTab && sample && sample.before_scan) {
+      redlineTab.textContent = `赤入れ検出 (${sample.before_scan.summary.total})`;
+    }
 
     if (heroLang === "ja") {
       fileLabel.textContent = heroMode === "after" ? "examples/after.ja.md" : "examples/before.ja.md";
-      statsBar.innerHTML = `
-        <div class="proof-stat-cell">
-          <span class="proof-stat-label">検出ヒット数</span>
-          <span class="proof-stat-val"><span class="bad">30 hits</span><span class="arrow">→</span><span class="good">0 open</span></span>
-        </div>
-        <div class="proof-stat-cell">
-          <span class="proof-stat-label">散文文字数 (Prose)</span>
-          <span class="proof-stat-val">396字<span class="arrow">→</span><span class="good">105字 (−73%)</span></span>
-        </div>
-        <div class="proof-stat-cell">
-          <span class="proof-stat-label">保護された事実</span>
-          <span class="proof-stat-val"><span class="good">数値2・URL1・TOML1</span></span>
-        </div>
-      `;
+      statsBar.innerHTML = HERO_INITIAL.stats;
 
       if (heroMode === "redline") {
-        container.innerHTML = `
-          <div class="proof-line"><span class="proof-line-num">01</span># キャッシュ設定<span class="mark-slop">ガイド：パフォーマンスを最大限に引き出す完全ガイド 🚀</span><span class="rule-pill tier-lexical">JA-06</span><span class="rule-pill tier-lexical">JA-14</span><span class="rule-pill tier-lexical">EMO-01</span></div>
-          <div class="proof-line"><span class="proof-line-num">03</span><span class="mark-slop">本記事では、\`tilecache\` のキャッシュ設定について詳しく解説します。</span><span class="rule-pill tier-lexical">JA-08</span><span class="rule-pill tier-cue">STR-01</span></div>
-          <div class="proof-line"><span class="proof-line-num">05</span><span class="mark-cue">## キャッシュとは？</span> <span class="rule-pill tier-lexical">JA-17</span><span class="rule-pill tier-cue">STR-14</span> <span class="mark-slop">重要な役割を果たし... 導入企業の約30%が実感していると言われています... システム全体の安定性を支える基盤と言っても過言ではありません。</span><span class="rule-pill tier-lexical">JA-03</span><span class="rule-pill tier-content">CNT-01</span><span class="rule-pill tier-lexical">JA-31</span><span class="rule-pill tier-lexical">JA-02</span></div>
-          <div class="proof-line"><span class="proof-line-num">11</span><span class="mark-slop">設定のポイントとしては、以下の3つが挙げられます。</span><span class="rule-pill tier-lexical">JA-13</span><span class="rule-pill tier-density">DEN-04</span> / - **TTL**: 有効期限を設定<span class="mark-slop">することができます</span>。<span class="rule-pill tier-lexical">JA-04</span></div>
-          <div class="proof-line"><span class="proof-line-num">17</span>TTL は <span class="mark-keep">\`ttl_seconds\`</span> (既定値 <span class="mark-keep">300</span> 秒)、容量は <span class="mark-keep">\`max_entries\`</span> (既定値 <span class="mark-keep">10000</span> 件) で指定します。</div>
-          <div class="proof-line"><span class="proof-line-num">27</span><span class="mark-cue">## まとめ</span> <span class="rule-pill tier-lexical">JA-09</span><span class="rule-pill tier-cue">STR-02</span> <span class="mark-slop">いかがでしたか？... 飛躍的に向上させることが期待されます。</span>詳細は <span class="mark-keep">https://example.com/tilecache/docs</span> を参照。<span class="mark-slop">参考になれば幸いです！</span><span class="rule-pill tier-artifact">ART-04</span></div>
-          <div class="hero-after-dock">
-            <div class="hero-after-dock-head">
-              <span>✓ REWRITTEN RESULT (examples/after.ja.md · 396字 → 105字)</span>
-              <span>0 open hits · preserve_check OK</span>
-            </div>
-            <div><span class="mark-keep">\`tilecache\`</span> のキャッシュ設定は TTL、容量、退避方式の3項目です。TTL は <span class="mark-keep">\`ttl_seconds\`</span> で指定し、既定値は <span class="mark-keep">300</span> 秒です。容量は <span class="mark-keep">\`max_entries\`</span> で指定し、既定値は <span class="mark-keep">10000</span> 件です。（＋ <code>[cache]</code> TOMLブロック ＆ 公式URL完全保持）</div>
-          </div>
-        `;
+        container.innerHTML = HERO_INITIAL.redline;
       } else if (heroMode === "after") {
         container.innerHTML = `
           <div class="proof-line"><span class="proof-line-num">01</span><strong># キャッシュ設定</strong></div>
           <div class="proof-line"><span class="proof-line-num">03</span><span class="mark-keep">\`tilecache\`</span> のキャッシュ設定は TTL、容量、退避方式の3項目です。TTL は <span class="mark-keep">\`ttl_seconds\`</span> で指定し、既定値は <span class="mark-keep">300</span> 秒です。容量は <span class="mark-keep">\`max_entries\`</span> で指定し、既定値は <span class="mark-keep">10000</span> 件です。</div>
           <div class="proof-code-block">[cache]\nttl_seconds = 300\nmax_entries = 10000</div>
           <div class="proof-line"><span class="proof-line-num">11</span>詳細は <span class="mark-keep">https://example.com/tilecache/docs</span> を参照してください。</div>
-          <div style="margin-top: 18px; padding: 12px; background: var(--preserve-bg); border: 1px solid var(--preserve-border); border-radius: 4px; color: var(--preserve-fg); font-family: var(--font-mono); font-size: 0.78rem;">
+          <div class="proof-verify-note">
             ✓ detect.py: 0 open hits, 0 cues (exit 0)<br>
             ✓ preserve_check.py: 300, 10000, ttl_seconds, max_entries, TOML block, URL すべて生存確認 (exit 0)<br>
             ✓ 削除された「30%」は出典なき装飾統計 (CNT-01 / CON-03) として preservation に理由を記録済み
@@ -414,7 +521,7 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
           <div class="proof-line"><span class="proof-line-num">03</span><span class="mark-keep">\`tilecache\`</span> has three cache settings: TTL, capacity and eviction. TTL is set with <span class="mark-keep">\`ttl_seconds\`</span>; the default is <span class="mark-keep">300</span> seconds. Capacity is set with <span class="mark-keep">\`max_entries\`</span>; the default is <span class="mark-keep">10000</span> entries.</div>
           <div class="proof-code-block">[cache]\nttl_seconds = 300\nmax_entries = 10000</div>
           <div class="proof-line"><span class="proof-line-num">11</span>See <span class="mark-keep">https://example.com/tilecache/docs</span> for details.</div>
-          <div style="margin-top: 18px; padding: 12px; background: var(--preserve-bg); border: 1px solid var(--preserve-border); border-radius: 4px; color: var(--preserve-fg); font-family: var(--font-mono); font-size: 0.78rem;">
+          <div class="proof-verify-note">
             ✓ detect.py: 0 open hits, 0 cues (exit 0)<br>
             ✓ preserve_check.py: 300, 10000, ttl_seconds, max_entries, TOML block, URL all verified (exit 0)
           </div>
@@ -432,25 +539,14 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
   }
 
   function setupHeroControls() {
-    document.querySelectorAll("[data-hero-mode]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        heroMode = btn.getAttribute("data-hero-mode");
-        document.querySelectorAll("[data-hero-mode]").forEach(function (b) {
-          b.classList.toggle("is-active", b === btn);
-          b.setAttribute("aria-selected", b === btn ? "true" : "false");
-        });
-        renderHeroProof();
-      });
-    });
+    bindChoices(document.querySelectorAll("[data-hero-mode]"), function (btn) {
+      heroMode = btn.getAttribute("data-hero-mode");
+      renderHeroProof();
+    }, document.getElementById("hero-proof-body"));
 
-    document.querySelectorAll("[data-hero-lang]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        heroLang = btn.getAttribute("data-hero-lang");
-        document.querySelectorAll("[data-hero-lang]").forEach(function (b) {
-          b.classList.toggle("is-active", b === btn);
-        });
-        renderHeroProof();
-      });
+    bindChoices(document.querySelectorAll("[data-hero-lang]"), function (btn) {
+      heroLang = btn.getAttribute("data-hero-lang");
+      renderHeroProof();
     });
 
     renderHeroProof();
@@ -671,12 +767,12 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
         }
       } else if (workbenchView === "after") {
         if (sample && sample.after) {
-          leftContainer.innerHTML = `<div class="annotated-preview">${renderAnnotatedText(sample.after, sample.after_scan || { hits: [], cues: [] })}</div>`;
+          leftContainer.innerHTML = `<div class="annotated-preview" tabindex="0" role="region" aria-label="書き換え後の文書">${renderAnnotatedText(sample.after, sample.after_scan || { hits: [], cues: [] })}</div>`;
         } else {
-          leftContainer.innerHTML = `<div class="annotated-preview" style="color: var(--ink-secondary);">このコーパス文書は入力専用サンプル（<code>corpus/</code>）です。エージェントで <code>/deslop</code> を実行すると、右ペインの検出ヒットと構造キューに基づき、事実を保持したまま推敲された文書が出力されます。</div>`;
+          leftContainer.innerHTML = `<div class="annotated-preview is-note" tabindex="0" role="region" aria-label="書き換え後の文書">このコーパス文書は入力専用サンプル（<code>corpus/</code>）です。エージェントで <code>/deslop</code> を実行すると、右ペインの検出ヒットと構造キューに基づき、事実を保持したまま推敲された文書が出力されます。</div>`;
         }
       } else {
-        leftContainer.innerHTML = `<div class="annotated-preview">${renderAnnotatedText(currentText, result)}</div>`;
+        leftContainer.innerHTML = `<div class="annotated-preview" tabindex="0" role="region" aria-label="検出ヒットを示した文書">${renderAnnotatedText(currentText, result)}</div>`;
       }
     }
 
@@ -711,7 +807,7 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
       allHits.forEach(function (h) {
         const cls = h.exempt ? "is-exempt" : (h.tier === "density" ? "is-density" : "");
         rows.push(`
-          <div class="hit-row ${cls}" data-jump-line="${h.line}">
+          <div class="hit-row ${cls}" data-jump-line="${h.line}" role="button" tabindex="0">
             <div class="hit-row-top">
               <span class="hit-rule-id">${escapeHtml(h.rule)} (${escapeHtml(h.tier)})${h.exempt ? " [EXEMPT]" : ""}</span>
               <span class="hit-loc">${h.tier === "density" ? "document metric" : `line ${h.line}:col ${h.col}`}</span>
@@ -723,7 +819,7 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
       });
       (result.cues || []).forEach(function (c) {
         rows.push(`
-          <div class="hit-row is-cue" data-jump-line="${c.line}">
+          <div class="hit-row is-cue" data-jump-line="${c.line}" role="button" tabindex="0">
             <div class="hit-row-top">
               <span class="hit-rule-id">${escapeHtml(c.perspective)} CUE (${escapeHtml(c.name || "")})</span>
               <span class="hit-loc">line ${c.line}</span>
@@ -736,21 +832,27 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
 
       if (rows.length === 0) {
         hitsListEl.innerHTML = result.fallback
-          ? `<div style="padding: 18px; color: var(--term-muted);">No pattern hits. detect.py is unavailable, so statistics, density rules and structural cues were not checked.</div>`
-          : `<div style="padding: 18px; color: var(--term-green);">✓ No open hits or cues found (exit 0).</div>`;
+          ? `<div class="hits-empty">No pattern hits. detect.py is unavailable, so statistics, density rules and structural cues were not checked.</div>`
+          : `<div class="hits-empty is-pass">✓ No open hits or cues found (exit 0).</div>`;
       } else {
         hitsListEl.innerHTML = rows.join("");
         hitsListEl.querySelectorAll("[data-jump-line]").forEach(function (rowEl) {
-          rowEl.addEventListener("click", function () {
+          function jump() {
             const lineNum = rowEl.getAttribute("data-jump-line");
             const targetLine = document.getElementById("wb-line-" + lineNum);
             if (targetLine) {
-              targetLine.scrollIntoView({ behavior: "smooth", block: "center" });
+              targetLine.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center" });
               targetLine.classList.add("is-flash");
               setTimeout(function () {
                 targetLine.classList.remove("is-flash");
               }, 1200);
             }
+          }
+          rowEl.addEventListener("click", jump);
+          rowEl.addEventListener("keydown", function (e) {
+            if (e.key !== "Enter" && e.key !== " ") return;
+            e.preventDefault();
+            jump();
           });
         });
       }
@@ -758,25 +860,40 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
 
     if (densityGridEl && result.metrics) {
       const m = result.metrics;
+      const cells = [
+        { id: "DEN-01", label: "DEN-01 太字/1000字", value: (m.bold_per_1000 || 0).toFixed(2), metric: m.bold_per_1000 || 0, unit: "", digits: 1 },
+        { id: "DEN-04", label: "DEN-04 太字ラベル箇条書き", value: m.boldlead_items || 0, metric: m.boldlead_items || 0, unit: "件", digits: 0 },
+        { id: "DEN-07", label: "DEN-07 同一文末連続", value: m.ending_run || 0, metric: m.ending_run || 0, unit: "回", digits: 0 }
+      ];
       densityGridEl.innerHTML = `
         <div class="density-cell">
           <span class="density-cell-label">散文文字数 (chars)</span>
           <span class="density-cell-val">${m.chars || 0}</span>
         </div>
-        <div class="density-cell ${m.bold_per_1000 > 3.0 ? "is-over" : ""}">
-          <span class="density-cell-label">DEN-01 太字/1000字</span>
-          <span class="density-cell-val">${(m.bold_per_1000 || 0).toFixed(2)} (上限 3.0)</span>
-        </div>
-        <div class="density-cell ${m.boldlead_items > 2 ? "is-over" : ""}">
-          <span class="density-cell-label">DEN-04 太字ラベル箇条書き</span>
-          <span class="density-cell-val">${m.boldlead_items || 0}件 (上限 2)</span>
-        </div>
-        <div class="density-cell ${(m.ending_run || 0) > 3 ? "is-over" : ""}">
-          <span class="density-cell-label">DEN-07 同一文末連続</span>
-          <span class="density-cell-val">${m.ending_run || 0}回 (上限 3)</span>
-        </div>
+        ${cells.map(function (c) {
+          const limit = densityLimit(c.id);
+          // detect.py decides what is over; the browser fallback has no density hits, so compare directly.
+          const over = !limit.exempt && (result.fallback
+            ? limit.max !== undefined && c.metric > limit.max
+            : (result.hits || []).some(function (h) { return h.rule === c.id && !h.exempt; }));
+          const bound = limit.exempt ? "ジャンル免除" : `上限 ${Number(limit.max).toFixed(c.digits)}${c.unit}`;
+          return `
+        <div class="density-cell ${over ? "is-over" : ""}">
+          <span class="density-cell-label">${escapeHtml(c.label)}</span>
+          <span class="density-cell-val">${escapeHtml(String(c.value))}${c.unit} (${escapeHtml(bound)})</span>
+        </div>`;
+        }).join("")}
       `;
     }
+  }
+
+  // A density rule's limit under the selected genre, as detect.py applies it:
+  // the genre's limits override the rule's own, and an exempted rule has none.
+  function densityLimit(ruleId) {
+    const rule = DATA.rules.find(function (r) { return r.id === ruleId; }) || {};
+    const genre = DATA.genres.find(function (g) { return g.id === currentGenre; }) || { exempt: {}, limits: {} };
+    if (genre.exempt && genre.exempt[ruleId]) return { exempt: true };
+    return Object.assign({ max: rule.max }, (genre.limits || {})[ruleId] || {});
   }
 
   function setupWorkbench() {
@@ -803,14 +920,9 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
       });
     }
 
-    document.querySelectorAll("[data-wb-view]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        workbenchView = btn.getAttribute("data-wb-view");
-        document.querySelectorAll("[data-wb-view]").forEach(function (b) {
-          b.classList.toggle("is-active", b === btn);
-        });
-        runSandboxScan();
-      });
+    bindChoices(document.querySelectorAll("[data-wb-view]"), function (btn) {
+      workbenchView = btn.getAttribute("data-wb-view");
+      runSandboxScan();
     });
 
     runSandboxScan();
@@ -840,16 +952,9 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
       `;
     }
 
-    buttons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        const idx = parseInt(btn.getAttribute("data-phase-idx"), 10);
-        buttons.forEach(function (b) {
-          b.classList.toggle("is-active", b === btn);
-          b.setAttribute("aria-selected", b === btn ? "true" : "false");
-        });
-        renderPhase(idx);
-      });
-    });
+    bindChoices(buttons, function (btn) {
+      renderPhase(parseInt(btn.getAttribute("data-phase-idx"), 10));
+    }, detailContainer);
 
     renderPhase(0);
   }
@@ -865,28 +970,28 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
     function renderGenre(gid) {
       const info = GENRE_DETAILS[gid] || GENRE_DETAILS.general;
       detailEl.innerHTML = `
-        <div style="display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px; border-bottom:1px solid var(--border-hairline); padding-bottom:14px;">
-          <h3 style="margin:0; font-family:var(--font-display); font-size:1.3rem;">${escapeHtml(info.title)}</h3>
-          <code style="font-family:var(--font-mono); font-size:0.82rem; background:var(--bg-subtle); padding:3px 8px; border-radius:3px;">--genre ${escapeHtml(gid)}</code>
+        <div class="genre-detail-head">
+          <h3 class="genre-detail-title">${escapeHtml(info.title)}</h3>
+          <code class="genre-detail-flag">--genre ${escapeHtml(gid)}</code>
         </div>
         <div class="genre-spec-grid">
           <div class="genre-spec-box">
-            <span class="genre-spec-label" style="color:var(--preserve-fg);">✓ 保持する慣習 (Keep)</span>
-            <div style="font-size:0.88rem;">${escapeHtml(info.keep)}</div>
+            <span class="genre-spec-label is-keep">✓ 保持する慣習 (Keep)</span>
+            <div class="genre-spec-text">${escapeHtml(info.keep)}</div>
           </div>
           <div class="genre-spec-box">
-            <span class="genre-spec-label" style="color:var(--strike-fg);">✕ 除去する対象 (Remove)</span>
-            <div style="font-size:0.88rem;">${escapeHtml(info.remove)}</div>
+            <span class="genre-spec-label is-remove">✕ 除去する対象 (Remove)</span>
+            <div class="genre-spec-text">${escapeHtml(info.remove)}</div>
           </div>
           <div class="genre-spec-box">
-            <span class="genre-spec-label" style="color:var(--density-fg);">⚙ 検出器の自動調整</span>
-            <div style="font-size:0.88rem;">${escapeHtml(info.adjust)}</div>
+            <span class="genre-spec-label is-adjust">⚙ 検出器の自動調整</span>
+            <div class="genre-spec-text">${escapeHtml(info.adjust)}</div>
           </div>
         </div>
-        <div style="margin-top:14px; padding:10px 12px; background:var(--preserve-bg); border:1px solid var(--preserve-border); border-radius:4px; font-family:var(--font-mono); font-size:0.78rem; color:var(--preserve-fg);">
+        <div class="genre-corpus-note">
           <strong>実コーパス検証結果 (corpus/):</strong> ${escapeHtml(info.corpus || "")}
         </div>
-        <div class="quick-command-box" style="margin-top:14px;">
+        <div class="quick-command-box genre-command">
           <div class="quick-command-row">
             <code class="quick-command-code">${escapeHtml(info.cmd)}</code>
             <button type="button" class="copy-chip" data-copy-text="${escapeHtml(info.cmd)}">Copy</button>
@@ -895,15 +1000,9 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
       `;
     }
 
-    buttons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        const gid = btn.getAttribute("data-genre-id");
-        buttons.forEach(function (b) {
-          b.classList.toggle("is-active", b === btn);
-        });
-        renderGenre(gid);
-      });
-    });
+    bindChoices(buttons, function (btn) {
+      renderGenre(btn.getAttribute("data-genre-id"));
+    }, detailEl);
 
     renderGenre("readme");
   }
@@ -966,7 +1065,7 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
             <span class="atlas-id">${escapeHtml(it.id)}</span>
             <span class="atlas-tier t-${escapeHtml(it.tier)}">${escapeHtml(it.tier)} · ${escapeHtml(it.lang)}</span>
           </div>
-          <h4 class="atlas-note">${escapeHtml(it.note)}</h4>
+          <h3 class="atlas-note">${escapeHtml(it.note)}</h3>
           <p class="atlas-doc">${escapeHtml(it.doc.slice(0, 140))}${it.doc.length > 140 ? "…" : ""}</p>
         </article>
       `;
@@ -975,14 +1074,9 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
   }
 
   function setupAtlas() {
-    document.querySelectorAll("[data-atlas-filter]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        atlasFilter = btn.getAttribute("data-atlas-filter");
-        document.querySelectorAll("[data-atlas-filter]").forEach(function (b) {
-          b.classList.toggle("is-active", b === btn);
-        });
-        renderAtlas();
-      });
+    bindChoices(document.querySelectorAll("[data-atlas-filter]"), function (btn) {
+      atlasFilter = btn.getAttribute("data-atlas-filter");
+      renderAtlas();
     });
 
     const searchInput = document.getElementById("atlas-search-input");
@@ -1007,7 +1101,7 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
     function renderHost(key) {
       const h = HOST_COMMANDS[key] || HOST_COMMANDS.all;
       container.innerHTML = `
-        <p style="margin:0 0 12px; font-size:0.88rem; color:var(--term-muted);">${escapeHtml(h.label)}</p>
+        <p class="install-host-label">${escapeHtml(h.label)}</p>
         <div class="cmd-block">
           <div class="cmd-block-head">
             <span>1. インストール / 実行コマンド</span>
@@ -1015,7 +1109,7 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
           </div>
           <pre class="cmd-pre"><code>${escapeHtml(h.install)}</code></pre>
         </div>
-        <div class="cmd-block" style="margin-bottom:0;">
+        <div class="cmd-block is-last">
           <div class="cmd-block-head">
             <span>2. ステータス確認 / 呼び出し方法</span>
             <button type="button" class="copy-chip" data-copy-text="${escapeHtml(h.verify)}">Copy</button>
@@ -1025,15 +1119,9 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
       `;
     }
 
-    tabs.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        const key = btn.getAttribute("data-host-tab");
-        tabs.forEach(function (b) {
-          b.classList.toggle("is-active", b === btn);
-        });
-        renderHost(key);
-      });
-    });
+    bindChoices(tabs, function (btn) {
+      renderHost(btn.getAttribute("data-host-tab"));
+    }, container);
 
     renderHost("all");
   }

@@ -30,6 +30,7 @@
 </head>
 <body>
   <a href="#main-content" class="skip-link">メインコンテンツへ移動</a>
+  <div id="copy-status" class="visually-hidden" role="status" aria-live="polite"></div>
 
   <!-- Header -->
   <header class="site-header">
@@ -49,7 +50,7 @@
         <ul id="main-nav-links" class="nav-links">
           <li><a href="#live-detector">ライブ検出器</a></li>
           <li><a href="#three-layers">3層の除去原理</a></li>
-          <li><a href="#pipeline">実行契約 (6 Phases)</a></li>
+          <li><a href="#pipeline">実行契約 (8 Phases)</a></li>
           <li><a href="#genres">10種のジャンル</a></li>
           <li><a href="#rule-atlas">全81ルール＋24観点</a></li>
           <li><a href="#faq">FAQ</a></li>
@@ -116,14 +117,41 @@
             </div>
           </div>
 
-          <div id="hero-proof-stats" class="proof-stats-bar"></div>
-          <div id="hero-proof-body" class="proof-sheet-body" tabindex="0" aria-live="polite"></div>
+          <div id="hero-proof-stats" class="proof-stats-bar">
+            <div class="proof-stat-cell">
+              <span class="proof-stat-label">検出ヒット数</span>
+              <span class="proof-stat-val"><span class="bad">30 hits</span><span class="arrow">→</span><span class="good">0 open</span></span>
+            </div>
+            <div class="proof-stat-cell">
+              <span class="proof-stat-label">散文文字数 (Prose)</span>
+              <span class="proof-stat-val">396字<span class="arrow">→</span><span class="good">105字 (−73%)</span></span>
+            </div>
+            <div class="proof-stat-cell">
+              <span class="proof-stat-label">保護された事実</span>
+              <span class="proof-stat-val"><span class="good">数値2・URL1・TOML1</span></span>
+            </div>
+          </div>
+          <div id="hero-proof-body" class="proof-sheet-body" role="tabpanel" tabindex="0">
+            <div class="proof-line"><span class="proof-line-num">01</span># キャッシュ設定<span class="mark-slop">ガイド：パフォーマンスを最大限に引き出す完全ガイド 🚀</span><span class="rule-pill tier-lexical">JA-06</span><span class="rule-pill tier-lexical">JA-14</span><span class="rule-pill tier-lexical">EMO-01</span></div>
+            <div class="proof-line"><span class="proof-line-num">03</span><span class="mark-slop">本記事では、`tilecache` のキャッシュ設定について詳しく解説します。</span><span class="rule-pill tier-lexical">JA-08</span><span class="rule-pill tier-cue">STR-01</span></div>
+            <div class="proof-line"><span class="proof-line-num">05</span><span class="mark-cue">## キャッシュとは？</span> <span class="rule-pill tier-lexical">JA-17</span><span class="rule-pill tier-cue">STR-14</span> <span class="mark-slop">重要な役割を果たし... 導入企業の約30%が実感していると言われています... システム全体の安定性を支える基盤と言っても過言ではありません。</span><span class="rule-pill tier-lexical">JA-03</span><span class="rule-pill tier-content">CNT-01</span><span class="rule-pill tier-lexical">JA-31</span><span class="rule-pill tier-lexical">JA-02</span></div>
+            <div class="proof-line"><span class="proof-line-num">11</span><span class="mark-slop">設定のポイントとしては、以下の3つが挙げられます。</span><span class="rule-pill tier-lexical">JA-13</span><span class="rule-pill tier-density">DEN-04</span> / - **TTL**: 有効期限を設定<span class="mark-slop">することができます</span>。<span class="rule-pill tier-lexical">JA-04</span></div>
+            <div class="proof-line"><span class="proof-line-num">17</span>TTL は <span class="mark-keep">`ttl_seconds`</span> (既定値 <span class="mark-keep">300</span> 秒)、容量は <span class="mark-keep">`max_entries`</span> (既定値 <span class="mark-keep">10000</span> 件) で指定します。</div>
+            <div class="proof-line"><span class="proof-line-num">27</span><span class="mark-cue">## まとめ</span> <span class="rule-pill tier-lexical">JA-09</span><span class="rule-pill tier-cue">STR-02</span> <span class="mark-slop">いかがでしたか？... 飛躍的に向上させることが期待されます。</span>詳細は <span class="mark-keep">https://example.com/tilecache/docs</span> を参照。<span class="mark-slop">参考になれば幸いです！</span><span class="rule-pill tier-artifact">ART-04</span></div>
+            <div class="hero-after-dock">
+              <div class="hero-after-dock-head">
+                <span>✓ REWRITTEN RESULT (examples/after.ja.md · 396字 → 105字)</span>
+                <span>0 open hits · preserve_check OK</span>
+              </div>
+              <div><span class="mark-keep">`tilecache`</span> のキャッシュ設定は TTL、容量、退避方式の3項目です。TTL は <span class="mark-keep">`ttl_seconds`</span> で指定し、既定値は <span class="mark-keep">300</span> 秒です。容量は <span class="mark-keep">`max_entries`</span> で指定し、既定値は <span class="mark-keep">10000</span> 件です。（＋ <code>[cache]</code> TOMLブロック ＆ 公式URL完全保持）</div>
+            </div>
+          </div>
 
           <div class="proof-sheet-footer">
             <div class="legend-inline">
-              <span class="legend-item"><span class="legend-dot" style="background:var(--accent-redline);"></span>規則ヒット (削除・修正)</span>
-              <span class="legend-item"><span class="legend-dot" style="background:var(--cue-fg);"></span>構造キュー (STR/CON)</span>
-              <span class="legend-item"><span class="legend-dot" style="background:var(--preserve-fg);"></span>保護された事実 (数値・コード・URL)</span>
+              <span class="legend-item"><span class="legend-dot is-hit"></span>規則ヒット (削除・修正)</span>
+              <span class="legend-item"><span class="legend-dot is-cue"></span>構造キュー (STR/CON)</span>
+              <span class="legend-item"><span class="legend-dot is-keep"></span>保護された事実 (数値・コード・URL)</span>
             </div>
             <span>実フィクスチャ: <code>examples/before.*.md</code> → <code>after.*.md</code></span>
           </div>
@@ -151,7 +179,7 @@
             <div class="strip-note">readme / reference / spec / article / pr / template 等</div>
           </div>
           <div class="strip-metric">
-            <div class="strip-number">429<span>tests</span></div>
+            <div class="strip-number">553<span>tests</span></div>
             <div class="strip-label">オフライン回帰テスト</div>
             <div class="strip-note">make check でルール・ドキュメント整合性を常時検証</div>
           </div>
@@ -224,7 +252,7 @@
               </div>
               <div id="detector-hits-list" class="detector-hits-list" tabindex="0" aria-label="検出結果一覧"></div>
               <div class="density-panel">
-                <div style="color:var(--term-muted);">DOCUMENT DENSITY METRICS (400字以上で判定、見出し・リスト比率は1,500字以上)</div>
+                <div class="density-panel-title">DOCUMENT DENSITY METRICS (400字以上で判定、見出し・リスト比率は1,500字以上)</div>
                 <div id="detector-density-grid" class="density-grid"></div>
               </div>
             </div>
@@ -266,7 +294,7 @@
             </div>
             <div class="layer-body">
               <div>
-                <p style="margin-top:0; color:var(--ink-secondary); font-size:0.92rem;">
+                <p class="layer-lead">
                   各段落のすべての主張を以下の4つのテストにかけます。1つでも落ちた文は、美辞麗句に書き換えるのではなく削除の対象です。根拠のない数値が議論の前提になっている場合は勝手に書き換えず、<code>decisions</code> に記録して著者の判断を仰ぎます。
                 </p>
                 <ul class="four-tests-list">
@@ -318,7 +346,7 @@
             </div>
             <div class="layer-body">
               <div>
-                <p style="margin-top:0; color:var(--ink-secondary); font-size:0.92rem;">
+                <p class="layer-lead">
                   単語単位の正規表現だけでは見抜けない「文書の骨格のクセ」は、16の構造観点の対象です。<code>detect.py</code>（<code>cues.py</code>）が文書の形状から11種類の構造キューを行番号付きで自動抽出し、エージェントの精読箇所をガイドします。
                 </p>
                 <ul class="four-tests-list">
@@ -370,7 +398,7 @@
             </div>
             <div class="layer-body">
               <div>
-                <p style="margin-top:0; color:var(--ink-secondary); font-size:0.92rem;">
+                <p class="layer-lead">
                   Wikipedia「Signs of AI writing」、PubMed抄録の過剰語彙研究（Kobak et al. 2025 / Juzek and Ward 2025）、日本語AI文体分析に基づき整備されたルールセットで、残った文の贅肉を落とします。
                 </p>
                 <ul class="four-tests-list">
@@ -414,18 +442,18 @@
       </div>
     </section>
 
-    <!-- Section 3: 6-Phase Run Contract -->
+    <!-- Section 3: 8-Phase Run Contract -->
     <section id="pipeline" class="section">
       <div class="container">
         <div class="section-header">
           <span class="section-kicker">DETERMINISTIC RUN CONTRACT</span>
-          <h2 class="section-title">「AIが勝手に事実やコードを書き換える」を許さない<span class="nowrap">6フェーズ実行契約</span></h2>
+          <h2 class="section-title">「AIが勝手に事実やコードを書き換える」を許さない<span class="nowrap">8フェーズ実行契約</span></h2>
           <p class="section-desc">
-            Claude Code、Codex、Antigravity のどのエージェントから実行しても同じ品質を保証するため、<code>deslop</code> は5つの Python スクリプトで各フェーズの入出力を縛り、最後に <code>contract_check.py</code> が原本スナップショットから再計算して合否を判定します。
+            Claude Code、Codex、Antigravity のどのエージェントから実行しても同じ品質を保証するため、<code>deslop</code> は6つの Python スクリプトで各フェーズの入出力を縛り、最後に <code>contract_check.py</code> が原本スナップショットから再計算して合否を判定します。
           </p>
         </div>
 
-        <div class="phase-stepper" role="tablist" aria-label="6フェーズ実行パイプライン">
+        <div class="phase-stepper" role="tablist" aria-label="8フェーズ実行パイプライン">
           <button type="button" role="tab" aria-selected="true" class="phase-step-btn is-active" data-phase-idx="0">
             <span class="phase-num">01 · SNAPSHOT</span>
             <span class="phase-title">INVENTORY</span>
@@ -443,16 +471,24 @@
             <span class="phase-title">REWRITE</span>
           </button>
           <button type="button" role="tab" aria-selected="false" class="phase-step-btn" data-phase-idx="4">
-            <span class="phase-num">05 · FACTS=OK</span>
-            <span class="phase-title">VERIFY</span>
+            <span class="phase-num">05 · RUBRIC</span>
+            <span class="phase-title">REVIEW</span>
           </button>
           <button type="button" role="tab" aria-selected="false" class="phase-step-btn" data-phase-idx="5">
-            <span class="phase-num">06 · CONTRACT</span>
+            <span class="phase-num">06 · BEST OF 3</span>
+            <span class="phase-title">SELECT</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" class="phase-step-btn" data-phase-idx="6">
+            <span class="phase-num">07 · FACTS=OK</span>
+            <span class="phase-title">VERIFY</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" class="phase-step-btn" data-phase-idx="7">
+            <span class="phase-num">08 · CONTRACT</span>
             <span class="phase-title">REPORT</span>
           </button>
         </div>
 
-        <div id="phase-detail-container" class="phase-detail-panel" aria-live="polite"></div>
+        <div id="phase-detail-container" class="phase-detail-panel" role="tabpanel" tabindex="0"></div>
 
         <!-- 5 Fact Preservation Guarantees (preserve_check.py) -->
         <div class="preserve-matrix" aria-label="preserve_check.py が保護する5種類の事実">
@@ -504,19 +540,19 @@
 
         <div class="genre-explorer">
           <div class="genre-selector-list" role="tablist" aria-label="文書ジャンル一覧">
-            <button type="button" class="genre-btn is-active" data-genre-id="readme"><span>README</span><code>readme</code></button>
-            <button type="button" class="genre-btn" data-genre-id="reference"><span>API / Reference</span><code>reference</code></button>
-            <button type="button" class="genre-btn" data-genre-id="article"><span>Blog / Article</span><code>article</code></button>
-            <button type="button" class="genre-btn" data-genre-id="spec"><span>Spec / RFC</span><code>spec</code></button>
-            <button type="button" class="genre-btn" data-genre-id="tutorial"><span>Tutorial</span><code>tutorial</code></button>
-            <button type="button" class="genre-btn" data-genre-id="pr"><span>PR Description</span><code>pr</code></button>
-            <button type="button" class="genre-btn" data-genre-id="message"><span>Email / Message</span><code>message</code></button>
-            <button type="button" class="genre-btn" data-genre-id="changelog"><span>Changelog</span><code>changelog</code></button>
-            <button type="button" class="genre-btn" data-genre-id="template"><span>Template</span><code>template</code></button>
-            <button type="button" class="genre-btn" data-genre-id="general"><span>General Prose</span><code>general</code></button>
+            <button type="button" role="tab" class="genre-btn is-active" data-genre-id="readme"><span>README</span><code>readme</code></button>
+            <button type="button" role="tab" class="genre-btn" data-genre-id="reference"><span>API / Reference</span><code>reference</code></button>
+            <button type="button" role="tab" class="genre-btn" data-genre-id="article"><span>Blog / Article</span><code>article</code></button>
+            <button type="button" role="tab" class="genre-btn" data-genre-id="spec"><span>Spec / RFC</span><code>spec</code></button>
+            <button type="button" role="tab" class="genre-btn" data-genre-id="tutorial"><span>Tutorial</span><code>tutorial</code></button>
+            <button type="button" role="tab" class="genre-btn" data-genre-id="pr"><span>PR Description</span><code>pr</code></button>
+            <button type="button" role="tab" class="genre-btn" data-genre-id="message"><span>Email / Message</span><code>message</code></button>
+            <button type="button" role="tab" class="genre-btn" data-genre-id="changelog"><span>Changelog</span><code>changelog</code></button>
+            <button type="button" role="tab" class="genre-btn" data-genre-id="template"><span>Template</span><code>template</code></button>
+            <button type="button" role="tab" class="genre-btn" data-genre-id="general"><span>General Prose</span><code>general</code></button>
           </div>
 
-          <div id="genre-detail-card" class="genre-detail-card" aria-live="polite"></div>
+          <div id="genre-detail-card" class="genre-detail-card" role="tabpanel" tabindex="0"></div>
         </div>
       </div>
     </section>
@@ -543,7 +579,7 @@
           </div>
 
           <div class="atlas-search-wrap">
-            <span id="atlas-count" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--ink-muted);">105 / 105 件を表示中</span>
+            <span id="atlas-count" class="atlas-count">105 / 105 件を表示中</span>
             <input type="search" id="atlas-search-input" class="atlas-search" placeholder="ルールID・語彙で検索 (例: JA-04, delve, まとめ)" aria-label="ルール検索">
           </div>
         </div>
@@ -598,23 +634,23 @@
           <div>
             <span class="section-kicker">GET STARTED IN 10 SECONDS</span>
             <h2 class="section-title">エージェントへの導入と<span class="nowrap">単体CLI実行</span></h2>
-            <p class="section-desc" style="margin-bottom:20px;">
+            <p class="section-desc is-tight">
               お使いのコーディングエージェントまたはCI環境を選択してコマンドをコピーしてください。インストールされていないホストは <code>make link</code> 時に自動でスキップされます。
             </p>
 
             <div class="install-card">
               <div class="host-tabs" role="tablist" aria-label="導入先ホスト選択">
-                <button type="button" class="host-tab is-active" data-host-tab="all">All Hosts</button>
-                <button type="button" class="host-tab" data-host-tab="claude">Claude Code</button>
-                <button type="button" class="host-tab" data-host-tab="codex">Codex</button>
-                <button type="button" class="host-tab" data-host-tab="agy">Antigravity</button>
-                <button type="button" class="host-tab" data-host-tab="cli">Standalone CLI</button>
+                <button type="button" role="tab" class="host-tab is-active" data-host-tab="all">All Hosts</button>
+                <button type="button" role="tab" class="host-tab" data-host-tab="claude">Claude Code</button>
+                <button type="button" role="tab" class="host-tab" data-host-tab="codex">Codex</button>
+                <button type="button" role="tab" class="host-tab" data-host-tab="agy">Antigravity</button>
+                <button type="button" role="tab" class="host-tab" data-host-tab="cli">Standalone CLI</button>
               </div>
-              <div id="install-commands-body" aria-live="polite"></div>
+              <div id="install-commands-body" role="tabpanel" tabindex="0"></div>
 
-              <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--term-border); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; font-family:var(--font-mono); font-size:0.75rem; color:var(--term-muted);">
+              <div class="install-card-foot">
                 <span>終了コード仕様: 0 = ヒットなし / 1 = 未処理ヒットあり / 2 = 引数エラー</span>
-                <a href="#live-detector" style="color:var(--term-amber); text-decoration:none;">↑ ライブ検出器へ戻る</a>
+                <a href="#live-detector">↑ ライブ検出器へ戻る</a>
               </div>
             </div>
           </div>
@@ -627,7 +663,7 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div>
-        <strong style="font-family:var(--font-mono); color:var(--ink-primary);">deslop</strong>
+        <strong class="footer-brand">deslop</strong>
         <span> — Remove every trace of machine-generated style without adding anything the document does not say.</span>
       </div>
       <div class="footer-links">

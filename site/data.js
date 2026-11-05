@@ -61,7 +61,7 @@ window.DESLOP_DATA = {
       "flags": "i",
       "pattern": "(?:\\b20\\d\\d-[Xx]{2}-[Xx]{2}\\b|\\b(?:INSERT|PASTE)_[A-Z_]*(?:URL|SOURCE)[A-Z_#\\d]*|\\[(?:insert|your|company|name|date|product|author|link|owner|amount|timezone|(?-i:N(?=[\\]\\s])|HH:MM|YYYY-MM-DD))\\b[^\\]\\n]{0,40}\\](?![(\\[:])|(?<![一二三四五六七八九十百千万億〇○])[〇○]{2,}(?![一二三四五六七八九十百千万億])|(?<![一二三四五六七八九十百千万億〇○])[〇○](?=[名件円人個回日月年時分%％](?![時間程次本常]))|[\\[【［](?:ここに|会社名|取引先|担当者|自社名|氏名|お名前|日付|製品名|サービス名|システム名|リンク)[^\\]】］\\n]{0,30}[\\]】］](?![(\\[:]))",
       "note": "Unfilled template placeholder",
-      "doc": "Unfilled placeholder (`[Insert company name]`, `【会社名】`, `[取引先会社名]`, `〇〇株式会社`, `〇名`, `○月○日`, `[リンク]`, template fields such as `[HH:MM]`, `[N]`, `[link]`, `[YYYY-MM-DD]`, a date such as `2025-XX-XX`, `INSERT_SOURCE_URL_30`, `PASTE_YOUTUBE_VIDEO_URL_HERE`); a Markdown link such as `[Your first project](tutorial.md)` or `[リンク](…)` does not match, nor does a `[label]` that a reference definition in the document resolves, `[N/A]`, the zero in a kanji numeral (`二〇二〇年`, `一〇〇円`) or a `○` used as a bullet (`○日時`). In a document meant to be filled in by its user (a postmortem template, a mail draft with `[担当者名]`), give it the `template` genre, which exempts this rule and no other artifact rule. Never fill it with an invented value: list it under `decisions` and leave a visible marker only if the requester wants the draft to keep it. Remove only the marker and the words that depend on it (`〇名規模のチームで` → `チームで`); the sentence and its claim stay."
+      "doc": "Unfilled placeholder (`[Insert company name]`, `【会社名】`, `[取引先会社名]`, `〇〇株式会社`, `〇名`, `○月○日`, `[リンク]`, template fields such as `[HH:MM]`, `[N]`, `[link]`, `[YYYY-MM-DD]`, a date such as `2025-XX-XX`, `INSERT_SOURCE_URL_30`, `PASTE_YOUTUBE_VIDEO_URL_HERE`); a Markdown link such as `[Your first project](tutorial.md)` or `[リンク](…)` does not match, nor does a `[label]` that a valid reference definition in the document resolves, `[N/A]`, the zero in a kanji numeral (`二〇二〇年`, `一〇〇円`) or a `○` used as a bullet (`○日時`). In a document meant to be filled in by its user (a postmortem template, a mail draft with `[担当者名]`), give it the `template` genre, which exempts this rule and no other artifact rule. Never fill it with an invented value: list it under `decisions` and leave a visible marker only if the requester wants the draft to keep it. Remove only the marker and the words that depend on it (`〇名規模のチームで` → `チームで`); the sentence and its claim stay. Examples inside code, front matter or HTML blocks do not define references. A valid definition may wrap onto the next line or sit in a list or quote. An escaped `\\[Your Name]` remains a literal placeholder rather than a link."
     },
     {
       "id": "ART-08",
@@ -636,7 +636,7 @@ window.DESLOP_DATA = {
       "lang": "any",
       "check": "unsourced_stat",
       "note": "Figure stated as a claim with nothing cited in its paragraph",
-      "doc": "A percentage or multiplier (`30%`, `2倍`, `3割`) stated as a claim: its sentence names a population (`企業`, `users`), a change (`向上`, `削減`, `faster`) or an approximation (`約` before an amount, `程度`, `about`), and its paragraph has no link, footnote, named source, stated assumption (`仮定`, `estimate`) or measurement (`63 → 27 ms`). Table rows and ranges such as `15-30%` are not checked. Generated drafts invent such figures. Do not look for a source and do not change the number: if it is decoration, delete the sentence and record the value in `preservation`; if the document depends on it, keep it and list it under `decisions` as needing a source, then exempt the hit with that reason. A figure measured in the document itself (a benchmark table, a log) is exempted with that named (CON-03)."
+      "doc": "A percentage or multiplier (`30%`, `2倍`, `3割`) stated as a claim: its sentence names a population (`企業`, `users`), a change (`向上`, `削減`, `faster`) or an approximation (`約` before an amount, `程度`, `about`), and its paragraph has no link, footnote, named source, stated assumption (`仮定`, `estimate`) or measurement (`63 → 27 ms`). Table rows and ranges such as `15-30%`, `15 - 30%` and `15% - 30%` are not checked. A source in a different Markdown block, such as the next list item or a section after a heading, does not support the claim's paragraph. Generated drafts invent such figures. Do not look for a source and do not change the number: if it is decoration, delete the sentence and record the value in `preservation`; if the document depends on it, keep it and list it under `decisions` as needing a source, then exempt the hit with that reason. A figure measured in the document itself (a benchmark table, a log) is exempted with that named (CON-03)."
     },
     {
       "id": "DEN-01",
@@ -1108,6 +1108,7 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "bold_per_1000=5.05 (max 3.0)",
             "context": "document",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Too much bold: emphasis on everything is emphasis on nothing"
@@ -1119,6 +1120,7 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "exclaim_ratio=0.06 (max 0.05)",
             "context": "document",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Exclamation marks in expository text"
@@ -1130,6 +1132,7 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "boldlead_items=3 (max 2)",
             "context": "document",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Bullet lists of '**Label**: explanation'"
@@ -1141,6 +1144,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "最大限に引き出",
             "context": "heading",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "中身のない宣伝語"
@@ -1152,6 +1156,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "完全ガイド",
             "context": "heading",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "冒険・探求の比喩"
@@ -1163,6 +1168,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "🚀",
             "context": "heading",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Decorative emoji in prose or headings"
@@ -1174,6 +1180,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "本記事では、`tilecache` のキャッシュ設定について詳しく解説します",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "これから書く内容の予告"
@@ -1185,6 +1192,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "詳しく解説します",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "本題の前の道案内"
@@ -1196,6 +1204,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "## キャッシュとは？",
             "context": "heading",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "SEO記事型の見出し"
@@ -1207,6 +1216,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "重要な役割を果たし",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "重要さを示さずに宣言する"
@@ -1218,6 +1228,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "多くの企業が",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "出典を示さない伝聞や多数派への言及"
@@ -1229,6 +1240,7 @@ window.DESLOP_DATA = {
             "tier": "content",
             "text": "30%",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Figure stated as a claim with nothing cited in its paragraph"
@@ -1240,6 +1252,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "と言われています",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "出典を示さない伝聞や多数派への言及"
@@ -1251,6 +1264,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "ことで、レスポンス速度の向上が可能になり",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "「〜することで〜が可能になります」型の抽象的な効能文"
@@ -1262,6 +1276,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "単なる高速化の手段ではなく",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "反射的な「AではなくB」対比"
@@ -1273,6 +1288,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "と言っても過言ではありません",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "誇張の定型句"
@@ -1284,6 +1300,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "## 設定のポイント",
             "context": "heading",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "SEO記事型の見出し"
@@ -1295,6 +1312,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "が挙げられます",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "列挙の定型句"
@@ -1306,6 +1324,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "することができます",
             "context": "list",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "「〜できる」で足りる冗長形"
@@ -1317,6 +1336,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "することができます",
             "context": "list",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "「〜できる」で足りる冗長形"
@@ -1328,6 +1348,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "することができます",
             "context": "list",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "「〜できる」で足りる冗長形"
@@ -1339,6 +1360,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "つまり、",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "直前の文の言い直し"
@@ -1350,6 +1372,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "が鍵となります",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "重要さを示さずに宣言する"
@@ -1361,6 +1384,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "さまざまな用途",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "具体例の代わりの「さまざまな〜」"
@@ -1372,6 +1396,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "してみてはいかがでしょうか",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "読者への勧誘"
@@ -1383,6 +1408,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "## まとめ",
             "context": "heading",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "本文を繰り返すだけの締め"
@@ -1394,6 +1420,7 @@ window.DESLOP_DATA = {
             "tier": "artifact",
             "text": "いかがでしたか",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Chat reply closer addressed to whoever asked"
@@ -1405,6 +1432,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "飛躍的に",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "中身のない宣伝語"
@@ -1416,6 +1444,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "ことが期待されます",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "出典のない動向の断定"
@@ -1427,6 +1456,7 @@ window.DESLOP_DATA = {
             "tier": "artifact",
             "text": "参考になれば幸いです",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Chat reply closer addressed to whoever asked"
@@ -1434,6 +1464,7 @@ window.DESLOP_DATA = {
         ],
         "cues": [
           {
+            "path": "input.md",
             "line": 3,
             "perspective": "STR-01",
             "text": "本記事では、`tilecache` のキャッシュ設定について詳しく解説します。",
@@ -1441,6 +1472,7 @@ window.DESLOP_DATA = {
             "name": "Announced opening"
           },
           {
+            "path": "input.md",
             "line": 5,
             "perspective": "STR-14",
             "text": "## キャッシュとは？",
@@ -1448,6 +1480,7 @@ window.DESLOP_DATA = {
             "name": "Question headings and FAQ padding"
           },
           {
+            "path": "input.md",
             "line": 27,
             "perspective": "STR-02",
             "text": "## まとめ",
@@ -1456,9 +1489,35 @@ window.DESLOP_DATA = {
           }
         ],
         "summary": {
+          "files": 1,
           "total": 30,
           "open": 30,
           "exempt": 0,
+          "by_rule": {
+            "ART-04": 2,
+            "CNT-01": 1,
+            "DEN-01": 1,
+            "DEN-03": 1,
+            "DEN-04": 1,
+            "EMO-01": 1,
+            "JA-02": 1,
+            "JA-03": 2,
+            "JA-04": 3,
+            "JA-06": 2,
+            "JA-07": 1,
+            "JA-08": 1,
+            "JA-09": 1,
+            "JA-10": 1,
+            "JA-11": 1,
+            "JA-12": 1,
+            "JA-13": 1,
+            "JA-14": 1,
+            "JA-16": 1,
+            "JA-17": 2,
+            "JA-18": 1,
+            "JA-23": 1,
+            "JA-31": 2
+          },
           "cues": 3
         }
       },
@@ -1482,9 +1541,11 @@ window.DESLOP_DATA = {
         "hits": [],
         "cues": [],
         "summary": {
+          "files": 1,
           "total": 0,
           "open": 0,
           "exempt": 0,
+          "by_rule": {},
           "cues": 0
         }
       }
@@ -1541,7 +1602,7 @@ window.DESLOP_DATA = {
           "heading_per_1000": 3.1545741324921135,
           "list_ratio": 0,
           "ending_run": 1,
-          "length_cv": 0.6206096799708021,
+          "length_cv": 0.6206096799708022,
           "triad_count": 2,
           "hr_count": 0
         },
@@ -1553,6 +1614,7 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "bold_per_1000=3.15 (max 3.0)",
             "context": "document",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Too much bold: emphasis on everything is emphasis on nothing"
@@ -1564,6 +1626,7 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "dash_per_1000=2.1 (max 1.5)",
             "context": "document",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Em-dash habit"
@@ -1575,6 +1638,7 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "exclaim_ratio=0.14 (max 0.05)",
             "context": "document",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Exclamation marks in expository text"
@@ -1586,6 +1650,7 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "boldlead_items=3 (max 2)",
             "context": "document",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Bullet lists of '**Label**: explanation'"
@@ -1597,6 +1662,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "Unlocking the Power",
             "context": "heading",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Inflated verb where a plain one says the same"
@@ -1608,6 +1674,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "Comprehensive",
             "context": "heading",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Intensifier adjective standing in for detail"
@@ -1619,6 +1686,7 @@ window.DESLOP_DATA = {
             "tier": "artifact",
             "text": "Certainly!",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Chat reply opener left in the document"
@@ -1630,6 +1698,7 @@ window.DESLOP_DATA = {
             "tier": "artifact",
             "text": "Here's a revised",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Framing of a chat response rather than the document itself"
@@ -1641,6 +1710,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "In today's fast-paced digital landscape",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Generic scene-setting opener"
@@ -1652,6 +1722,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "plays a crucial role",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Importance asserted instead of shown"
@@ -1663,6 +1734,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "Let's dive",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Signposted dive instead of starting"
@@ -1674,6 +1746,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "leverage",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Inflated verb where a plain one says the same"
@@ -1685,6 +1758,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "seamless",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Promotional adjective with no measurable content"
@@ -1696,6 +1770,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "whether you're a seasoned engineer or",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Audience-widening 'whether you're X or Y'"
@@ -1707,6 +1782,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "It's important to note",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Throat-clearing before the actual point"
@@ -1718,6 +1794,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "isn't just",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Reflexive 'not X but Y' contrast"
@@ -1729,6 +1806,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "Moreover,",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Essay connective stacking paragraphs mechanically"
@@ -1740,6 +1818,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "robust",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Promotional adjective with no measurable content"
@@ -1751,6 +1830,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "underscores",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Significance verb that adds no information"
@@ -1762,6 +1842,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "In conclusion,",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Formulaic wrap-up that restates the body"
@@ -1773,6 +1854,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "can potentially",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Stacked hedge"
@@ -1784,6 +1866,7 @@ window.DESLOP_DATA = {
             "tier": "artifact",
             "text": "I hope this helps",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Chat reply closer addressed to whoever asked"
@@ -1791,6 +1874,7 @@ window.DESLOP_DATA = {
         ],
         "cues": [
           {
+            "path": "input.md",
             "line": 3,
             "perspective": "STR-13",
             "text": "Certainly! Here's a revised overview of caching in `tilecache`.",
@@ -1798,6 +1882,7 @@ window.DESLOP_DATA = {
             "name": "Uniform rhythm"
           },
           {
+            "path": "input.md",
             "line": 23,
             "perspective": "STR-02",
             "text": "## Conclusion",
@@ -1806,9 +1891,32 @@ window.DESLOP_DATA = {
           }
         ],
         "summary": {
+          "files": 1,
           "total": 22,
           "open": 22,
           "exempt": 0,
+          "by_rule": {
+            "ART-01": 1,
+            "ART-03": 1,
+            "ART-08": 1,
+            "DEN-01": 1,
+            "DEN-02": 1,
+            "DEN-03": 1,
+            "DEN-04": 1,
+            "EN-03": 2,
+            "EN-04": 2,
+            "EN-05": 1,
+            "EN-06": 1,
+            "EN-07": 1,
+            "EN-08": 1,
+            "EN-09": 1,
+            "EN-10": 1,
+            "EN-12": 1,
+            "EN-13": 1,
+            "EN-14": 1,
+            "EN-15": 1,
+            "EN-16": 1
+          },
           "cues": 2
         }
       },
@@ -1832,9 +1940,11 @@ window.DESLOP_DATA = {
         "hits": [],
         "cues": [],
         "summary": {
+          "files": 1,
           "total": 0,
           "open": 0,
           "exempt": 0,
+          "by_rule": {},
           "cues": 0
         }
       }
@@ -1875,7 +1985,7 @@ window.DESLOP_DATA = {
           "heading_per_1000": 9.837962962962964,
           "list_ratio": 0.6938775510204082,
           "ending_run": 1,
-          "length_cv": 0.23824643467712928,
+          "length_cv": 0.2382464346771293,
           "triad_count": 0,
           "hr_count": 0
         },
@@ -1887,6 +1997,7 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "bold_per_1000=9.26 (max 1.5)",
             "context": "document",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Too much bold: emphasis on everything is emphasis on nothing"
@@ -1898,6 +2009,7 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "boldlead_items=16 (max 0)",
             "context": "document",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Bullet lists of '**Label**: explanation'"
@@ -1909,6 +2021,7 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "heading_per_1000=9.84 (max 3.0)",
             "context": "document",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "A heading for every few sentences"
@@ -1920,6 +2033,7 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "list_ratio=0.69 (max 0.3)",
             "context": "document",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Most of the document is bullets"
@@ -1931,6 +2045,7 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "length_cv=0.24 (min 0.3)",
             "context": "document",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "Every sentence the same length"
@@ -1942,6 +2057,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "本記事では、チーム全体でコードレビューを効率化するための実践的な方法をご紹介します",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "これから書く内容の予告"
@@ -1953,6 +2069,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "## まとめ",
             "context": "heading",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "本文を繰り返すだけの締め"
@@ -1964,6 +2081,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "が重要です",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "重要さを示さずに宣言する"
@@ -1971,9 +2089,20 @@ window.DESLOP_DATA = {
         ],
         "cues": [],
         "summary": {
+          "files": 1,
           "total": 8,
           "open": 8,
           "exempt": 0,
+          "by_rule": {
+            "DEN-01": 1,
+            "DEN-04": 1,
+            "DEN-05": 1,
+            "DEN-06": 1,
+            "DEN-08": 1,
+            "JA-03": 1,
+            "JA-08": 1,
+            "JA-09": 1
+          },
           "cues": 0
         }
       }
@@ -2026,8 +2155,10 @@ window.DESLOP_DATA = {
             "tier": "density",
             "text": "bold_per_1000=3.42 (max 3.0)",
             "context": "document",
+            "path": "input.md",
             "exempt": true,
-            "exempt_reason": "genre:reference: parameter and option names are bold",
+            "exempt_by": "genre",
+            "exempt_reason": "API / reference: parameter and option names are bold",
             "note": "Too much bold: emphasis on everything is emphasis on nothing"
           },
           {
@@ -2037,6 +2168,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "仕様は確認できていません",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "生成モデル自身の断り書き（未確認・仮定・参考にした一般例）"
@@ -2048,6 +2180,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "一般的なデプロイ CLI を参考にした",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "生成モデル自身の断り書き（未確認・仮定・参考にした一般例）"
@@ -2059,6 +2192,7 @@ window.DESLOP_DATA = {
             "tier": "lexical",
             "text": "仮の内容",
             "context": "prose",
+            "path": "input.md",
             "exempt": false,
             "exempt_reason": null,
             "note": "生成モデル自身の断り書き（未確認・仮定・参考にした一般例）"
@@ -2066,9 +2200,13 @@ window.DESLOP_DATA = {
         ],
         "cues": [],
         "summary": {
+          "files": 1,
           "total": 4,
           "open": 3,
           "exempt": 1,
+          "by_rule": {
+            "JA-33": 3
+          },
           "cues": 0
         }
       }
