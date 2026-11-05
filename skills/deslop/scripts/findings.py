@@ -27,7 +27,8 @@ from common import markdown_inline as cell
 ACTIONS = {"rewritten", "deleted", "restructured", "exempted"}
 RESULTS = {"applied", "N/A", "not checked"}
 VOICE_SOURCES = {"documented", "samples", "inferred"}
-KINDS = {"code_block", "inline_code", "url", "footnote", "number"}
+# Fact kinds compared by preserve_check.py, in its report order.
+KINDS = ("code_block", "inline_code", "url", "footnote", "number")
 ID = re.compile(r"T-\d{3}")
 LISTS = ("exemptions", "preservation", "limitations", "decisions")
 OBJECT_LISTS = ("findings", "perspectives", "comparisons", "exemptions", "preservation")
