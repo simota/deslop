@@ -1,0 +1,179 @@
+{
+ "skillPhases": [
+  "INVENTORY",
+  "VOICE",
+  "DETECT",
+  "REWRITE",
+  "REVIEW",
+  "SELECT",
+  "VERIFY",
+  "REPORT"
+ ],
+ "testCount": 535,
+ "views": {
+  "w320": {
+   "axe": [
+    {
+     "id": "aria-required-children",
+     "impact": "critical",
+     "nodes": 2
+    },
+    {
+     "id": "heading-order",
+     "impact": "moderate",
+     "nodes": 1
+    },
+    {
+     "id": "scrollable-region-focusable",
+     "impact": "serious",
+     "nodes": 1
+    }
+   ],
+   "consoleErrors": [],
+   "hscroll": 0,
+   "perf": {
+    "dcl": 119,
+    "load": 319,
+    "fcp": 340,
+    "transfer": 248292
+   },
+   "cls": 0
+  },
+  "w390": {
+   "axe": [
+    {
+     "id": "aria-required-children",
+     "impact": "critical",
+     "nodes": 2
+    },
+    {
+     "id": "heading-order",
+     "impact": "moderate",
+     "nodes": 1
+    },
+    {
+     "id": "scrollable-region-focusable",
+     "impact": "serious",
+     "nodes": 1
+    }
+   ],
+   "consoleErrors": [],
+   "hscroll": 0,
+   "perf": {
+    "dcl": 182,
+    "load": 246,
+    "fcp": 196,
+    "transfer": 248292
+   },
+   "cls": 0
+  },
+  "w768": {
+   "axe": [
+    {
+     "id": "aria-required-children",
+     "impact": "critical",
+     "nodes": 2
+    },
+    {
+     "id": "heading-order",
+     "impact": "moderate",
+     "nodes": 1
+    },
+    {
+     "id": "scrollable-region-focusable",
+     "impact": "serious",
+     "nodes": 1
+    }
+   ],
+   "consoleErrors": [],
+   "hscroll": 0,
+   "perf": {
+    "dcl": 195,
+    "load": 262,
+    "fcp": 216,
+    "transfer": 248292
+   },
+   "cls": 0.13
+  },
+  "w1440": {
+   "axe": [
+    {
+     "id": "aria-required-children",
+     "impact": "critical",
+     "nodes": 2
+    },
+    {
+     "id": "heading-order",
+     "impact": "moderate",
+     "nodes": 1
+    },
+    {
+     "id": "scrollable-region-focusable",
+     "impact": "serious",
+     "nodes": 1
+    }
+   ],
+   "consoleErrors": [],
+   "hscroll": 0,
+   "perf": {
+    "dcl": 168,
+    "load": 241,
+    "fcp": 192,
+    "transfer": 248292
+   },
+   "cls": 0.086
+  },
+  "w1440-dark": {
+   "axe": [
+    {
+     "id": "aria-required-children",
+     "impact": "critical",
+     "nodes": 2
+    },
+    {
+     "id": "heading-order",
+     "impact": "moderate",
+     "nodes": 1
+    },
+    {
+     "id": "scrollable-region-focusable",
+     "impact": "serious",
+     "nodes": 1
+    }
+   ],
+   "consoleErrors": [],
+   "hscroll": 0,
+   "perf": {
+    "dcl": 151,
+    "load": 217,
+    "fcp": 180,
+    "transfer": 248292
+   },
+   "cls": 0.086
+  }
+ },
+ "ui": {
+  "stepperPhases": [
+   "INVENTORY",
+   "VOICE",
+   "DETECT",
+   "REWRITE",
+   "VERIFY",
+   "REPORT"
+  ],
+  "phaseMismatch": true,
+  "testsClaim": "429tests",
+  "testsClaimWrong": true,
+  "cloneCmd": "git clone https://github.com/shingoimota/deslop.git",
+  "cloneWrong": true,
+  "togglesWithoutState": 26,
+  "toggles": 35,
+  "tablists": 4,
+  "tablistArrowOK": 0,
+  "hitRows": 33,
+  "hitRowsNotFocusable": 33,
+  "articleDen01Label": "散文文字数 (chars) 1728 DEN-01 太字/1000字 9.26 (上限 3.0) DEN-04 太字ラベル箇条書き 16件 (上限 2) DEN-07 同一文末連続 1回 (上限 3)",
+  "articleDen01LimitWrong": true,
+  "liveRegionForCopy": false
+ }
+}
