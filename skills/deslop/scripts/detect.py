@@ -31,8 +31,7 @@ import cues
 import findings
 from common import (assign_genres, clear_caches, code_blocks, decode_text, genre_table, infer_genre, is_markdown, iter_docs,
                     load_json, load_rules, load_snapshot, sha256_bytes, write_json)
-from markdown_spans import _escaped, http_url_spans, inline_block_spans
-from preserve_check import LINK_LABEL, _reference_definitions, protected_inline_spans
+from markdown_spans import LINK_LABEL, _escaped, _reference_definitions, http_url_spans, inline_block_spans, protected_inline_spans
 
 FRONT_MATTER = re.compile(r"\A---[ \t]*\r?\n.*?^(?:---|\.\.\.)[ \t]*\r?$", re.M | re.S)
 BOLD = re.compile(r"\*\*[^*\n]+\*\*|__[^_\n]+__")

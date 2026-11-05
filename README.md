@@ -132,9 +132,12 @@ python3 site/serve.py --port 8080
 `site/` is a local page that runs the detector on pasted text through
 `POST /api/detect`, which calls `detect.py` with the same rules and genre
 exemptions as the command line. `site/data.js` bundles copies of the rules,
-`examples/` and two corpus documents with their scans; nothing regenerates
-it, so update it by hand when those change. `artifacts/` holds the page's
-design and QA records and the promo video with its sources.
+their reference entries, `examples/` and two corpus documents with their
+scans. `python3 site/build_data.py` rebuilds it; `make test` fails when it,
+or a count, phase or corpus result stated on the page, no longer matches the
+skill. `artifacts/` holds the page's design and QA records, the promo video
+with its sources, and `artifacts/quality/`, the before-and-after quality
+scores with the scripts that measured them.
 
 ## Develop
 

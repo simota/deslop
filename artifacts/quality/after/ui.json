@@ -1,0 +1,101 @@
+{
+ "skillPhases": [
+  "INVENTORY",
+  "VOICE",
+  "DETECT",
+  "REWRITE",
+  "REVIEW",
+  "SELECT",
+  "VERIFY",
+  "REPORT"
+ ],
+ "testCount": 555,
+ "views": {
+  "w320": {
+   "axe": [],
+   "consoleErrors": [],
+   "hscroll": 0,
+   "perf": {
+    "dcl": 196,
+    "load": 251,
+    "fcp": 200,
+    "transfer": 261719
+   },
+   "cls": 0
+  },
+  "w390": {
+   "axe": [],
+   "consoleErrors": [],
+   "hscroll": 0,
+   "perf": {
+    "dcl": 192,
+    "load": 258,
+    "fcp": 200,
+    "transfer": 261719
+   },
+   "cls": 0
+  },
+  "w768": {
+   "axe": [],
+   "consoleErrors": [],
+   "hscroll": 0,
+   "perf": {
+    "dcl": 20,
+    "load": 201,
+    "fcp": 232,
+    "transfer": 261719
+   },
+   "cls": 0
+  },
+  "w1440": {
+   "axe": [],
+   "consoleErrors": [],
+   "hscroll": 0,
+   "perf": {
+    "dcl": 157,
+    "load": 214,
+    "fcp": 184,
+    "transfer": 261719
+   },
+   "cls": 0
+  },
+  "w1440-dark": {
+   "axe": [],
+   "consoleErrors": [],
+   "hscroll": 0,
+   "perf": {
+    "dcl": 168,
+    "load": 242,
+    "fcp": 204,
+    "transfer": 261719
+   },
+   "cls": 0
+  }
+ },
+ "ui": {
+  "stepperPhases": [
+   "INVENTORY",
+   "VOICE",
+   "DETECT",
+   "REWRITE",
+   "REVIEW",
+   "SELECT",
+   "VERIFY",
+   "REPORT"
+  ],
+  "phaseMismatch": false,
+  "testsClaim": "555tests",
+  "testsClaimWrong": false,
+  "cloneCmd": "git clone https://github.com/simota/deslop.git",
+  "cloneWrong": false,
+  "togglesWithoutState": 0,
+  "toggles": 37,
+  "tablists": 4,
+  "tablistArrowOK": 4,
+  "hitRows": 33,
+  "hitRowsNotFocusable": 0,
+  "articleDen01Label": "散文文字数 (chars) 1728 DEN-01 太字/1000字 9.26 (上限 1.5) DEN-04 太字ラベル箇条書き 16件 (上限 0件) DEN-07 同一文末連続 1回 (上限 3回)",
+  "articleDen01LimitWrong": false,
+  "liveRegionForCopy": true
+ }
+}

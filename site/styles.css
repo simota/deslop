@@ -132,6 +132,29 @@ body::before {
   outline-offset: 2px;
 }
 
+/* The red ring is under 3:1 on the terminal surfaces (WCAG 1.4.11); use amber there. */
+.quick-command-box :focus-visible,
+.workbench-right :focus-visible,
+.workbench-right:focus-visible,
+.phase-detail-panel:focus-visible,
+.phase-detail-panel :focus-visible,
+.install-card :focus-visible,
+.copy-chip:focus-visible {
+  outline-color: var(--term-amber);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .container {
   width: 100%;
   max-width: var(--container-max);
@@ -535,6 +558,12 @@ body::before {
 .copy-chip.is-copied {
   background: var(--preserve-fg);
   border-color: var(--term-green);
+  color: #FFFFFF;
+}
+
+.copy-chip.is-copy-failed {
+  background: var(--accent-redline);
+  border-color: var(--term-red);
   color: #FFFFFF;
 }
 
@@ -1018,6 +1047,10 @@ body::before {
   color: var(--ink-primary);
 }
 
+.annotated-preview.is-note {
+  color: var(--ink-secondary);
+}
+
 .annotated-preview {
   padding: 14px 16px;
   min-height: 320px;
@@ -1101,7 +1134,8 @@ body::before {
   transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
-.hit-row:hover {
+.hit-row:hover,
+.hit-row:focus-visible {
   background: #262421;
 }
 
@@ -1391,7 +1425,13 @@ body::before {
 
 @media (min-width: 768px) {
   .phase-stepper {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .phase-stepper {
+    grid-template-columns: repeat(8, 1fr);
   }
 }
 
@@ -1996,6 +2036,119 @@ body::before {
 .footer-links a:hover {
   color: var(--accent-redline);
 }
+
+/* Component variants (formerly inline styles) */
+.legend-dot.is-hit { background: var(--accent-redline); }
+.legend-dot.is-cue { background: var(--cue-fg); }
+.legend-dot.is-keep { background: var(--preserve-fg); }
+
+.density-panel-title { color: var(--term-muted); }
+
+.layer-lead {
+  margin-top: 0;
+  color: var(--ink-secondary);
+  font-size: 0.92rem;
+}
+
+.atlas-count {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+}
+
+.section-desc.is-tight { margin-bottom: 20px; }
+
+.install-card-foot {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--term-border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--term-muted);
+}
+
+.install-card-foot a {
+  color: var(--term-amber);
+  text-decoration: none;
+}
+
+.footer-brand {
+  font-family: var(--font-mono);
+  color: var(--ink-primary);
+}
+
+.proof-verify-note {
+  margin-top: 18px;
+  padding: 12px;
+  background: var(--preserve-bg);
+  border: 1px solid var(--preserve-border);
+  border-radius: var(--radius-sm);
+  color: var(--preserve-fg);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.hits-empty {
+  padding: 18px;
+  color: var(--term-muted);
+}
+
+.hits-empty.is-pass { color: var(--term-green); }
+
+.genre-detail-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-hairline);
+  padding-bottom: 14px;
+}
+
+.genre-detail-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+}
+
+.genre-detail-flag {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  background: var(--bg-subtle);
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.genre-spec-label.is-keep { color: var(--preserve-fg); }
+.genre-spec-label.is-remove { color: var(--strike-fg); }
+.genre-spec-label.is-adjust { color: var(--density-fg); }
+.genre-spec-text { font-size: 0.88rem; }
+
+.genre-corpus-note {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: var(--preserve-bg);
+  border: 1px solid var(--preserve-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--preserve-fg);
+}
+
+.genre-detail-card .genre-command { margin-top: 14px; }
+
+.install-host-label {
+  margin: 0 0 12px;
+  font-size: 0.88rem;
+  color: var(--term-muted);
+}
+
+.cmd-block.is-last { margin-bottom: 0; }
 
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {

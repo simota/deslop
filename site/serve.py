@@ -4,6 +4,10 @@
 Serves static files from site/ and exposes:
   POST /api/detect   {"text": str, "genre": str, "markdown": bool}
 
+It answers 200 with the scan, 400 for a body that is not a UTF-8 JSON object
+or has a bad Content-Length, 404 for other paths, 413 above MAX_BODY bytes
+and 500, logged to stderr, when the detector itself fails.
+
 Uses the Python 3.10+ standard library and skills/deslop/scripts/detect.py.
 """
 import argparse
@@ -11,6 +15,7 @@ import http.server
 import json
 import mimetypes
 import sys
+import traceback
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -22,6 +27,7 @@ sys.path.insert(0, str(SCRIPTS))
 import detect  # noqa: E402
 from common import genre_table, load_rules  # noqa: E402
 
+MAX_BODY = 512_000
 RULES = load_rules()
 GENRES = genre_table(RULES)
 RULE_NOTES = {r["id"]: r["note"] for r in RULES["rules"]}
@@ -49,7 +55,10 @@ class DeslopHandler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, directory=str(SITE), **kwargs)
 
     def log_message(self, fmt, *args):
-        pass
+        """Requests are not logged; errors are, through log_error."""
+
+    def log_error(self, fmt, *args):
+        sys.stderr.write(f"deslop LP server: {fmt % args}\n")
 
     def _send_json(self, status: int, payload: dict):
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -65,20 +74,37 @@ class DeslopHandler(http.server.SimpleHTTPRequestHandler):
         if parsed.path != "/api/detect":
             self._send_json(404, {"error": "not found"})
             return
+        length = self.headers.get("Content-Length", "0")
+        if not (length.isascii() and length.isdigit()):
+            self._send_json(400, {"error": "Content-Length must be a non-negative integer"})
+            return
+        if int(length) > MAX_BODY:
+            self._send_json(413, {"error": "payload too large"})
+            return
         try:
-            length = int(self.headers.get("Content-Length", "0"))
-            if length > 512_000:
-                self._send_json(413, {"error": "payload too large"})
-                return
-            raw = self.rfile.read(length).decode("utf-8")
+            raw = self.rfile.read(int(length)).decode("utf-8")
             payload = json.loads(raw) if raw else {}
-            text = str(payload.get("text", ""))
-            genre = str(payload.get("genre", "general"))
-            markdown = bool(payload.get("markdown", True))
+        except (UnicodeDecodeError, ValueError):
+            self._send_json(400, {"error": "request body must be UTF-8 JSON"})
+            return
+        if not isinstance(payload, dict):
+            self._send_json(400, {"error": "request body must be a JSON object"})
+            return
+        text = str(payload.get("text", ""))
+        genre = str(payload.get("genre", "general"))
+        markdown = bool(payload.get("markdown", True))
+        try:
+            text.encode("utf-8")
+        except UnicodeEncodeError:  # a lone surrogate escaped in the JSON
+            self._send_json(400, {"error": "text must be valid Unicode"})
+            return
+        try:
             result = run_detection(text, genre, markdown)
-            self._send_json(200, result)
-        except Exception as exc:
-            self._send_json(400, {"error": str(exc)})
+        except Exception:  # an internal fault, not the client's: report it without detail
+            self.log_error("detection failed:\n%s", traceback.format_exc())
+            self._send_json(500, {"error": "internal error"})
+            return
+        self._send_json(200, result)
 
 
 def main(argv=None):

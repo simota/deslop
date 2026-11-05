@@ -1,0 +1,15 @@
+{
+ "corpus_files": 36,
+ "scan_median_s": 0.534,
+ "scan_runs_s": [
+  0.534,
+  0.523,
+  0.557,
+  0.521,
+  0.556,
+  0.531,
+  0.544
+ ],
+ "cold_import_detect_median_s": 0.057,
+ "modules_loaded_by_import_detect": "['common', 'comparison', 'cues', 'detect', 'findings', 'markdown_spans', 'preserve_check']"
+}

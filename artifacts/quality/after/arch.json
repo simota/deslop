@@ -1,0 +1,85 @@
+{
+ "modules": 9,
+ "cli_modules": [
+  "comparison",
+  "contract_check",
+  "detect",
+  "findings",
+  "preserve_check",
+  "snapshot"
+ ],
+ "edges": {
+  "common": [],
+  "contract_check": [
+   "common",
+   "comparison",
+   "detect",
+   "findings",
+   "preserve_check"
+  ],
+  "cues": [
+   "common"
+  ],
+  "findings": [
+   "common",
+   "comparison"
+  ],
+  "preserve_check": [
+   "common",
+   "findings",
+   "markdown_spans"
+  ],
+  "comparison": [
+   "common"
+  ],
+  "markdown_spans": [
+   "common"
+  ],
+  "detect": [
+   "common",
+   "cues",
+   "findings",
+   "markdown_spans"
+  ],
+  "snapshot": [
+   "common"
+  ]
+ },
+ "cycles": [],
+ "private_cross_imports": [
+  "preserve_check<-markdown_spans._escaped",
+  "preserve_check<-markdown_spans._footnote_context",
+  "markdown_spans<-common._continue_containers",
+  "markdown_spans<-common._html_closer",
+  "markdown_spans<-common._list_marker",
+  "markdown_spans<-common._open_containers",
+  "detect<-markdown_spans._escaped",
+  "detect<-markdown_spans._reference_definitions"
+ ],
+ "cli_imports_cli_helpers": [
+  "preserve_check<-findings:KINDS,check_record"
+ ],
+ "detect_closure": [
+  "common",
+  "comparison",
+  "cues",
+  "findings",
+  "markdown_spans"
+ ],
+ "duplicate_constant_defs": {
+  "KINDS": {
+   "findings": [
+    "code_block",
+    "footnote",
+    "inline_code",
+    "number",
+    "url"
+   ]
+  }
+ },
+ "test_methods": 555,
+ "site_guard_test_files": [
+  "test_site_data.py",
+  "test_site_server.py"
+ ]
+}
