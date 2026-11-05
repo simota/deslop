@@ -902,6 +902,12 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
 
     if (sampleSelect) {
       sampleSelect.addEventListener("change", function () {
+        const previous = DATA.samples[currentSampleKey];
+        const edited = previous && currentText !== previous.before;
+        if (edited && !window.confirm("編集中のテキストは保存されません。サンプルを切り替えますか？")) {
+          sampleSelect.value = currentSampleKey;
+          return;
+        }
         currentSampleKey = sampleSelect.value;
         const s = DATA.samples[currentSampleKey];
         if (s) {
