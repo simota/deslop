@@ -591,6 +591,7 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
     }
 
     const hits = [];
+    const unchecked = [];
     DATA.rules.forEach(function (rule) {
       if (!rule.pattern) return;
       if (rule.lang !== "any" && rule.lang !== lang) return;
@@ -623,7 +624,10 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
             note: rule.note
           });
         }
-      } catch (_) {}
+      } catch (_) {
+        // A Python pattern this browser cannot run: report it as not checked.
+        unchecked.push(rule.id);
+      }
     });
 
     const bodyLines = masked.split("\n").filter(function (l) {
@@ -655,6 +659,7 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
       genre: genreId,
       metrics: metrics,
       hits: hits,
+      unchecked: unchecked,
       cues: [],
       summary: {
         total: hits.length,
@@ -786,7 +791,8 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
       const exemptCount = result.summary ? result.summary.exempt : 0;
       const cueCount = result.summary ? result.summary.cues : 0;
       const exitCode = openCount === 0 ? 0 : 1;
-      const skipped = DATA.rules.filter(function (r) { return !r.pattern; }).map(function (r) { return r.id; });
+      const skipped = DATA.rules.filter(function (r) { return !r.pattern; }).map(function (r) { return r.id; })
+        .concat(result.unchecked || []);
       badgesEl.innerHTML = result.fallback ? `
         <span class="term-badge is-fail" title="Not checked: ${escapeHtml(skipped.join(", "))}, structural cues">detect.py unavailable · ${openCount} pattern hits, ${skipped.length} rules and cues not checked</span>
       ` : `
