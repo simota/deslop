@@ -1,15 +1,17 @@
-"""The landing page states facts about the skill; keep them true.
+"""The landing page and README state facts about the skill; keep them true.
 
 site/data.js bundles copies of rules.json, the reference entries and sample
 scans (site/build_data.py rebuilds them), and index.html and app.js state
 counts, phases and corpus results. A change to the skill that makes any of
 them stale fails here instead of shipping to the published page.
 """
+import io
 import json
 import re
 import sys
 import unittest
 from collections import Counter
+from contextlib import redirect_stdout
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -118,10 +120,38 @@ class SiteDataTests(unittest.TestCase):
                 self.assertEqual((int(chars.replace(",", "")), int(total), int(open_)),
                                  (result["metrics"]["chars"], result["summary"]["total"], result["summary"]["open"]))
 
+    def test_genre_adjustments_match_rules_json(self):
+        details = APP[APP.index("const GENRE_DETAILS"):APP.index("const PHASES")]
+        genres = {g["id"]: g for g in serve.RULES["genres"]}
+        defaults = {r["id"]: r.get("max") for r in serve.RULES["rules"]}
+        for genre, text in re.findall(r'\n    (\w+): \{.*?adjust: "([^"]*)"', details, re.S):
+            g = genres[genre]
+            with self.subTest(genre=genre):
+                named = set(re.findall(r"(?:ART|CNT|DEN|EMO|EN|JA)-\d+", text))
+                self.assertEqual(named, set(g["exempt"]) | set(g["limits"]))
+                for rule, value in re.findall(r"(DEN-\d+)[^/、]*?上限(?:を)? ?([\d.]+)", text):
+                    self.assertEqual(float(value), g["limits"][rule]["max"])
+        general = re.search(r'adjust: "デフォルト密度上限（太字 ([\d.]+)/1000字、見出し ([\d.]+)/1000字、リスト比率 ([\d.]+)）"', details)
+        self.assertEqual([float(v) for v in general.groups()], [defaults["DEN-01"], defaults["DEN-05"], defaults["DEN-06"]])
+
+    def test_readme_pipeline_and_counts_match_the_skill(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("`" + " → ".join(skill_phases()) + "`", readme)
+        tiers = Counter(r["tier"] for r in serve.RULES["rules"])
+        self.assertIn(f"{tiers['artifact']} chat-artifact rules", readme)
+        self.assertIn(f"{tiers['lexical']} lexical rules", readme)
+        self.assertIn(f"{tiers['density']} density", readme)
+        words = {8: "Eight", 16: "sixteen"}
+        kinds = Counter(p["id"].split("-")[0] for p in serve.RULES["perspectives"])
+        self.assertIn(f"{words[kinds['CON']]} content perspectives", readme)
+        self.assertIn(f"{words[kinds['STR']]} structural perspectives", readme)
+
     def test_build_check_reports_staleness(self):
         stale = json.loads(json.dumps(build_data.read_data()))
         stale["rules"][0]["note"] = "edited by hand"
         self.assertNotEqual(build_data.build(stale)["rules"][0]["note"], "edited by hand")
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(build_data.main(["--check"]), 0)
 
 
 if __name__ == "__main__":
