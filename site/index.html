@@ -179,7 +179,7 @@
             <div class="strip-note">readme / reference / spec / article / pr / template 等</div>
           </div>
           <div class="strip-metric">
-            <div class="strip-number">555<span>tests</span></div>
+            <div class="strip-number">578<span>tests</span></div>
             <div class="strip-label">オフライン回帰テスト</div>
             <div class="strip-note">make check でルール・ドキュメント整合性を常時検証</div>
           </div>
@@ -449,7 +449,7 @@
           <span class="section-kicker">DETERMINISTIC RUN CONTRACT</span>
           <h2 class="section-title">「AIが勝手に事実やコードを書き換える」を許さない<span class="nowrap">8フェーズ実行契約</span></h2>
           <p class="section-desc">
-            Claude Code、Codex、Antigravity のどのエージェントから実行しても同じ品質を保証するため、<code>deslop</code> は6つの Python スクリプトで各フェーズの入出力を縛り、最後に <code>contract_check.py</code> が原本スナップショットから再計算して合否を判定します。
+            Claude Code、Codex、Antigravity のどのエージェントから実行しても同じ品質を保証するため、<code>deslop</code> は7つの Python スクリプトで各フェーズの入出力を縛り、中断した実行には <code>status.py</code> が次の手順を示し、最後に <code>contract_check.py</code> が原本スナップショットから再計算して合否を判定します。
           </p>
         </div>
 
