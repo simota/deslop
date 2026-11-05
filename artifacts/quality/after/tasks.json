@@ -1,0 +1,13 @@
+{
+ "focusedIsHitRow": true,
+ "flashAfterEnter": true,
+ "endSelects": "7:true:true",
+ "tabLeavesTablistTo": "phase-detail-container",
+ "panelLabelledBy": "phase-detail-container-tab-7 -> 08 · CONTRACT REPORT",
+ "wbPressed": "false,true,false",
+ "typedHits": "exit 1 · 3 open hits 1 cues",
+ "source": "DETECT.PY OUTPUT",
+ "copyStatus": "クリップボードにコピーしました",
+ "clipboard": "git clone https://github.com/simota/deslop.git\ncd deslop\nmake link",
+ "genreAfterArrow": "reference true"
+}
