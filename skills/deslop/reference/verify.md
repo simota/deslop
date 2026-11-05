@@ -166,8 +166,14 @@ blind in `limitations`.
 
 ```sh
 python3 scripts/findings.py report <out>
+python3 scripts/status.py <out>
 python3 scripts/contract_check.py <out>
 ```
+
+`status.py` lists, per step, what is still open and the command that comes
+next; it is the quickest way to see which `(path, rule)` groups lack a
+finding or which perspective is cued but recorded `N/A`. It exits 0 only
+after running the contract check itself.
 
 `contract_check.py` reruns rules and facts on the current files, so a later
 edit cannot pass on an earlier record. Render the report after the last merge;
