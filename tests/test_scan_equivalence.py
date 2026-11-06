@@ -129,7 +129,7 @@ class SkipAheadScanTests(unittest.TestCase):
             for _ in range(rng.randrange(0, 8)):
                 lo = rng.randrange(0, 20)
                 spans.append((lo, rng.randrange(lo, 25)))
-            holds = detect.enclosed_by(spans)
+            holds = detect.enclosed_by(list(spans))
             for _ in range(5):
                 start = rng.randrange(0, 25)
                 end = rng.randrange(start, 26)

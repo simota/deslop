@@ -28,7 +28,6 @@ Exit 0 when no unexempted hit remains, 1 when some do, 2 on usage errors.
 import argparse
 import bisect
 import functools
-import itertools
 import os
 import re
 import statistics
@@ -245,18 +244,23 @@ def inline_quotation_spans(prose):
 def enclosed_by(spans):
     """Return a test for whether some (lo, hi) span holds start..end.
 
-    Sort the spans by start and keep the furthest end reached so far: some
-    span encloses start..end exactly when the furthest end among spans
-    starting at or before start reaches end. Each test is then a binary
-    search instead of a pass over every span.
+    Sorts and prunes spans in place. A span inside another can never be the
+    only one to hold a range, so keep each span that reaches further than
+    all before it: starts and ends then both increase, and the last span
+    starting at or before start reaches furthest. Each test is a binary
+    search instead of a pass over every span, and no index is allocated.
     """
-    spans = sorted(spans)
-    starts = [lo for lo, _ in spans]
-    reach = list(itertools.accumulate((hi for _, hi in spans), max))
+    spans.sort()
+    kept = 0
+    for i in range(len(spans)):
+        if not kept or spans[i][1] > spans[kept - 1][1]:
+            spans[kept] = spans[i]
+            kept += 1
+    del spans[kept:]
 
     def holds(start, end):
-        i = bisect.bisect_right(starts, start) - 1
-        return i >= 0 and reach[i] >= end
+        i = bisect.bisect_right(spans, (start, float("inf"))) - 1
+        return i >= 0 and spans[i][1] >= end
     return holds
 
 
