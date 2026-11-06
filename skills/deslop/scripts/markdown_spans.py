@@ -230,6 +230,13 @@ URL = re.compile(rf"(?P<autolink><{HTTP_SCHEME}[^\s<>]+>)|(?P<bare>{HTTP_SCHEME}
 LINK_LABEL = re.compile(r" {0,3}\[(?!\^)(?:\\[^\r\n]|[^\[\]\\\r\n])+\]:")
 LINK_SPACE = re.compile(r"[ \t]*(?:\r?\n[ \t]*)?")
 BLANK_LINE = re.compile(r"\r?\n[ \t]*\r?\n")
+# Escapes, line ends and brackets: protected_inline_spans acts only on these
+# characters outside the code, definition and autolink starts it indexes.
+STRUCTURAL = re.compile(r"[\\\r\n\[\]]")
+# What _bare_destination_ends reads: escapes, parentheses and everything that
+# ends a bare destination (whitespace, control characters and "<"). \s is
+# exactly str.isspace() for str patterns.
+DESTINATION_MARK = re.compile(r"[\\()<\s\x00-\x1f]")
 FOOTNOTE = re.compile(r"\[\^[^\]\s]+\]")
 FOOTNOTE_DEFINITION = re.compile(r" {0,3}(" + FOOTNOTE.pattern + r"):")
 INLINE_HTML = re.compile(
@@ -251,19 +258,36 @@ def _escaped_character(text, pos):
 
 
 def _bare_destination_ends(text):
-    """Index balanced targets once so repeated unmatched openers stay linear."""
+    """Index balanced targets once so repeated unmatched openers stay linear.
+
+    Any other character ends where the character after it does, so a run of
+    them shares the end of the next character here and is filled at once.
+    """
     ends = [len(text)] * (len(text) + 1)
-    for pos in range(len(text) - 1, -1, -1):
+    # Link each such character to the one before it in ends itself, then
+    # walk the links back: each slot is final before anything reads it.
+    pos = -1
+    for match in DESTINATION_MARK.finditer(text):
+        ends[match.start()] = pos
+        pos = match.start()
+    after = len(text)
+    while pos >= 0:
+        previous = ends[pos]
+        if pos + 1 < after:
+            ends[pos + 1:after] = [ends[after]] * (after - pos - 1)
         char = text[pos]
         if _escaped_character(text, pos):
             ends[pos] = ends[pos + 2]
         elif char == "(":
             close = ends[pos + 1]
             ends[pos] = ends[close + 1] if 0 <= close < len(text) and text[close] == ")" else -1
-        elif char == ")" or char.isspace() or ord(char) < 32 or char == "<":
-            ends[pos] = pos
-        else:
+        elif char == "\\":
             ends[pos] = ends[pos + 1]
+        else:
+            ends[pos] = pos
+        after, pos = pos, previous
+    if after:
+        ends[:after] = [ends[after]] * after
     return ends
 
 
@@ -628,6 +652,23 @@ def protected_inline_spans(text, *, source=None, markdown=True, title_spans=None
     protected = next(autolinks, None)
     block_iter = iter(blocks)
     block = next(block_iter, None)
+    code_starts, definition_starts = sorted(codes), sorted(definitions)
+
+    def next_stop(pos):
+        """The first offset from pos where the loop below does more than
+        step forward: a structural character, a code or definition start,
+        or the next autolink. Leaving a block only clears the pending
+        brackets, which the next stop still does before reading any."""
+        stop = STRUCTURAL.search(text, pos)
+        stop = len(text) if stop is None else stop.start()
+        for starts in (code_starts, definition_starts):
+            i = bisect.bisect_left(starts, pos)
+            if i < len(starts) and starts[i] < stop:
+                stop = starts[i]
+        if protected is not None and pos <= protected[0] < stop:
+            stop = protected[0]
+        return stop
+
     brackets, pos = [], 0
     while pos < len(text):
         while block is not None and block[1] <= pos:
@@ -660,7 +701,7 @@ def protected_inline_spans(text, *, source=None, markdown=True, title_spans=None
         if BLANK_LINE.match(text, pos):
             brackets.clear()
         if block is None or pos < block[0]:
-            pos += 1
+            pos = next_stop(pos + 1)
             continue
         if text[pos] == "[":
             brackets.append(pos)
@@ -675,4 +716,4 @@ def protected_inline_spans(text, *, source=None, markdown=True, title_spans=None
                     if end > start:
                         yield "url", start, end, link_target(text[start:end])
                     continue
-        pos += 1
+        pos = next_stop(pos + 1)

@@ -190,6 +190,11 @@ def line_context(line):
     return "prose"
 
 
+# Every character inline_quotation_spans acts on: line ends, backslashes,
+# and each opening or closing quotation mark.
+QUOTATION_MARK = re.compile(r"""[\r\n\\"'“”‘’「」『』]""")
+
+
 def inline_quotation_spans(prose):
     """Balanced inline quotations, excluding escaped marks and apostrophes.
 
@@ -199,8 +204,14 @@ def inline_quotation_spans(prose):
     pairs = {'"': '"', "'": "'", "“": "”", "‘": "’", "「": "」", "『": "』"}
     stack, spans = [], []
     open_by_closer = {}
-    escaped = False
-    for i, char in enumerate(prose):
+    escaped, previous = False, -1
+    # Any other character only ends a pending escape, so step from one
+    # mark to the next: a gap between them means such a character came.
+    for match in QUOTATION_MARK.finditer(prose):
+        i, char = match.start(), match.group()
+        if i > previous + 1:
+            escaped = False
+        previous = i
         if char in "\r\n":
             stack.clear()
             open_by_closer.clear()
@@ -228,6 +239,29 @@ def inline_quotation_spans(prose):
             open_by_closer.setdefault(pairs[char], []).append(len(stack))
             stack.append((char, i))
     return spans
+
+
+def enclosed_by(spans):
+    """Return a test for whether some (lo, hi) span holds start..end.
+
+    Sorts and prunes spans in place. A span inside another can never be the
+    only one to hold a range, so keep each span that reaches further than
+    all before it: starts and ends then both increase, and the last span
+    starting at or before start reaches furthest. Each test is a binary
+    search instead of a pass over every span, and no index is allocated.
+    """
+    spans.sort()
+    kept = 0
+    for i in range(len(spans)):
+        if not kept or spans[i][1] > spans[kept - 1][1]:
+            spans[kept] = spans[i]
+            kept += 1
+    del spans[kept:]
+
+    def holds(start, end):
+        i = bisect.bisect_right(spans, (start, float("inf"))) - 1
+        return i >= 0 and spans[i][1] >= end
+    return holds
 
 
 def paragraphs(prose, markdown=True):
@@ -395,7 +429,7 @@ def scan_text(text, compiled, min_chars, markdown=True, limits=None):
     follow each paragraph's language, density rules the document's. limits
     replaces a density rule's bounds by rule id."""
     code_masked, prose = masked_views(text, bool(markdown))
-    quotations = inline_quotation_spans(prose)
+    in_quotation = enclosed_by(inline_quotation_spans(prose))
     lang = language(prose)
     raw_lines = text.split("\n")
     starts = [0]
@@ -420,7 +454,7 @@ def scan_text(text, compiled, min_chars, markdown=True, limits=None):
                 continue
             i = bisect.bisect_right(starts, start) - 1
             context = line_context(raw_lines[i])
-            if any(lo <= start and end <= hi for lo, hi in quotations):
+            if in_quotation(start, end):
                 context = "quote"
             hits.append({
                 "line": i + 1, "col": start - starts[i] + 1, "rule": rule["id"],
