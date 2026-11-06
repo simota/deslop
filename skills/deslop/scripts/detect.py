@@ -7,6 +7,13 @@ masked. Hits are candidates; REWRITE decides each one in context.
 
     detect.py PATH... [--genre [PATH=]GENRE]... [--exempt findings.json] [--out detect.json]
     detect.py --snapshot <out> [--exempt <out>/findings.json] [--out FILE]
+    detect.py - [--stdin-name docs/notes.md] < notes.md
+    detect.py docs/ --baseline detect.baseline.json [--format github]
+
+A baseline is an earlier --out result: the open hits it lists are accepted
+one for one (lexical hits by path, rule and text; density hits by path and
+rule), so a docs tree with existing tells can gate only new ones.
+--format github prints open hits and cues as GitHub Actions annotations.
 
 The genre of each document (from --genre, the snapshot, or the file name)
 tightens or relaxes density limits and exempts the conventions it needs;
@@ -25,6 +32,7 @@ import os
 import re
 import statistics
 import sys
+from collections import Counter
 from pathlib import Path
 
 import cues
@@ -532,16 +540,73 @@ def scan(files, root, rules, exemptions, genres=None, *, paths=None, contents=No
             else:
                 h["exempt"] = exemption_for(h, rel, exemptions, text, line_start=line_starts[h["line"] - 1])
             result["hits"].append(h)
+    result["summary"] = summarize(result)
+    return result
+
+
+def summarize(result):
     open_hits = [h for h in result["hits"] if not h["exempt"]]
     by_rule = {}
     for h in open_hits:
         by_rule[h["rule"]] = by_rule.get(h["rule"], 0) + 1
-    result["summary"] = {
-        "files": len(files), "total": len(result["hits"]), "open": len(open_hits),
+    return {
+        "files": len(result["files"]), "total": len(result["hits"]), "open": len(open_hits),
         "exempt": len(result["hits"]) - len(open_hits), "by_rule": dict(sorted(by_rule.items())),
         "cues": len(result["cues"]),
     }
+
+
+def baseline_key(hit):
+    """A density value moves with every edit; a lexical hit is its text."""
+    return (hit["path"], hit["rule"]) + (() if hit["tier"] == "density" else (hit["text"],))
+
+
+def load_baseline(path):
+    """Return the open hits a saved detect.py result accepted, as a multiset."""
+    data = load_json(path)
+    if not isinstance(data, dict) or data.get("tool") != "deslop-detect" or not isinstance(data.get("hits"), list):
+        raise ValueError(f"{path} is not a detect.py result (write one with --out)")
+    keys = Counter()
+    for i, h in enumerate(data["hits"]):
+        if not isinstance(h, dict) or not all(isinstance(h.get(k), str) for k in ("path", "rule", "tier", "text")):
+            raise ValueError(f"{path}: hits[{i}] lacks path, rule, tier or text")
+        if not h.get("exempt"):
+            keys[baseline_key(h)] += 1
+    return keys
+
+
+def apply_baseline(result, keys):
+    """Exempt open hits the baseline already holds, one for one, and count
+    the baseline hits no longer found so the baseline can be tightened."""
+    remaining = Counter(keys)
+    for h in result["hits"]:
+        key = baseline_key(h)
+        if not h["exempt"] and remaining[key] > 0:
+            remaining[key] -= 1
+            h["exempt"], h["exempt_by"] = "baseline: present when the baseline was recorded", "baseline"
+    result["summary"] = summarize(result)
+    result["summary"]["baseline"] = sum(1 for h in result["hits"] if h.get("exempt_by") == "baseline")
+    result["summary"]["baseline_resolved"] = sum(remaining.values())
     return result
+
+
+def _gh_escape(value, prop=False):
+    value = value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+    return value.replace(":", "%3A").replace(",", "%2C") if prop else value
+
+
+def github_lines(result, notes):
+    """GitHub Actions workflow commands: open hits as errors, cues as notices."""
+    for h in result["hits"]:
+        if h["exempt"]:
+            continue
+        where = f"file={_gh_escape(h['path'], True)},line={h['line']},col={h['col']}"
+        title = _gh_escape(f"deslop {h['rule']}", True)
+        yield f"::error {where},title={title}::{_gh_escape(notes.get(h['rule'], h['rule']) + ': ' + h['text'])}"
+    for c in result["cues"]:
+        where = f"file={_gh_escape(c['path'], True)},line={c['line']}"
+        title = _gh_escape(f"deslop {c['perspective']} cue", True)
+        yield f"::notice {where},title={title}::{_gh_escape(c['why'] + ': ' + c['text'])}"
 
 
 def scan_snapshot(out, rules, exemptions, originals=False):
@@ -555,13 +620,20 @@ def scan_snapshot(out, rules, exemptions, originals=False):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("paths", nargs="*")
+    ap.add_argument("paths", nargs="*", help="files or directories; a lone - reads one document from standard input")
     ap.add_argument("--snapshot", help="run directory: scan its snapshot's working copies")
     ap.add_argument("--root", help="report paths relative to this directory "
                     "(default: the current directory, or the paths' common parent outside it)")
     ap.add_argument("--genre", action="append", metavar="[PATH=]GENRE",
                     help="genre of every document, or of PATH; repeatable (default: from the file name, else general)")
     ap.add_argument("--exempt", help="findings.json whose 'exemptions' apply")
+    ap.add_argument("--baseline", metavar="DETECT_JSON",
+                    help="an earlier --out result: its open hits are accepted, so only new hits fail")
+    ap.add_argument("--stdin-name", metavar="NAME", default="stdin.md",
+                    help="path reported for -, which also sets genre and Markdown handling (default: stdin.md)")
+    ap.add_argument("--format", choices=("text", "github"), default="text",
+                    help="text (path:line:col RULE text) or GitHub Actions annotations")
+    ap.add_argument("--explain", action="store_true", help="add each rule's note to text output")
     ap.add_argument("--out", help="write the JSON result here")
     ap.add_argument("--quiet", action="store_true", help="print only the summary line")
     a = ap.parse_args(argv)
@@ -569,11 +641,25 @@ def main(argv=None):
         ap.error("give either PATH... or --snapshot")
     if a.snapshot and a.genre:
         ap.error("--genre is recorded by snapshot.py; a snapshot scan reads it from there")
+    if a.snapshot and a.baseline:
+        ap.error("--baseline is for standalone scans; a run accounts for every hit in findings.json")
+    stdin = "-" in a.paths
+    if stdin and len(a.paths) != 1:
+        ap.error("- reads one document from standard input and cannot be combined with other paths")
+    name = Path(a.stdin_name)
+    if stdin and (name.is_absolute() or ".." in name.parts or not name.parts or name.as_posix() != a.stdin_name):
+        ap.error("--stdin-name must be a plain relative path such as docs/notes.md")
     rules = load_rules()
     try:
         exemptions = findings.check_record(load_json(a.exempt)).get("exemptions", []) if a.exempt else []
+        baseline = load_baseline(a.baseline) if a.baseline else None
         if a.snapshot:
             result = scan_snapshot(a.snapshot, rules, exemptions)
+        elif stdin:
+            content = sys.stdin.buffer.read()
+            root = Path(a.root).resolve() if a.root else Path.cwd().resolve()
+            genres = assign_genres(a.genre, [root / a.stdin_name], root, rules)
+            result = scan([a.stdin_name], root, rules, exemptions, genres, paths=[a.stdin_name], contents=[content])
         else:
             files = iter_docs(a.paths)
             if not files:
@@ -585,18 +671,34 @@ def main(argv=None):
             if outside:
                 ap.error(f"{outside[0]} is outside --root {root}")
             result = scan(files, root, rules, exemptions, assign_genres(a.genre, files, root, rules))
+        if baseline is not None:
+            apply_baseline(result, baseline)
         if a.out:
             write_json(a.out, result)
     except (OSError, ValueError) as e:
         ap.error(str(e))
-    if not a.quiet:
+    notes = {r["id"]: r["note"] for r in rules["rules"]}
+    if a.quiet:
+        pass
+    elif a.format == "github":
+        for line in github_lines(result, notes):
+            print(line)
+    else:
         for h in result["hits"]:
+            if h.get("exempt_by") == "baseline":
+                continue  # counted in the summary; listing them would bury the new hits
             mark = f"  [exempt: {h['exempt']}]" if h["exempt"] else ""
-            print(f"{h['path']}:{h['line']}:{h['col']} {h['rule']} {h['text']}{mark}")
+            note = f" -- {notes[h['rule']]}" if a.explain and h["rule"] in notes else ""
+            print(f"{h['path']}:{h['line']}:{h['col']} {h['rule']} {h['text']}{note}{mark}")
         for c in result["cues"]:
             print(f"{c['path']}:{c['line']} {c['perspective']} cue: {c['why']}: {c['text']}")
     s = result["summary"]
-    print(f"{s['files']} files, {s['total']} hits, {s['open']} open, {s['exempt']} exempt, {s['cues']} cues",
+    tail = ""
+    if "baseline" in s:
+        tail = f", {s['baseline']} in baseline"
+        if s["baseline_resolved"]:
+            tail += f" ({s['baseline_resolved']} baseline hits gone; rerun with --out to tighten it)"
+    print(f"{s['files']} files, {s['total']} hits, {s['open']} open, {s['exempt']} exempt, {s['cues']} cues{tail}",
           file=sys.stderr)
     return 1 if s["open"] else 0
 

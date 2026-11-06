@@ -83,6 +83,14 @@ verification returns to rewriting and review.
   final working file must match the selected candidate. Older snapshots
   without the comparison flag remain supported
 
+- **Status** `scripts/status.py <out>` shows how far a run has come and what
+  is left, step by step: which before-hits still need a finding (by path and
+  rule, with lines), which perspectives are unrecorded or cued and so cannot
+  be `N/A`, which candidates are still the original, missing comparisons,
+  open hits, unacknowledged fact changes and stale outputs. It ends with the
+  next command, writes nothing, and exits 0 only when the contract passes, so
+  an interrupted run can be resumed where it stopped
+
 Ask "where does this read as AI-written" and it stops after DETECT and changes
 nothing.
 
@@ -113,9 +121,36 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
 
 Genre-exempt hits are still printed, marked with the genre.
 
-Exit 0 means no hit; 1 lists them as `path:line:col RULE text`. Perspective
-cues follow as `path:line PERSPECTIVE cue: why: line`; they never change the
-exit code. Invalid inputs and unreadable or unwritable paths exit 2.
+Exit 0 means no hit; 1 lists them as `path:line:col RULE text`
+(`--explain` adds each rule's note). Perspective cues follow as
+`path:line PERSPECTIVE cue: why: line`; they never change the exit code.
+Invalid inputs and unreadable or unwritable paths exit 2.
+
+Text that is not in a file can be piped in; `--stdin-name` gives it the path
+used for its genre and Markdown handling:
+
+```sh
+pbpaste | python3 skills/deslop/scripts/detect.py - --stdin-name CHANGELOG.md
+```
+
+### Gate a docs tree in CI
+
+A tree that already has tells can still stop new ones. Record a baseline
+once, commit it, and check against it; only hits the baseline does not hold
+fail. Lexical hits match by path, rule and text, one for one, so a second
+copy of an accepted phrase is new; density hits match by path and rule.
+When accepted hits disappear, the summary says so, and rerunning with
+`--out` tightens the baseline.
+
+```sh
+python3 skills/deslop/scripts/detect.py docs/ --out .deslop-baseline.json   # once
+python3 skills/deslop/scripts/detect.py docs/ --baseline .deslop-baseline.json --format github
+```
+
+`--format github` prints open hits as GitHub Actions error annotations on
+the changed lines and cues as notices; paths are relative to `--root`
+(default: the current directory), so run it from the repository root.
+A rewrite run never takes a baseline: its contract accounts for every hit.
 
 ## Landing page
 
