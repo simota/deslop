@@ -15,6 +15,7 @@ run directory cannot be read or the output cannot be written.
 """
 import argparse
 import hashlib
+import itertools
 import re
 import sys
 import unicodedata
@@ -59,15 +60,22 @@ ROLES = {"footnote_definition": ("footnote", "definition")}
 
 def _number_text(text):
     """Fold full-width digits and signs without joining distinct script runs."""
-    marked, previous = [], ""
-    for c in text:
+    # Classify each distinct character once; most text has no super- or
+    # subscript at all, and then nothing needs marking.
+    scripts = {}
+    for c in set(text):
         tag = unicodedata.decomposition(c).partition(" ")[0]
-        script = tag if tag in ("<super>", "<sub>") else ""
-        if script != previous:
-            marked.append("^")
-        marked.append(c)
-        previous = script
-    return unicodedata.normalize("NFKC", "".join(marked)).replace("\u2212", "-")
+        if tag in ("<super>", "<sub>"):
+            scripts[c] = tag
+    if scripts:
+        marked, previous = [], ""
+        for script, run in itertools.groupby(text, lambda c: scripts.get(c, "")):
+            if script != previous:
+                marked.append("^")
+            marked.append("".join(run))
+            previous = script
+        text = "".join(marked)
+    return unicodedata.normalize("NFKC", text).replace("\u2212", "-")
 
 
 def code(text, markdown=True):
