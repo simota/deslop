@@ -755,6 +755,15 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
       cliCmdEl.textContent = `python3 skills/deslop/scripts/detect.py --genre ${currentGenre} ${targetPath}`;
     }
 
+    // The diagnosis is detect.py's --format markdown; the browser fallback has none.
+    const diagnosisBtn = document.getElementById("copy-diagnosis");
+    if (diagnosisBtn) {
+      const diagnosis = !result.fallback && result.diagnosis ? result.diagnosis : "";
+      diagnosisBtn.hidden = !diagnosis;
+      if (diagnosis) diagnosisBtn.setAttribute("data-copy-text", diagnosis);
+      else diagnosisBtn.removeAttribute("data-copy-text");
+    }
+
     if (leftContainer) {
       if (workbenchView === "edit") {
         // Keep an existing textarea so focus, selection and IME composition survive a scan.
@@ -797,7 +806,7 @@ python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=refe
         <span class="term-badge is-fail" title="Not checked: ${escapeHtml(skipped.join(", "))}, structural cues">detect.py unavailable · ${openCount} pattern hits, ${skipped.length} rules and cues not checked</span>
       ` : `
         <span class="term-badge ${openCount === 0 ? "is-pass" : "is-fail"}">exit ${exitCode} · ${openCount} open hits</span>
-        ${exemptCount > 0 ? `<span class="term-badge is-pass">${exemptCount} genre-exempt</span>` : ""}
+        ${exemptCount > 0 ? `<span class="term-badge is-pass">${exemptCount} exempt</span>` : ""}
         <span class="term-badge is-cue">${cueCount} cues</span>
       `;
     }

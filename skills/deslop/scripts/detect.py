@@ -8,12 +8,18 @@ masked. Hits are candidates; REWRITE decides each one in context.
     detect.py PATH... [--genre [PATH=]GENRE]... [--exempt findings.json] [--out detect.json]
     detect.py --snapshot <out> [--exempt <out>/findings.json] [--out FILE]
     detect.py - [--stdin-name docs/notes.md] < notes.md
-    detect.py docs/ --baseline detect.baseline.json [--format github]
+    detect.py docs/ --baseline detect.baseline.json [--format github|markdown]
+    detect.py docs/ --select artifact --ignore ART-07
+    detect.py --list-rules [--select DEN]
 
 A baseline is an earlier --out result: the open hits it lists are accepted
 one for one (lexical hits by path, rule and text; density hits by path and
 rule), so a docs tree with existing tells can gate only new ones.
---format github prints open hits and cues as GitHub Actions annotations.
+--format github prints open hits and cues as GitHub Actions annotations;
+--format markdown prints a diagnosis by document and section (diagnosis.py).
+--select and --ignore narrow the rules by ID, family or tier, and
+--list-rules prints them. Standalone scans honour <!-- deslop-ignore RULE:
+reason --> directives in Markdown (inline_ignores.py).
 
 The genre of each document (from --genre, the snapshot, or the file name)
 tightens or relaxes density limits and exempts the conventions it needs;
@@ -36,7 +42,9 @@ from collections import Counter
 from pathlib import Path
 
 import cues
+import diagnosis
 import findings
+import inline_ignores
 from common import (assign_genres, clear_caches, code_blocks, decode_text, genre_table, infer_genre, is_markdown, iter_docs,
                     load_json, load_rules, load_snapshot, sha256_bytes, write_json)
 from markdown_spans import LINK_LABEL, _escaped, _reference_definitions, http_url_spans, inline_block_spans, protected_inline_spans
@@ -533,10 +541,16 @@ def exemption_for(hit, path, exemptions, line="", *, line_start=0):
     return None
 
 
-def scan(files, root, rules, exemptions, genres=None, *, paths=None, contents=None):
-    """Scan exact file bytes, optionally supplied by a caller checking their hash."""
+def scan(files, root, rules, exemptions, genres=None, *, paths=None, contents=None, inline=False, outlines=None):
+    """Scan exact file bytes, optionally supplied by a caller checking their hash.
+
+    inline applies deslop-ignore directives (inline_ignores.py); standalone
+    scans only. outlines, a dict, receives each path's headings as
+    (line, level, text) for reports that place hits in their section."""
     compiled = compile_rules(rules)
     table = genre_table(rules)
+    tiers = {r["id"]: r["tier"] for r in rules.get("all_rules", rules["rules"])}
+    selected = {r["id"] for r in rules["rules"]}
     if paths is None:
         paths = [Path(f).resolve().relative_to(root).as_posix() for f in files]
     if len(paths) != len(files):
@@ -560,6 +574,11 @@ def scan(files, root, rules, exemptions, genres=None, *, paths=None, contents=No
         quiet = {p["id"] for p in rules["perspectives"] if genre["id"] in p.get("quiet", [])}
         for c in perspective_cues(text, lang, m["chars"], rules["min_chars"], is_markdown(f), quiet):
             result["cues"].append({"path": rel, **c})
+        code_masked, prose = masked_views(text, bool(is_markdown(f)))
+        if outlines is not None:
+            outlines[rel] = [(e["line"], e["level"], e["text"])
+                             for e in cues.parse(mask_front_matter(text), prose, is_markdown(f)) if e["kind"] == "heading"]
+        directives, directive_spans = (inline_ignores.find(code_masked, tiers) if inline and is_markdown(f) else ([], []))
         # Keep no document's text alive while the next one is scanned.
         masked_views.cache_clear()
         clear_caches()
@@ -573,7 +592,14 @@ def scan(files, root, rules, exemptions, genres=None, *, paths=None, contents=No
                 h["exempt"], h["exempt_by"] = f"{genre['name']}: {genre['exempt'][h['rule']]}", "genre"
             else:
                 h["exempt"] = exemption_for(h, rel, exemptions, text, line_start=line_starts[h["line"] - 1])
-            result["hits"].append(h)
+        if directives or directive_spans:
+            hits = inline_ignores.apply(hits, directives, directive_spans, line_starts)
+            for d in directives:
+                # A rule left out by --select/--ignore had no chance to hit.
+                if "unused" in d:
+                    d["unused"] = [r for r in d["unused"] if r in selected]
+            result.setdefault("ignores", []).extend({"path": rel, **d} for d in directives)
+        result["hits"].extend(hits)
     result["summary"] = summarize(result)
     return result
 
@@ -583,11 +609,16 @@ def summarize(result):
     by_rule = {}
     for h in open_hits:
         by_rule[h["rule"]] = by_rule.get(h["rule"], 0) + 1
-    return {
+    summary = {
         "files": len(result["files"]), "total": len(result["hits"]), "open": len(open_hits),
         "exempt": len(result["hits"]) - len(open_hits), "by_rule": dict(sorted(by_rule.items())),
         "cues": len(result["cues"]),
     }
+    if "ignores" in result:
+        summary["inline"] = sum(1 for h in result["hits"] if h.get("exempt_by") == "inline")
+        summary["inline_unused"] = sum(len(d.get("unused", [])) for d in result["ignores"])
+        summary["inline_invalid"] = sum(1 for d in result["ignores"] if "error" in d)
+    return summary
 
 
 def baseline_key(hit):
@@ -641,15 +672,68 @@ def github_lines(result, notes):
         where = f"file={_gh_escape(c['path'], True)},line={c['line']}"
         title = _gh_escape(f"deslop {c['perspective']} cue", True)
         yield f"::notice {where},title={title}::{_gh_escape(c['why'] + ': ' + c['text'])}"
+    for d in result.get("ignores", []):
+        if "error" in d or d["unused"]:
+            where = f"file={_gh_escape(d['path'], True)},line={d['line']}"
+            why = d["error"] if "error" in d else f"{', '.join(d['unused'])} covers no hit; remove it"
+            yield f"::warning {where},title={_gh_escape('deslop-ignore', True)}::{_gh_escape(why)}"
 
 
-def scan_snapshot(out, rules, exemptions, originals=False):
+def scan_snapshot(out, rules, exemptions, originals=False, *, outlines=None):
     """Scan a run's working copies, or with originals=True its original/ copies."""
     snap, work = load_snapshot(out)
     base = Path(out) / "original" if originals else work
     genres = {f["path"]: f["genre"] for f in snap["files"] if "genre" in f}
     paths = [f["path"] for f in snap["files"]]
-    return scan([base / path for path in paths], base.resolve(), rules, exemptions, genres, paths=paths)
+    return scan([base / path for path in paths], base.resolve(), rules, exemptions, genres, paths=paths, outlines=outlines)
+
+
+TIERS = ("artifact", "lexical", "content", "density")
+
+
+def select_rules(rules, select=(), ignore=()):
+    """rules narrowed to --select and --ignore. Each selector is a rule ID
+    (EN-04), a family (EN, JA, EMO, ART, DEN, CNT) or a tier (artifact,
+    lexical, content, density), comma-separated or repeated. The full list
+    stays under all_rules so inline directives still know every ID."""
+    every = rules["rules"]
+    families = {r["id"].rsplit("-", 1)[0] for r in every}
+
+    def matching(values):
+        out = []
+        for value in values:
+            for token in filter(None, (t.strip() for t in value.split(","))):
+                if token in TIERS:
+                    out.append(token)
+                elif token.upper() in families or any(r["id"] == token.upper() for r in every):
+                    out.append(token.upper())
+                else:
+                    raise ValueError(f"unknown rule, family or tier {token!r}; see --list-rules")
+        return out
+
+    chosen, dropped = matching(select), matching(ignore)
+
+    def hit(rule, tokens):
+        return any(t in (rule["id"], rule["tier"], rule["id"].rsplit("-", 1)[0]) for t in tokens)
+
+    kept = [r for r in every if (not chosen or hit(r, chosen)) and not hit(r, dropped)]
+    if not kept:
+        raise ValueError("--select and --ignore leave no rule to scan")
+    selection = {k: v for k, v in (("select", chosen), ("ignore", dropped)) if v}
+    return {**rules, "rules": kept, "all_rules": every}, selection
+
+
+def rule_lines(rules):
+    """The rule catalogue: ID, tier, language, note, density limit and the
+    genres that exempt or move it."""
+    for r in rules["rules"]:
+        bound = ""
+        if "metric" in r:
+            bound = f" [{r['metric']} {'max ' + str(r['max']) if 'max' in r else 'min ' + str(r['min'])}]"
+        exempt = [g["id"] for g in rules["genres"] if r["id"] in g["exempt"]]
+        moved = [f"{g['id']} {next(iter(g['limits'][r['id']].values()))}" for g in rules["genres"] if r["id"] in g["limits"]]
+        extra = (f"; exempt in {', '.join(exempt)}" if exempt else "") + (f"; {', '.join(moved)}" if moved else "")
+        yield f"{r['id']:<7} {r['tier']:<8} {r['lang']:<3} {r['note']}{bound}{extra}"
 
 
 def main(argv=None):
@@ -665,18 +749,37 @@ def main(argv=None):
                     help="an earlier --out result: its open hits are accepted, so only new hits fail")
     ap.add_argument("--stdin-name", metavar="NAME", default="stdin.md",
                     help="path reported for -, which also sets genre and Markdown handling (default: stdin.md)")
-    ap.add_argument("--format", choices=("text", "github"), default="text",
-                    help="text (path:line:col RULE text) or GitHub Actions annotations")
+    ap.add_argument("--select", action="append", default=[], metavar="RULES",
+                    help="scan only these rule IDs, families (EN, JA, ART…) or tiers (artifact, lexical, "
+                    "content, density); comma-separated or repeated")
+    ap.add_argument("--ignore", action="append", default=[], metavar="RULES",
+                    help="leave these rule IDs, families or tiers out of the scan")
+    ap.add_argument("--no-inline-ignores", action="store_true",
+                    help="disregard <!-- deslop-ignore … --> directives in the documents")
+    ap.add_argument("--list-rules", action="store_true", help="print the rule catalogue (after --select/--ignore) and exit")
+    ap.add_argument("--format", choices=("text", "github", "markdown"), default="text",
+                    help="text (path:line:col RULE text), GitHub Actions annotations, "
+                    "or a Markdown diagnosis by document and section")
     ap.add_argument("--explain", action="store_true", help="add each rule's note to text output")
     ap.add_argument("--out", help="write the JSON result here")
     ap.add_argument("--quiet", action="store_true", help="print only the summary line")
     a = ap.parse_args(argv)
+    if a.list_rules:
+        try:
+            listed, _ = select_rules(load_rules(), a.select, a.ignore)
+        except ValueError as e:
+            ap.error(str(e))
+        for line in rule_lines(listed):
+            print(line)
+        return 0
     if bool(a.snapshot) == bool(a.paths):
         ap.error("give either PATH... or --snapshot")
     if a.snapshot and a.genre:
         ap.error("--genre is recorded by snapshot.py; a snapshot scan reads it from there")
     if a.snapshot and a.baseline:
         ap.error("--baseline is for standalone scans; a run accounts for every hit in findings.json")
+    if a.snapshot and (a.select or a.ignore):
+        ap.error("--select and --ignore are for standalone scans; a run scans every rule")
     stdin = "-" in a.paths
     if stdin and len(a.paths) != 1:
         ap.error("- reads one document from standard input and cannot be combined with other paths")
@@ -684,16 +787,20 @@ def main(argv=None):
     if stdin and (name.is_absolute() or ".." in name.parts or not name.parts or name.as_posix() != a.stdin_name):
         ap.error("--stdin-name must be a plain relative path such as docs/notes.md")
     rules = load_rules()
+    outlines = {} if a.format == "markdown" else None
+    inline = not a.no_inline_ignores
     try:
+        rules, selection = select_rules(rules, a.select, a.ignore)
         exemptions = findings.check_record(load_json(a.exempt)).get("exemptions", []) if a.exempt else []
         baseline = load_baseline(a.baseline) if a.baseline else None
         if a.snapshot:
-            result = scan_snapshot(a.snapshot, rules, exemptions)
+            result = scan_snapshot(a.snapshot, rules, exemptions, outlines=outlines)
         elif stdin:
             content = sys.stdin.buffer.read()
             root = Path(a.root).resolve() if a.root else Path.cwd().resolve()
             genres = assign_genres(a.genre, [root / a.stdin_name], root, rules)
-            result = scan([a.stdin_name], root, rules, exemptions, genres, paths=[a.stdin_name], contents=[content])
+            result = scan([a.stdin_name], root, rules, exemptions, genres, paths=[a.stdin_name], contents=[content],
+                          inline=inline, outlines=outlines)
         else:
             files = iter_docs(a.paths)
             if not files:
@@ -704,16 +811,21 @@ def main(argv=None):
             outside = [f for f in files if not f.resolve().is_relative_to(root)]
             if outside:
                 ap.error(f"{outside[0]} is outside --root {root}")
-            result = scan(files, root, rules, exemptions, assign_genres(a.genre, files, root, rules))
+            result = scan(files, root, rules, exemptions, assign_genres(a.genre, files, root, rules),
+                          inline=inline, outlines=outlines)
+        if selection:
+            result["selection"] = selection
         if baseline is not None:
             apply_baseline(result, baseline)
         if a.out:
             write_json(a.out, result)
     except (OSError, ValueError) as e:
         ap.error(str(e))
-    notes = {r["id"]: r["note"] for r in rules["rules"]}
+    notes = {r["id"]: r["note"] for r in rules["all_rules"]}
     if a.quiet:
         pass
+    elif a.format == "markdown":
+        sys.stdout.write(diagnosis.render(result, {**rules, "rules": rules["all_rules"]}, outlines))
     elif a.format == "github":
         for line in github_lines(result, notes):
             print(line)
@@ -726,12 +838,23 @@ def main(argv=None):
             print(f"{h['path']}:{h['line']}:{h['col']} {h['rule']} {h['text']}{note}{mark}")
         for c in result["cues"]:
             print(f"{c['path']}:{c['line']} {c['perspective']} cue: {c['why']}: {c['text']}")
+        for d in result.get("ignores", []):
+            if "error" in d:
+                print(f"{d['path']}:{d['line']} deslop-ignore invalid: {d['error']}")
+            elif d["unused"]:
+                print(f"{d['path']}:{d['line']} deslop-ignore unused: {', '.join(d['unused'])} covers no hit")
     s = result["summary"]
     tail = ""
     if "baseline" in s:
         tail = f", {s['baseline']} in baseline"
         if s["baseline_resolved"]:
             tail += f" ({s['baseline_resolved']} baseline hits gone; rerun with --out to tighten it)"
+    if "inline" in s:
+        tail += f", {s['inline']} ignored inline"
+        problems = [f"{s['inline_unused']} unused" if s["inline_unused"] else "",
+                    f"{s['inline_invalid']} invalid" if s["inline_invalid"] else ""]
+        if any(problems):
+            tail += f" ({' and '.join(filter(None, problems))} directives)"
     print(f"{s['files']} files, {s['total']} hits, {s['open']} open, {s['exempt']} exempt, {s['cues']} cues{tail}",
           file=sys.stderr)
     return 1 if s["open"] else 0

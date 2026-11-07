@@ -342,7 +342,10 @@ def infer_genre(rel, rules):
 def assign_genres(values, files, root, rules):
     """Map each file's root-relative path to a genre id. values are GENRE (the
     default for every file) or PATH=GENRE; files with neither are inferred
-    from their name. PATH is relative to the current directory or to root.
+    from their name. PATH is relative to the current directory or to root,
+    and names one target document or a directory: a directory's genre goes
+    to every target below it, the deepest directory winning, and a file's
+    own assignment wins over any directory's.
     Raises ValueError on an unknown genre or a PATH that names no target or
     different targets relative to the current directory and root."""
     known, default, named = genre_table(rules), None, {}
@@ -358,17 +361,38 @@ def assign_genres(values, files, root, rules):
             default = gid
     rels = {Path(f).resolve(): Path(f).resolve().relative_to(root).as_posix() for f in files}
     out = {rel: default or infer_genre(rel, rules) for rel in rels.values()}
+    # (depth, rel) -> genre: a file is deeper than any directory holding it.
+    chosen = {}
     for path, gid in named.items():
         try:
-            hits = {rels.get(Path(path).resolve()), rels.get((root / path).resolve())} - {None}
+            candidates = {Path(path).resolve(), (root / path).resolve()}
         except (OSError, RuntimeError, ValueError) as e:
             raise ValueError(f"cannot resolve --genre path {path!r}: {e}") from e
-        if not hits:
-            raise ValueError(f"--genre names {path}, which is not a target document")
-        if len(hits) > 1:
+        hits = {rels[c] for c in candidates if c in rels}
+        if hits:
+            if len(hits) > 1:
+                raise ValueError(f"--genre names {path}, which is ambiguous between "
+                                 f"{', '.join(sorted(hits))}; use an absolute path")
+            chosen[hits.pop()] = (float("inf"), gid)
+            continue
+        below = {}
+        for c in candidates:
+            if c.is_dir():
+                inside = frozenset(rel for f, rel in rels.items() if f.is_relative_to(c))
+                if inside:
+                    below[c] = inside
+        if not below:
+            raise ValueError(f"--genre names {path}, which is neither a target document "
+                             "nor a directory holding one")
+        if len(set(below.values())) > 1:
             raise ValueError(f"--genre names {path}, which is ambiguous between "
-                             f"{', '.join(sorted(hits))}; use an absolute path")
-        out[hits.pop()] = gid
+                             f"{', '.join(sorted(map(str, below)))}; use an absolute path")
+        directory, inside = next(iter(below.items()))
+        for rel in inside:
+            if chosen.get(rel, (-1,))[0] < len(directory.parts):
+                chosen[rel] = (len(directory.parts), gid)
+    for rel, (_, gid) in chosen.items():
+        out[rel] = gid
     return out
 
 

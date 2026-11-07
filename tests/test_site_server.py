@@ -58,6 +58,14 @@ class SiteServerTests(unittest.TestCase):
         self.assertEqual(data["summary"]["open"], expected["summary"]["open"])
         self.assertTrue(all(h["note"] for h in data["hits"]))
 
+    def test_scan_carries_the_markdown_diagnosis_and_honours_inline_ignores(self):
+        status, data = self.post({"text": "# T\n\n## Part\n\nIt is robust.\n\n"
+                                          "Robust statistics. <!-- deslop-ignore EN-04: the field's term -->\n"})
+        self.assertEqual(status, 200)
+        self.assertEqual([h["exempt_reason"] for h in data["hits"]], [None, "inline: the field's term"])
+        self.assertTrue(data["diagnosis"].startswith("# deslop diagnosis\n"))
+        self.assertIn("| 5:7 | Part | EN-04 | <code>robust</code> |", data["diagnosis"])
+
     def test_unknown_genre_falls_back_to_general(self):
         status, data = self.post({"text": BEFORE, "genre": "no-such-genre"})
         self.assertEqual((status, data["genre"]), (200, "general"))

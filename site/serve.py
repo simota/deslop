@@ -4,7 +4,7 @@
 Serves static files from site/ and exposes:
   POST /api/detect   {"text": str, "genre": str, "markdown": bool}
 
-It answers 200 with the scan, 400 for a body that is not a UTF-8 JSON object
+It answers 200 with the scan and its Markdown diagnosis, 400 for a body that is not a UTF-8 JSON object
 or has a bad Content-Length, 404 for other paths, 413 above MAX_BODY bytes
 and 500, logged to stderr, when the detector itself fails.
 
@@ -25,6 +25,7 @@ SCRIPTS = ROOT / "skills" / "deslop" / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 import detect  # noqa: E402
+import diagnosis  # noqa: E402
 from common import genre_table, load_rules  # noqa: E402
 
 MAX_BODY = 512_000
@@ -35,11 +36,14 @@ PERSPECTIVE_NAMES = {p["id"]: p["name"] for p in RULES["perspectives"]}
 
 
 def run_detection(text: str, genre_id: str = "general", markdown: bool = True) -> dict:
-    """Scan with detect.scan, the same rules and exemptions as the CLI."""
+    """Scan with detect.scan, the same rules, exemptions and inline ignores
+    as a standalone CLI scan, and render its Markdown diagnosis."""
     if genre_id not in GENRES:
         genre_id = "general"
     name = "input.md" if markdown else "input.txt"
-    result = detect.scan([name], SITE, RULES, [], {name: genre_id}, paths=[name], contents=[text.encode("utf-8")])
+    outlines = {}
+    result = detect.scan([name], SITE, RULES, [], {name: genre_id}, paths=[name], contents=[text.encode("utf-8")],
+                         inline=True, outlines=outlines)
     doc = result["files"][0]
     hits = [
         {**h, "exempt": bool(h["exempt"]), "exempt_reason": h["exempt"] or None, "note": RULE_NOTES.get(h["rule"], "")}
@@ -47,7 +51,7 @@ def run_detection(text: str, genre_id: str = "general", markdown: bool = True) -
     ]
     cues = [{**c, "name": PERSPECTIVE_NAMES.get(c["perspective"], "")} for c in result["cues"]]
     return {"lang": doc["lang"], "genre": doc["genre"], "metrics": doc["metrics"], "hits": hits, "cues": cues,
-            "summary": result["summary"]}
+            "summary": result["summary"], "diagnosis": diagnosis.render(result, RULES, outlines)}
 
 
 class DeslopHandler(http.server.SimpleHTTPRequestHandler):
