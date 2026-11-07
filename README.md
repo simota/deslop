@@ -117,9 +117,13 @@ any integration decision and the prose character counts before and after.
 make detect TARGET=docs/
 python3 skills/deslop/scripts/detect.py --root . README.md docs/
 python3 skills/deslop/scripts/detect.py --genre article --genre docs/api.md=reference docs/
+python3 skills/deslop/scripts/detect.py --genre docs/reference=reference --genre docs/guides=tutorial docs/
 ```
 
-Genre-exempt hits are still printed, marked with the genre.
+Genre-exempt hits are still printed, marked with the genre. `--genre
+PATH=GENRE` takes a file or a directory; a directory's genre reaches every
+document below it, the deepest directory wins, and a file named on its own
+wins over any directory.
 
 Exit 0 means no hit; 1 lists them as `path:line:col RULE text`
 (`--explain` adds each rule's note). Perspective cues follow as
@@ -132,6 +136,58 @@ used for its genre and Markdown handling:
 ```sh
 pbpaste | python3 skills/deslop/scripts/detect.py - --stdin-name CHANGELOG.md
 ```
+
+### Diagnose without rewriting
+
+`--format markdown` prints a diagnosis to paste into a chat, an issue or a
+PR comment: a table of documents, then for each one its open hits placed
+under the section heading they fall in, with each rule's note, the density
+measures over their limits, the lines where perspective cues say to read
+first, and the exempt hits with their reasons.
+
+```sh
+python3 skills/deslop/scripts/detect.py docs/ --format markdown > diagnosis.md
+```
+
+### Choose the rules
+
+`--select` and `--ignore` take rule IDs (`EN-04`), families (`EN`, `JA`,
+`EMO`, `ART`, `DEN`, `CNT`) or tiers (`artifact`, `lexical`, `content`,
+`density`), comma-separated or repeated. `--list-rules` prints the
+catalogue with each density limit and the genres that exempt or move it.
+A gate that should stop only chat residue (`I hope this helps`, `oaicite`
+tokens, unfilled `[placeholders]`) is one flag:
+
+```sh
+python3 skills/deslop/scripts/detect.py docs/ --select artifact --format github
+python3 skills/deslop/scripts/detect.py --list-rules --select DEN
+```
+
+The selection is recorded in the `--out` result. A rewrite run scans every
+rule, so `--snapshot` refuses both flags.
+
+### Keep a phrase on purpose
+
+A hit that is right where it stands (a term of art, a name, a quoted
+tagline) can be accepted in the document, with its reason:
+
+```markdown
+Robust statistics resist outliers. <!-- deslop-ignore EN-04: the field's term -->
+
+<!-- deslop-ignore EN-14, EN-04: the product's registered tagline -->
+A comprehensive, seamless sync.
+
+<!-- deslop-ignore-file DEN-05: a glossary, one heading per term -->
+```
+
+`deslop-ignore` covers the line it shares with text, or else the next
+nonblank line; `deslop-ignore-file` covers the whole document, density rules
+included. Directives name rule IDs only and need a reason after the colon.
+Artifact rules cannot be ignored this way. Directives inside code do
+nothing, and a directive that covers no hit is listed as unused (a warning
+annotation with `--format github`) so it can be removed. Only Markdown
+files are read for them; `--no-inline-ignores` disregards them all, and a
+rewrite run never reads them.
 
 ### Gate a docs tree in CI
 
@@ -150,6 +206,9 @@ python3 skills/deslop/scripts/detect.py docs/ --baseline .deslop-baseline.json -
 `--format github` prints open hits as GitHub Actions error annotations on
 the changed lines and cues as notices; paths are relative to `--root`
 (default: the current directory), so run it from the repository root.
+For a readable summary on the job page, add a second step that appends the
+diagnosis: `detect.py docs/ --baseline .deslop-baseline.json --format
+markdown >> "$GITHUB_STEP_SUMMARY"`.
 A rewrite run never takes a baseline: its contract accounts for every hit.
 
 ## Landing page
@@ -165,8 +224,9 @@ python3 site/serve.py --port 8080
 ```
 
 `site/` is a local page that runs the detector on pasted text through
-`POST /api/detect`, which calls `detect.py` with the same rules and genre
-exemptions as the command line. `site/data.js` bundles copies of the rules,
+`POST /api/detect`, which calls `detect.py` with the same rules, genre
+exemptions and inline ignores as the command line. A full scan can be
+copied as the `--format markdown` diagnosis. `site/data.js` bundles copies of the rules,
 their reference entries, `examples/` and two corpus documents with their
 scans. `python3 site/build_data.py` rebuilds it; `make test` fails when it,
 or a count, phase or corpus result stated on the page, no longer matches the

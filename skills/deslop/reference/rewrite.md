@@ -95,7 +95,10 @@ update the selected candidate and repeat its review and the selection.
 
 The genre decides which structure is legitimate. Give each document its genre
 at INVENTORY with `snapshot.py --genre GENRE` (every file) or
-`--genre PATH=GENRE` (one file); a file named `README*` is `readme` and
+`--genre PATH=GENRE` (one file, or every file below a directory: the
+deepest directory wins and a file's own assignment beats any directory's,
+so `--genre docs/api=reference --genre docs/api/intro.md=tutorial` works in
+either order); a file named `README*` is `readme` and
 `CHANGELOG*`, `CHANGES*`, `HISTORY*` or `NEWS*` is `changelog` unless told
 otherwise, and anything else is `general`. `detect.py` takes the same flag
 when run without a snapshot.
