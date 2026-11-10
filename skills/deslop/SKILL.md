@@ -79,7 +79,7 @@ choose differently, the choice is fixed here, and `scripts/contract_check.py
 |---|---|---|
 | INVENTORY | List the target documents, their genre, reader and language; snapshot them | `reference/rewrite.md` |
 | VOICE | Find the author's voice before changing a word: a style guide, a glossary, documents the same author wrote before AI drafting, or the passages in the target that already read as human. Record 3–8 voice rules (register such as です・ます or だ・である, person, sentence length, terms kept in English, how headings are phrased; for Japanese also notation such as spacing around Latin text, full- or half-width symbols and katakana long vowels) with their source in `voice`. Without any sample, infer the house style from the genre and mark it `inferred` | `reference/rewrite.md` |
-| DETECT | Run `detect.py` into `detect.before.json`. Then read each document whole for the eight content and sixteen structural perspectives, starting at the lines its `cues` name; rules cannot see most of these | `reference/patterns.md`, `reference/content.md`, `reference/structure.md` |
+| DETECT | Run `detect.py` into `detect.before.json`. Then read each document whole for the eight content and seventeen structural perspectives, starting at the lines its `cues` name; rules cannot see most of these | `reference/patterns.md`, `reference/content.md`, `reference/structure.md` |
 | REWRITE | Per document, make A, B and C from the original. For each: first content (put every claim through the information, substitution, reader and support tests; cut what fails), then structure, sentences and words. Delete before replacing; use only the document's own specifics and keep its voice. Write candidates inside the run directory; leave the final working copy unchanged until SELECT | `reference/rewrite.md`, `reference/comparison.md` |
 | REVIEW | Read each candidate whole. Check meaning, qualifications, required steps and protected content against the original, then apply the same five-part rubric. Record strengths, weaknesses, eligibility and each score's reason. When readers can be delegated, ask a separate reviewer to compare the candidates without a preferred winner | `reference/comparison.md` |
 | SELECT | Choose the best eligible candidate. If other candidates supply compatible improvements, write `candidates/merged/<path>`, name the source and contribution of each part, and review and score it afresh. Adopt it only if it beats the best standalone version. Copy the winner to the working file and record only its changes from the original in the main findings | `reference/comparison.md` |
@@ -158,7 +158,7 @@ choose differently, the choice is fixed here, and `scripts/contract_check.py
 ## Done when
 
 `scripts/contract_check.py <out>` passes: no open hit in any document, every
-before-hit accounted for, all twenty-four perspectives recorded, every fact change
+before-hit accounted for, all twenty-five perspectives recorded, every fact change
 acknowledged, three candidates reviewed and scored for each document, the
 selection checked against the current text, the originals intact, and `report.md` rendered from the current
 record. The chat summary's first line gives the document count, hits before →

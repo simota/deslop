@@ -502,6 +502,13 @@ def scan_text(text, compiled, min_chars, markdown=True, limits=None):
     return lang, m, hits
 
 
+def quiet_perspectives(rules, genre_id):
+    """Perspectives the genre does not cue: it is on their quiet list, or
+    they are cued only in other genres."""
+    return {p["id"] for p in rules["perspectives"]
+            if genre_id in p.get("quiet", []) or genre_id not in p.get("only", [genre_id])}
+
+
 def perspective_cues(text, lang, chars, min_chars, markdown=True, quiet=()):
     # The cue parser also classifies code blocks. It must see the same
     # metadata boundary as the detector, so a fence inside YAML cannot
@@ -571,7 +578,7 @@ def scan(files, root, rules, exemptions, genres=None, *, paths=None, contents=No
             raise ValueError(f"{f} is not UTF-8 text ({e.reason} at byte {e.start + bom})") from e
         lang, m, hits = scan_text(text, compiled, rules["min_chars"], is_markdown(f), genre["limits"])
         result["files"].append({"path": rel, "sha256": sha256_bytes(content), "lang": lang, "genre": genre["id"], "metrics": m})
-        quiet = {p["id"] for p in rules["perspectives"] if genre["id"] in p.get("quiet", [])}
+        quiet = quiet_perspectives(rules, genre["id"])
         for c in perspective_cues(text, lang, m["chars"], rules["min_chars"], is_markdown(f), quiet):
             result["cues"].append({"path": rel, **c})
         code_masked, prose = masked_views(text, bool(is_markdown(f)))

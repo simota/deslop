@@ -31,10 +31,12 @@ cues cover only what the shape of a document can show.
 | STR-13 | 80% of five or more paragraphs have the same number of sentences |
 | STR-14 | A heading ends in a question mark or `とは` |
 | STR-16 | Japanese prose mixes `です・ます` and plain endings, the minority at 15% or more |
+| STR-17 | 20 or more non-blank lines and no `<details>` block; a `<details>` block with no paragraph before it; a non-blank line that is not a tag straight after `</summary>`. Cued only in `pr` |
 
 Cues that compare proportions (STR-03 to STR-06, STR-13, STR-16) need as
 much prose as the density rules. The genres that silence a cue are set as
-`quiet` on the perspective in `scripts/rules.json`.
+`quiet` on the perspective in `scripts/rules.json`; a perspective with
+`only` is cued in those genres and no other.
 
 ### `STR-01`
 **Announced opening.** The first paragraph says what the document will do, or
@@ -138,3 +140,30 @@ language would.
 rules in `voice`: register changes mid-document, terms translated that the
 author keeps in English, a different person addressing the reader. Bring it
 back to the recorded voice.
+
+### `STR-17`
+**Detail the reader cannot skip.** A pull request description longer than one
+screen with every section at the same level: the reviewer reads all of it to
+learn what the change is and whether it needs them. Put the shortest text
+that answers those two questions first, then fold the rest into one
+`<details>` block, as Simon Willison does with agent-written descriptions
+(<https://simonwillison.net/2026/Nov/9/details-summary/>).
+
+- The opener is one to three sentences chosen from the document. Nothing is
+  written for it that the document does not say. It is the author's statement
+  of what deserves the reader's time, so list it under `decisions` for the
+  author to confirm.
+- What a reviewer must act on stays outside the fold: breaking changes,
+  questions put to the reviewer, screenshots, and every section the
+  repository's PR template requires (ticket number, disclosure, checklist).
+- The fold exempts nothing. Every rule and perspective applies to the text
+  inside it as it does outside, and it is rewritten the same way.
+- `<summary>` names what is folded (`Details`, `詳細`). A model name goes
+  there only when the document or the requester gives one.
+- Write `<details>`, then `<summary>…</summary>` on its own line, a blank
+  line, the Markdown, a blank line, `</details>`. Without the blank line the
+  Markdown stays part of the HTML block and is shown as typed (CommonMark,
+  HTML blocks). Headings, tables and code blocks move into the fold unchanged;
+  do not convert them to HTML tags.
+- A description under 20 non-blank lines stays flat: a fold over a few lines
+  is over-structuring (STR-05). One fold, closed by default (no `open`).
