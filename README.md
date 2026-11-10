@@ -43,10 +43,10 @@ verification returns to rewriting and review.
   matter, code and URLs are masked. Eight content perspectives (sentences
   that tell the reader nothing, content the reader does not need, unsupported
   specifics, invented examples, coverage padding, missing positions, effects
-  without a mechanism, borrowed authority) and sixteen structural perspectives
+  without a mechanism, borrowed authority) and seventeen structural perspectives
   (announced openings, restating summaries, padded triads, generic claims,
   translationese, voice drift…) are read by the agent. The detector cues
-  eleven of them from the document's shape (a title-repeating opening, a
+  twelve of them from the document's shape (a title-repeating opening, a
   summary-named last section, lists of three again and again, sibling
   sections built alike, mixed `です・ます` and plain endings…), so the
   read starts where they probably apply

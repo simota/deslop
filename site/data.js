@@ -841,6 +841,15 @@ window.DESLOP_DATA = {
       "group": "structure"
     },
     {
+      "id": "STR-17",
+      "name": "Detail the reader cannot skip",
+      "only": [
+        "pr"
+      ],
+      "doc": "**Detail the reader cannot skip.** A pull request description longer than one screen with every section at the same level: the reviewer reads all of it to learn what the change is and whether it needs them. Put the shortest text that answers those two questions first, then fold the rest into one `<details>` block, as Simon Willison does with agent-written descriptions (<https://simonwillison.net/2026/Nov/9/details-summary/>). - The opener is one to three sentences chosen from the document. Nothing is written for it that the document does not say. It is the author's statement of what deserves the reader's time, so list it under `decisions` for the author to confirm. - What a reviewer must act on stays outside the fold: breaking changes, questions put to the reviewer, screenshots, and every section the repository's PR template requires (ticket number, disclosure, checklist). - The fold exempts nothing. Every rule and perspective applies to the text inside it as it does outside, and it is rewritten the same way. - `<summary>` names what is folded (`Details`, `詳細`). A model name goes there only when the document or the requester gives one. - Write `<details>`, then `<summary>…</summary>` on its own line, a blank line, the Markdown, a blank line, `</details>`. Without the blank line the Markdown stays part of the HTML block and is shown as typed (CommonMark, HTML blocks). Headings, tables and code blocks move into the fold unchanged; do not convert them to HTML tags. - A description under 20 non-blank lines stays flat: a fold over a few lines is over-structuring (STR-05). One fold, closed by default (no `open`).",
+      "group": "structure"
+    },
+    {
       "id": "CON-01",
       "name": "Sentence that tells the reader nothing",
       "doc": "**Sentence that tells the reader nothing.** Fails the information or substitution test: `キャッシュはパフォーマンスにとって重要です`, `Security is a top priority`, `This guide will help you get the most out of X`. Delete it. Do not replace it with a better-sounding sentence of the same emptiness.",

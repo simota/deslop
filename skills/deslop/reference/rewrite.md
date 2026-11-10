@@ -123,7 +123,7 @@ genre named.
 | Tutorial (`tutorial`) | Numbered steps, one heading per step, a short statement of the result up front | Signposting between every step, praise of the reader, recap sections | DEN-05, DEN-06 exempt; DEN-03 at 0 |
 | Blog / article (`article`) | Headings every few paragraphs, the problem the article answers and a point of view, each stated once | SEO headings, FAQ padding, `まとめ` that repeats the body | DEN-01 1.5, DEN-04 0, DEN-05 3, DEN-06 0.3 |
 | Spec / RFC (`spec`) | `MUST`/`SHOULD`, numbered requirements, rationale sections | Hedges on requirements, promotional framing | DEN-05, DEN-06, DEN-08 exempt; DEN-03 at 0 |
-| PR description (`pr`) | What changed, why, how it was tested | Section templates left empty, headings over single lines, emoji | DEN-06 exempt; DEN-03 and DEN-10 at 0 |
+| PR description (`pr`) | What changed, why, how it was tested; past one screen, an opener and the rest in one `<details>` (STR-17) | Section templates left empty, headings over single lines, emoji | DEN-06 exempt; DEN-03 and DEN-10 at 0 |
 | Email / message (`message`) | Greeting and sign-off customary in the language, an invitation to reply | Chat closers, restated requests, stacked apologies | EN-20, JA-21 exempt; DEN-04 0, DEN-05 0, DEN-06 0.3 |
 | Changelog (`changelog`) | One bullet per change | Adjectives on changes (`powerful new`) | DEN-05, DEN-06, DEN-08 exempt |
 | Template (`template`) | The fields its user fills in (`[name]`, `[HH:MM]`, `〔 〕`), one per item the user must supply, with their bold labels | Chat residue, filler around the fields, invented values put in a field | ART-07 exempt (the one artifact rule a genre may exempt); DEN-04 exempt |
@@ -133,6 +133,13 @@ Pick the genre from what the document is for, not from where it lives: a
 `README.md` is an `article`. Slide text has no entry: use `general` and
 exempt its rules (DEN-10) by hand. The report lists each file's genre and
 what it changed.
+
+A `pr` description of 20 non-blank lines or more is folded (STR-17 in
+`reference/structure.md`): an opener the reviewer can stop after, what the
+reviewer must act on, then one `<details>` block holding the rest. The text
+inside the fold is rewritten like the text outside it. Give the three
+candidates different openers and a different split between what stays
+visible and what is folded.
 
 In every genre, `✅` / `❌` as the cell values of a comparison table, and
 `🟢` / `🟡` / `🔴` as the value of a status field, are conventions: exempt those

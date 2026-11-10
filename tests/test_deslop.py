@@ -38,7 +38,7 @@ def rules_of(text):
 def cues_of(text, genre="general"):
     prose = detect.mask_urls(detect.mask_code(text))
     lang = detect.language(prose)
-    quiet = {p["id"] for p in RULES["perspectives"] if genre in p.get("quiet", [])}
+    quiet = detect.quiet_perspectives(RULES, genre)
     return detect.perspective_cues(text, lang, detect.metrics(prose, lang)["chars"], RULES["min_chars"], True, quiet)
 
 
@@ -475,10 +475,33 @@ class CueTests(unittest.TestCase):
         self.assertEqual((result["summary"]["open"], result["summary"]["cues"]), (0, cues.PER_PERSPECTIVE))
         self.assertIn("doc.md:3 STR-14 cue: ", stdout.getvalue())
 
+    def test_long_pr_descriptions_are_cued_to_fold(self):
+        opener = "Adds retries to the HTTP client.\n\n"
+        long = opener + "".join(f"## Part {i}\n\n{self.FILLER}\n\n" for i in range(10))
+        self.assertEqual([(c["line"], c["why"]) for c in cues_of(long, "pr") if c["perspective"] == "STR-17"],
+                         [(1, "21 lines and nothing folded into <details>")])
+        self.assertNotIn("STR-17", cued(long), "cued only in pr")
+        self.assertNotIn("STR-17", cued(opener + "## Testing\n\nRan the suite.\n", "pr"), "one screen stays flat")
+        fenced = long + "```html\n<details>\n```\n"
+        self.assertIn("STR-17", cued(fenced, "pr"), "a tag inside a code block folds nothing")
+        folded = opener + "<details>\n<summary>Details</summary>\n\n" + long + "```sh\nmake check\n```\n\n</details>\n"
+        self.assertNotIn("STR-17", cued(folded, "pr"))
+        self.assertEqual(len(cues.code_lines(folded)), 3, "a fence after the blank line is still a code block")
+
+    def test_folds_that_hide_the_point_or_their_markdown_are_cued(self):
+        def fold_cues(text):
+            return [(c["line"], c["why"]) for c in cues_of(text, "pr") if c["perspective"] == "STR-17"]
+        body = "## Why\n\nThe job failed on every 503.\n\n</details>\n"
+        self.assertEqual(fold_cues("<details>\n<summary>Details</summary>\n\n" + body),
+                         [(1, "nothing before the fold says what the change does")])
+        self.assertEqual(fold_cues("Adds retries.\n\n<details>\n<summary>Details</summary>\n" + body),
+                         [(5, "no blank line after </summary>, so this is not rendered as Markdown")])
+        self.assertEqual(fold_cues("Adds retries.\n\n<details>\n  <summary>Details</summary>\n  <h2>Why</h2>\n</details>\n"), [])
+
     def test_quiet_lists_name_real_genres(self):
         genres = set(genre_table(RULES))
         for p in RULES["perspectives"]:
-            self.assertLessEqual(set(p.get("quiet", [])), genres, p["id"])
+            self.assertLessEqual(set(p.get("quiet", [])) | set(p.get("only", [])), genres, p["id"])
 
 
 class GenreTests(unittest.TestCase):

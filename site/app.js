@@ -10,7 +10,7 @@
     general: {
       title: "General prose (一般散文)",
       keep: "内容が必要とする段落・見出し・根拠ある主張のみ",
-      remove: "81ルールおよび24観点に該当するすべての機械生成表現・水増し構造",
+      remove: "81ルールおよび25観点に該当するすべての機械生成表現・水増し構造",
       adjust: "デフォルト密度上限（太字 3.0/1000字、見出し 5.0/1000字、リスト比率 0.6）",
       corpus: "corpus/general/weekly-meeting-minutes-ja.md (2,389字: 6 hits → 6 open, 0 exempt)",
       cmd: "python3 skills/deslop/scripts/detect.py --genre general corpus/general/weekly-meeting-minutes-ja.md"
@@ -57,10 +57,10 @@
     },
     pr: {
       title: "PR Description (プルリクエスト説明文)",
-      keep: "何を変えたか、なぜ変えたか、どう検証したか",
+      keep: "何を変えたか、なぜ変えたか、どう検証したか。1画面を超える場合は導入文を表に出し、残りを1つの `<details>` に畳む（STR-17）",
       remove: "空欄のまま残されたテンプレート節、1文だけの節に対する見出し、装飾絵文字",
       adjust: "DEN-06（変更点の箇条書き）免除 / DEN-03（感嘆符）・DEN-10（水平線）上限を 0 に厳格化",
-      corpus: "corpus/pr/login-validation-pr-ja.md (465字: 0 hits → 0 open, 簡潔な変更箇条書きを正当と判定)",
+      corpus: "corpus/pr/login-validation-pr-ja.md (465字: 0 hits → 0 open, 簡潔な変更箇条書きを正当と判定。26行で折りたたみなしのため STR-17 をキュー)",
       cmd: "python3 skills/deslop/scripts/detect.py --genre pr corpus/pr/login-validation-pr-ja.md"
     },
     message: {
@@ -141,11 +141,11 @@
     {
       num: "PHASE 03",
       id: "DETECT",
-      title: "DETECT — 81ルール走査＋11種の構造キュー＋24観点の全文読解",
+      title: "DETECT — 81ルール走査＋11種の構造キュー＋25観点の全文読解",
       desc: "`detect.py` を実行して `detect.before.json` を出力します。フロントマター・コードブロック・URLを正確にマスクした上で、チャット残骸・語彙・無出典統計・文書密度を検出し、さらに文書の骨格から構造観点のキュー（`cues`）を提示します。",
       points: [
         "81の決定論的ルール（ART 9 / EN 27 / JA 33 / EMO 1 / CNT 1 / DEN 10）を一括検査",
-        "文書形状から11種の構造・内容観点（予告開幕、まとめ反復、3項目リスト偏重など）を自動キュー出し",
+        "文書形状から12種の構造・内容観点（予告開幕、まとめ反復、3項目リスト偏重など）を自動キュー出し",
         "「どこがAIっぽいか教えて」とだけ聞かれた場合はこのフェーズで停止し、ファイルを一切変更しない"
       ],
       code: `$ python3 skills/deslop/scripts/detect.py \\
@@ -257,7 +257,7 @@ $ python3 skills/deslop/scripts/preserve_check.py /tmp/deslop-run
       points: [
         "findings.json の SHA-256 スタンプを埋め込んだ report.md を自動レンダリング",
         "contract_check.py はキャッシュを信用せず original/ と作業コピーをゼロから再スキャン",
-        "全81ルール・全24観点・全事実保存の整合性が取れたときのみ `contract ok` (exit 0)"
+        "全81ルール・全25観点・全事実保存の整合性が取れたときのみ `contract ok` (exit 0)"
       ],
       code: `$ python3 skills/deslop/scripts/findings.py report /tmp/deslop-run
 report.md written; 0 open hits

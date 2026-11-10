@@ -255,6 +255,7 @@
     {"id": "STR-14", "name": "Question headings and FAQ padding"},
     {"id": "STR-15", "name": "Translationese"},
     {"id": "STR-16", "name": "Voice drift from the author"},
+    {"id": "STR-17", "name": "Detail the reader cannot skip", "only": ["pr"]},
     {"id": "CON-01", "name": "Sentence that tells the reader nothing"},
     {"id": "CON-02", "name": "Content the reader already knows or does not need"},
     {"id": "CON-03", "name": "Unsupported specifics"},

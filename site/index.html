@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>deslop — 機械生成の文体を削り、書かれた事実だけを残すエージェントスキル &amp; 検出器</title>
-  <meta name="description" content="deslop は日本語・英語の Markdown と平文から、チャット応答の残骸、AI特有の過剰語彙、出典のない統計、水増しされた構造を取り除くエージェントスキル（Claude Code / Codex / Antigravity 対応）です。81の決定論的ルールと24の観点、事実保存検査（preserve_check.py）を備え、Python 3.10+ 標準ライブラリのみで動作します。">
+  <meta name="description" content="deslop は日本語・英語の Markdown と平文から、チャット応答の残骸、AI特有の過剰語彙、出典のない統計、水増しされた構造を取り除くエージェントスキル（Claude Code / Codex / Antigravity 対応）です。81の決定論的ルールと25の観点、事実保存検査（preserve_check.py）を備え、Python 3.10+ 標準ライブラリのみで動作します。">
   <meta property="og:title" content="deslop — 機械生成の文体を削り、書かれた事実だけを残す">
-  <meta property="og:description" content="81の決定論的ルール＋24の構造・内容観点。原文にない事実は1文字も足さず、数値・URL・コードブロックの生存を契約検査（contract_check.py）で保証する日英対応エージェントスキル。">
+  <meta property="og:description" content="81の決定論的ルール＋25の構造・内容観点。原文にない事実は1文字も足さず、数値・URL・コードブロックの生存を契約検査（contract_check.py）で保証する日英対応エージェントスキル。">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ja_JP">
   <meta name="twitter:card" content="summary_large_image">
@@ -52,7 +52,7 @@
           <li><a href="#three-layers">3層の除去原理</a></li>
           <li><a href="#pipeline">実行契約 (8 Phases)</a></li>
           <li><a href="#genres">10種のジャンル</a></li>
-          <li><a href="#rule-atlas">全81ルール＋24観点</a></li>
+          <li><a href="#rule-atlas">全81ルール＋25観点</a></li>
           <li><a href="#faq">FAQ</a></li>
         </ul>
         <div class="header-actions">
@@ -169,9 +169,9 @@
             <div class="strip-note">ART 9 · JA 33 · EN 27 · EMO 1 · CNT 1 · DEN 10</div>
           </div>
           <div class="strip-metric">
-            <div class="strip-number">24<span>perspectives</span></div>
+            <div class="strip-number">25<span>perspectives</span></div>
             <div class="strip-label">内容・構造の読解観点</div>
-            <div class="strip-note">Content 8種 ＋ Structure 16種（11種を自動キュー）</div>
+            <div class="strip-note">Content 8種 ＋ Structure 17種（12種を自動キュー）</div>
           </div>
           <div class="strip-metric">
             <div class="strip-number">10<span>genres</span></div>
@@ -179,7 +179,7 @@
             <div class="strip-note">readme / reference / spec / article / pr / template 等</div>
           </div>
           <div class="strip-metric">
-            <div class="strip-number">608<span>tests</span></div>
+            <div class="strip-number">610<span>tests</span></div>
             <div class="strip-label">オフライン回帰テスト</div>
             <div class="strip-note">make check でルール・ドキュメント整合性を常時検証</div>
           </div>
@@ -340,7 +340,7 @@
           <article class="layer-card">
             <div class="layer-card-header">
               <div>
-                <span class="layer-order">PASS 02 · STRUCTURAL PERSPECTIVES (STR-01 – STR-16)</span>
+                <span class="layer-order">PASS 02 · STRUCTURAL PERSPECTIVES (STR-01 – STR-17)</span>
                 <h3 class="layer-name">2. 構造パス：予告開幕・反復まとめ・機械的な3項目リストを解体する</h3>
               </div>
               <span class="brand-tag">reference/structure.md</span>
@@ -348,13 +348,14 @@
             <div class="layer-body">
               <div>
                 <p class="layer-lead">
-                  単語単位の正規表現だけでは見抜けない「文書の骨格のクセ」は、16の構造観点の対象です。<code>detect.py</code>（<code>cues.py</code>）が文書の形状から11種類の構造キューを行番号付きで自動抽出し、エージェントの精読箇所をガイドします。
+                  単語単位の正規表現だけでは見抜けない「文書の骨格のクセ」は、17の構造観点の対象です。<code>detect.py</code>（<code>cues.py</code>）が文書の形状から12種類の構造キューを行番号付きで自動抽出し、エージェントの精読箇所をガイドします。
                 </p>
                 <ul class="four-tests-list">
                   <li class="test-item"><strong>STR-01 Announced opening</strong>：「本記事では〜を解説します」やタイトルの反復で始まる第1段落を削除し、1文目から本題に入る。</li>
                   <li class="test-item"><strong>STR-02 Closing that restates</strong>：「## まとめ」「In conclusion」で本文を繰り返す最終節を削除する。</li>
                   <li class="test-item"><strong>STR-05 / DEN-04 Over-structuring</strong>：1つの説明を細切れにした「<code>**ラベル**: 説明</code>」箇条書きを自然な散文に戻す。</li>
                   <li class="test-item"><strong>STR-16 Voice drift</strong>：途中で「です・ます」と常体が混ざる文体ブレや表記揺れを著者の <code>voice</code> に統一する。</li>
+                  <li class="test-item"><strong>STR-17 Detail the reader cannot skip</strong>：1画面を超える PR 説明文は、原文から選んだ導入文とレビュアーが対応すべき項目を表に残し、残りを1つの <code>&lt;details&gt;</code> に畳む。畳んだ中も同じ規則で書き直す。</li>
                 </ul>
               </div>
               <div>
@@ -563,7 +564,7 @@
       <div class="container">
         <div class="section-header">
           <span class="section-kicker">COMPLETE RULE &amp; PERSPECTIVE ATLAS</span>
-          <h2 class="section-title">全81決定論的ルール＋24観点の<span class="nowrap">リファレンス辞典</span></h2>
+          <h2 class="section-title">全81決定論的ルール＋25観点の<span class="nowrap">リファレンス辞典</span></h2>
           <p class="section-desc">
             <code>skills/deslop/scripts/rules.json</code> および <code>reference/patterns.md</code>・<code>structure.md</code>・<code>content.md</code> に定義されたすべての検査項目を検索・フィルタリングできます。
           </p>
@@ -571,16 +572,16 @@
 
         <div class="atlas-toolbar">
           <div class="atlas-filter-tabs" role="group" aria-label="ルールカテゴリ絞り込み">
-            <button type="button" class="filter-chip is-active" data-atlas-filter="all">すべて (105)</button>
+            <button type="button" class="filter-chip is-active" data-atlas-filter="all">すべて (106)</button>
             <button type="button" class="filter-chip" data-atlas-filter="artifact">Artifact 残骸 (9)</button>
             <button type="button" class="filter-chip" data-atlas-filter="ja">日本語語彙 JA (33)</button>
             <button type="button" class="filter-chip" data-atlas-filter="en">英語語彙 EN (27)</button>
             <button type="button" class="filter-chip" data-atlas-filter="density">密度・統計・絵文字 (12)</button>
-            <button type="button" class="filter-chip" data-atlas-filter="perspective">構造・内容観点 STR/CON (24)</button>
+            <button type="button" class="filter-chip" data-atlas-filter="perspective">構造・内容観点 STR/CON (25)</button>
           </div>
 
           <div class="atlas-search-wrap">
-            <span id="atlas-count" class="atlas-count">105 / 105 件を表示中</span>
+            <span id="atlas-count" class="atlas-count">106 / 106 件を表示中</span>
             <input type="search" id="atlas-search-input" class="atlas-search" placeholder="ルールID・語彙で検索 (例: JA-04, delve, まとめ)" aria-label="ルール検索">
           </div>
         </div>

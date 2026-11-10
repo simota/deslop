@@ -48,6 +48,10 @@ COVERAGE = re.compile(r"\b(?:benefits|advantages|disadvantages|pros and cons|use
 PER_PERSPECTIVE = 5
 POLITE = re.compile(r"(?:です|ます|でした|ました|ません|でしょう|ください|ましょう)$")
 PLAIN = re.compile(r"(?:だ|である|だった|であった|ない|なかった|[うくすつぬふむゆるぐぶたい])$")
+DETAILS = re.compile(r"^ {0,3}<details(?:[ \t>]|$)", re.I)
+SUMMARY_END = re.compile(r"</summary>[ \t]*$", re.I)
+# About one screen of a rendered description.
+FOLD_LINES = 20
 
 
 def code_lines(text, markdown=True):
@@ -244,6 +248,21 @@ def find(text, prose, lang, split, markdown=True, chars=0, min_chars=0, quiet=()
             if (lang == "en" and RESTATE.match(s)) or \
                     (len(ta) >= 4 and len(ts) >= 4 and len(ta & ts) / len(ta | ts) >= 0.5):
                 cue(line_of(b, s), "STR-11", "this sentence restates the one before it")
+
+    # STR-17: a long description with nothing folded, or a fold that hides its point or its Markdown.
+    if markdown:
+        code = code_lines(text, markdown)
+        live = [(i, line) for i, line in enumerate(raw) if i not in code and line.strip()]
+        folds = [i for i, line in live if DETAILS.match(line)]
+        filled = sum(1 for line in raw if line.strip())
+        if not folds and filled >= FOLD_LINES:
+            cue(live[0][0] + 1, "STR-17", f"{filled} lines and nothing folded into <details>")
+        if folds and not any(b["line"] <= folds[0] for b in paras):
+            cue(folds[0] + 1, "STR-17", "nothing before the fold says what the change does")
+        for i, line in live:
+            after = raw[i + 1].strip() if i + 1 < len(raw) else ""
+            if SUMMARY_END.search(line) and after and not after.startswith("<"):
+                cue(i + 2, "STR-17", "no blank line after </summary>, so this is not rendered as Markdown")
 
     if chars < min_chars:
         return sorted(out, key=lambda c: (c["line"], c["perspective"]))
