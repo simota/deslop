@@ -36,6 +36,17 @@ def render(data):
     return PREFIX + json.dumps(data, indent=2, ensure_ascii=False) + SUFFIX
 
 
+def rounded(value):
+    """Floats compared to 9 places: Python versions differ in the last digit."""
+    if isinstance(value, float):
+        return round(value, 9)
+    if isinstance(value, dict):
+        return {k: rounded(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [rounded(v) for v in value]
+    return value
+
+
 def entries(path):
     """Each `### \\`ID\\`` entry's paragraphs, each paragraph on one line."""
     found, current, lines = {}, None, []
@@ -83,17 +94,17 @@ def main(argv=None):
     args = ap.parse_args(argv)
     try:
         current = read_data()
-        text = render(build(current))
+        built = build(current)
     except (OSError, KeyError, ValueError) as e:
         print(f"build_data: {e}", file=sys.stderr)
         return 2
     if args.check:
-        if text != DATA.read_text(encoding="utf-8"):
+        if rounded(built) != rounded(current) or render(current) != DATA.read_text(encoding="utf-8"):
             print("site/data.js is stale; run python3 site/build_data.py", file=sys.stderr)
             return 1
         print("site/data.js is current")
         return 0
-    DATA.write_text(text, encoding="utf-8")
+    DATA.write_text(render(built), encoding="utf-8")
     print(f"wrote {DATA.relative_to(serve.ROOT)}")
     return 0
 

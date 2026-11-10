@@ -27,17 +27,6 @@ APP = (ROOT / "site" / "app.js").read_text(encoding="utf-8")
 PAGE = HTML + APP
 
 
-def rounded(value):
-    """Floats compared to 9 places: Python versions differ in the last digit."""
-    if isinstance(value, float):
-        return round(value, 9)
-    if isinstance(value, dict):
-        return {k: rounded(v) for k, v in value.items()}
-    if isinstance(value, list):
-        return [rounded(v) for v in value]
-    return value
-
-
 def skill_phases():
     table = (ROOT / "skills" / "deslop" / "SKILL.md").read_text(encoding="utf-8").split("## Phases", 1)[1].split("\n## ", 1)[0]
     return re.findall(r"^\| ([A-Z]+) \|", table, re.M)
@@ -46,7 +35,7 @@ def skill_phases():
 class SiteDataTests(unittest.TestCase):
     def test_bundled_data_matches_its_sources(self):
         current = build_data.read_data()
-        self.assertEqual(rounded(build_data.build(current)), rounded(current),
+        self.assertEqual(build_data.rounded(build_data.build(current)), build_data.rounded(current),
                          "site/data.js is stale; run python3 site/build_data.py")
 
     def test_bundled_data_is_written_in_its_canonical_form(self):
