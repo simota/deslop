@@ -1613,7 +1613,7 @@ window.DESLOP_DATA = {
           "heading_per_1000": 3.1545741324921135,
           "list_ratio": 0,
           "ending_run": 1,
-          "length_cv": 0.6206096799708021,
+          "length_cv": 0.6206096799708022,
           "triad_count": 2,
           "hr_count": 0
         },
@@ -1998,7 +1998,7 @@ window.DESLOP_DATA = {
           "heading_per_1000": 9.837962962962964,
           "list_ratio": 0.6938775510204082,
           "ending_run": 1,
-          "length_cv": 0.23824643467712928,
+          "length_cv": 0.2382464346771293,
           "triad_count": 0,
           "hr_count": 0
         },
