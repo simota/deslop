@@ -244,6 +244,28 @@ who…`, `Picture this`, `Let's say you`, `Consider the following scenario`.
 Use an example the document actually has, or drop the scenario and state the
 point (CON-04).
 
+### `EN-28`
+Superlative persona given to a model (`You are a world-class software
+engineer`, `Act as an elite copywriter`, `As a seasoned expert`). The
+superlative tells the model nothing it can act on. Keep the role only when it
+names the task or its domain (`You review pull requests for a TypeScript
+service`) and cut the rank. In prose about a person it is borrowed authority
+(CON-08).
+
+### `EN-29`
+Effort or quality demanded with no criterion: `think deeply`, `take a deep
+breath`, `from every angle`, `follow best practices`, `production-grade
+code`. Replace it with the criterion the document states
+elsewhere (which errors to handle, which API stays unchanged); when it states
+none, cut the demand and list the missing criterion under `decisions`
+(STR-18). Never write a criterion the document does not give.
+
+### `EN-30`
+Pressure, threat or reward aimed at a model (`I'll tip you $200`, `my career
+depends on this`, `you will be penalized`). It carries no instruction. Delete
+it; if it stood for a real stake (a deadline, an audience), keep that stake as
+a plain statement.
+
 ## Japanese lexical
 
 ### `JA-01`
@@ -390,6 +412,24 @@ SEO記事型の見出し（`〜とは？`、`〜のメリット`、`〜のポイ
 `以下のオプションと終了コードは未確認の仮案です。` のように平叙文で本文に残し、
 `decisions` に挙げる（CON-03）。平叙文がなおこのルールに当たるときは、その理由で
 除外する。
+
+### `JA-34`
+最上級で飾った人物設定（`あなたは世界最高峰のエンジニアです`、`超一流のライター
+として`）。AI への役割指定で特に多い。順位づけは指示として何も伝えない。役割が
+作業や領域を示す場合だけ残して飾りを外す（`あなたは社内のコードレビュー担当
+です`）。人物の紹介文なら借りた権威（CON-08）として扱う。
+
+### `JA-35`
+満たしたと判断できる基準のない努力・品質の要求（`あらゆる観点から深く思考し`、
+`ベストプラクティスを最大限に活用`、`プロフェッショナル品質の`、`全力で`）。文書の
+別の箇所にある基準（どのエラーを処理するか、何を変えてはいけないか）に置き換える。
+基準がなければ要求を削り、足りない基準を `decisions` に挙げる（STR-18）。文書に
+ない基準を書き足さない。
+
+### `JA-36`
+AI への圧力・脅し・報酬（`チップを払います`、`私のキャリアがかかっています`、
+`ペナルティを科します`）。指示を何も含まないので削る。締切や読み手など本当の事情を
+指していたなら、その事情だけを平叙文で残す。
 
 ### `EMO-01`
 飾りの絵文字（見出しや箇条書きの頭の 🚀 ✅ ✨ ⏱）。削除する。UI の文言を

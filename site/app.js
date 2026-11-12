@@ -10,7 +10,7 @@
     general: {
       title: "General prose (一般散文)",
       keep: "内容が必要とする段落・見出し・根拠ある主張のみ",
-      remove: "81ルールおよび25観点に該当するすべての機械生成表現・水増し構造",
+      remove: "87ルールおよび26観点に該当するすべての機械生成表現・水増し構造",
       adjust: "デフォルト密度上限（太字 3.0/1000字、見出し 5.0/1000字、リスト比率 0.6）",
       corpus: "corpus/general/weekly-meeting-minutes-ja.md (2,389字: 6 hits → 6 open, 0 exempt)",
       cmd: "python3 skills/deslop/scripts/detect.py --genre general corpus/general/weekly-meeting-minutes-ja.md"
@@ -86,6 +86,14 @@
       adjust: "ART-07（未入力プレースホルダ：唯一ジャンル免除が許されるartifactルール）・DEN-04（太字ラベル）を免除",
       corpus: "corpus/template/checkout-postmortem-en.md (3,081字: 54 hits → 2 open, 52個の入力欄とラベルを正当免除)",
       cmd: "python3 skills/deslop/scripts/detect.py --genre template corpus/template/checkout-postmortem-en.md"
+    },
+    prompt: {
+      title: "AI Prompt / Instructions (AIへの指示・プロンプト)",
+      keep: "目的・背景・制約・出力のラベル付き区分、1項目1制約のリスト、入出力の例、`{{diff}}` などの変数・タグ・ツール名、モデルが推測できない背景と制約の理由",
+      remove: "「世界最高峰の〜」型の人物設定、基準のない努力・品質の要求（「あらゆる観点から深く思考し」）、圧力や報酬、強調の重ね掛け、言い換えた指示の重複。満たす条件のない品質語は文書内の条件に置き換え、条件がなければ作者への質問として残す（STR-18）",
+      adjust: "DEN-04（ラベル付き箇条書き）・DEN-05（見出し）・DEN-06（リスト）・DEN-08（文長均一性）を免除 / DEN-01（太字）上限 1.5、DEN-03（感嘆符）上限 0（AGENTS.md・CLAUDE.md・*.prompt.md はファイル名で自動判定）",
+      corpus: "corpus/prompt/code-review-system-prompt-ja.md (1,729字: 0 hits → 0 open, 目的・優先順位・制約・出力形式が揃った仕様型プロンプトを正当と判定)",
+      cmd: "python3 skills/deslop/scripts/detect.py --genre prompt corpus/prompt/code-review-system-prompt-ja.md"
     }
   };
 
@@ -141,11 +149,11 @@
     {
       num: "PHASE 03",
       id: "DETECT",
-      title: "DETECT — 81ルール走査＋11種の構造キュー＋25観点の全文読解",
+      title: "DETECT — 87ルール走査＋13種の構造キュー＋26観点の全文読解",
       desc: "`detect.py` を実行して `detect.before.json` を出力します。フロントマター・コードブロック・URLを正確にマスクした上で、チャット残骸・語彙・無出典統計・文書密度を検出し、さらに文書の骨格から構造観点のキュー（`cues`）を提示します。",
       points: [
-        "81の決定論的ルール（ART 9 / EN 27 / JA 33 / EMO 1 / CNT 1 / DEN 10）を一括検査",
-        "文書形状から12種の構造・内容観点（予告開幕、まとめ反復、3項目リスト偏重など）を自動キュー出し",
+        "87の決定論的ルール（ART 9 / EN 30 / JA 36 / EMO 1 / CNT 1 / DEN 10）を一括検査",
+        "文書形状から13種の構造・内容観点（予告開幕、まとめ反復、3項目リスト偏重など）を自動キュー出し",
         "「どこがAIっぽいか教えて」とだけ聞かれた場合はこのフェーズで停止し、ファイルを一切変更しない"
       ],
       code: `$ python3 skills/deslop/scripts/detect.py \\
@@ -257,7 +265,7 @@ $ python3 skills/deslop/scripts/preserve_check.py /tmp/deslop-run
       points: [
         "findings.json の SHA-256 スタンプを埋め込んだ report.md を自動レンダリング",
         "contract_check.py はキャッシュを信用せず original/ と作業コピーをゼロから再スキャン",
-        "全81ルール・全25観点・全事実保存の整合性が取れたときのみ `contract ok` (exit 0)"
+        "全87ルール・全26観点・全事実保存の整合性が取れたときのみ `contract ok` (exit 0)"
       ],
       code: `$ python3 skills/deslop/scripts/findings.py report /tmp/deslop-run
 report.md written; 0 open hits

@@ -130,7 +130,7 @@ class SiteDataTests(unittest.TestCase):
         self.assertIn(f"{tiers['artifact']} chat-artifact rules", readme)
         self.assertIn(f"{tiers['lexical']} lexical rules", readme)
         self.assertIn(f"{tiers['density']} density", readme)
-        words = {8: "Eight", 17: "seventeen"}
+        words = {8: "Eight", 18: "eighteen"}
         kinds = Counter(p["id"].split("-")[0] for p in serve.RULES["perspectives"])
         self.assertIn(f"{words[kinds['CON']]} content perspectives", readme)
         self.assertIn(f"{words[kinds['STR']]} structural perspectives", readme)

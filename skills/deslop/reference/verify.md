@@ -125,7 +125,7 @@ from the previous one, a heading nobody would navigate to, a transition that
 could sit in any document, a claim that would be just as true of a
 competitor, an example nobody could have observed, a benefit with no "how".
 These are tells no rule names; they are the reason this step exists. Then
-check the eight perspectives in `reference/content.md` and the sixteen in
+check the eight perspectives in `reference/content.md` and the eighteen in
 `reference/structure.md` once more against the final text, reading first the
 lines that `detect.after.json` still cues. Every mark goes back through
 REWRITE and is recorded under the closest perspective.
@@ -133,6 +133,13 @@ REWRITE and is recorded under the closest perspective.
 Also check that the document still does its job: the steps still work in
 order, the requirements are all still there, and nothing a reader needs was
 deleted with the padding.
+
+A `prompt` is read as the model that will receive it: for each instruction,
+could you tell from your output alone whether you followed it? Mark every
+instruction you could satisfy in two contradictory ways, every constraint the
+original stated that is gone, and every term the prompt uses but never
+defines. Marks that need a fact from the author go to `decisions`, not into
+the text.
 
 ## 4. Independent reader
 

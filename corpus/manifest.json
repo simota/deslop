@@ -911,6 +911,33 @@
         "by_rule": {}
       },
       "scenario": "告知：アプリのリリースを X に投稿"
+    },
+    {
+      "id": "code-review-system-prompt-ja",
+      "path": "prompt/code-review-system-prompt-ja.md",
+      "genre": "prompt",
+      "lang": "ja",
+      "origin": "ai-generated",
+      "scenario": "AI 運用：コードレビュー用アシスタントのシステムプロンプト",
+      "source": {
+        "generator": "Claude Code subagent (opus)",
+        "global_instructions": "~/.claude/CLAUDE.md (subagent of a Claude Code session)",
+        "prompt": "社内のコードレビュー用AIアシスタント（Pull Requestの差分を読んでレビューコメントを書く）のシステムプロンプトを書いてください。プロンプト本文だけを出力してください。",
+        "date": "2026-11-13",
+        "edited": false
+      },
+      "exercises": [
+        "a prompt already written as a specification: goal, priorities, constraints and output each have a section, so neither the prompt rules nor STR-18 fire",
+        "the zero-change run on a prompt: nothing to cut, and the reader is a model (CON-02)"
+      ],
+      "baseline": {
+        "hits": 0,
+        "open": 0,
+        "exempt": 0,
+        "prose_chars": 1729,
+        "by_rule": {}
+      },
+      "notes": "Added after baseline_commit; its baseline is the detector's result in the commit that added the prompt genre."
     }
   ]
 }

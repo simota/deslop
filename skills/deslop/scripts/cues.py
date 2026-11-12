@@ -52,6 +52,16 @@ DETAILS = re.compile(r"^ {0,3}<details(?:[ \t>]|$)", re.I)
 SUMMARY_END = re.compile(r"</summary>[ \t]*$", re.I)
 # About one screen of a rendered description.
 FOLD_LINES = 20
+# Qualities a prompt can demand without saying what meets them.
+QUALITY = re.compile(r"\b(?:robust|scalable|maintainable|readable|clean|efficient|elegant|high-quality|professional"
+                     r"|secure|performant|reliable|extensible|flexible|optimal)\b"
+                     r"|堅牢|拡張性|保守性|可読性|高品質|効率的|洗練|美しい|安全(?:性|な)|高性能|信頼性|柔軟|読みやすい"
+                     r"|わかりやすい|分かりやすい|最適", re.I)
+# Directions that leave the decision to whoever reads them.
+VAGUE = re.compile(r"\b(?:appropriately|properly|as (?:needed|appropriate|necessary)|if (?:needed|necessary)|nicely"
+                   r"|in a good way|whatever (?:is|seems) best)\b"
+                   r"|適切に|適宜|いい感じに|良い感じに|よしなに|うまく|きれいに|ちゃんと|しっかり(?:と)?|必要に応じて", re.I)
+STACK = 3
 
 
 def code_lines(text, markdown=True):
@@ -263,6 +273,20 @@ def find(text, prose, lang, split, markdown=True, chars=0, min_chars=0, quiet=()
             after = raw[i + 1].strip() if i + 1 < len(raw) else ""
             if SUMMARY_END.search(line) and after and not after.startswith("<"):
                 cue(i + 2, "STR-17", "no blank line after </summary>, so this is not rendered as Markdown")
+
+    # STR-18: an instruction whose success nobody could check.
+    for b in blocks:
+        if b["kind"] not in ("para", "list"):
+            continue
+        for s in split(body(b), lang):
+            if re.search(r"\d", s):
+                continue
+            qualities = {m.group().lower() for m in QUALITY.finditer(s)}
+            vague = VAGUE.search(s)
+            if len(qualities) >= STACK:
+                cue(line_of(b, s), "STR-18", f"{len(qualities)} qualities demanded and nothing says when they are met")
+            elif vague:
+                cue(line_of(b, s), "STR-18", f"'{vague.group()}' leaves the decision to the model")
 
     if chars < min_chars:
         return sorted(out, key=lambda c: (c["line"], c["perspective"]))

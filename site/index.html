@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>deslop — 機械生成の文体を削り、書かれた事実だけを残すエージェントスキル &amp; 検出器</title>
-  <meta name="description" content="deslop は日本語・英語の Markdown と平文から、チャット応答の残骸、AI特有の過剰語彙、出典のない統計、水増しされた構造を取り除くエージェントスキル（Claude Code / Codex / Antigravity 対応）です。81の決定論的ルールと25の観点、事実保存検査（preserve_check.py）を備え、Python 3.10+ 標準ライブラリのみで動作します。">
+  <meta name="description" content="deslop は日本語・英語の Markdown と平文から、チャット応答の残骸、AI特有の過剰語彙、出典のない統計、水増しされた構造を取り除くエージェントスキル（Claude Code / Codex / Antigravity 対応）です。87の決定論的ルールと26の観点、事実保存検査（preserve_check.py）を備え、Python 3.10+ 標準ライブラリのみで動作します。">
   <meta property="og:title" content="deslop — 機械生成の文体を削り、書かれた事実だけを残す">
-  <meta property="og:description" content="81の決定論的ルール＋25の構造・内容観点。原文にない事実は1文字も足さず、数値・URL・コードブロックの生存を契約検査（contract_check.py）で保証する日英対応エージェントスキル。">
+  <meta property="og:description" content="87の決定論的ルール＋26の構造・内容観点。原文にない事実は1文字も足さず、数値・URL・コードブロックの生存を契約検査（contract_check.py）で保証する日英対応エージェントスキル。">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ja_JP">
   <meta name="twitter:card" content="summary_large_image">
@@ -51,8 +51,8 @@
           <li><a href="#live-detector">ライブ検出器</a></li>
           <li><a href="#three-layers">3層の除去原理</a></li>
           <li><a href="#pipeline">実行契約 (8 Phases)</a></li>
-          <li><a href="#genres">10種のジャンル</a></li>
-          <li><a href="#rule-atlas">全81ルール＋25観点</a></li>
+          <li><a href="#genres">11種のジャンル</a></li>
+          <li><a href="#rule-atlas">全87ルール＋26観点</a></li>
           <li><a href="#faq">FAQ</a></li>
         </ul>
         <div class="header-actions">
@@ -164,22 +164,22 @@
       <div class="container">
         <div class="proof-strip-grid">
           <div class="strip-metric">
-            <div class="strip-number">81<span>rules</span></div>
+            <div class="strip-number">87<span>rules</span></div>
             <div class="strip-label">決定論的検出ルール</div>
-            <div class="strip-note">ART 9 · JA 33 · EN 27 · EMO 1 · CNT 1 · DEN 10</div>
+            <div class="strip-note">ART 9 · JA 36 · EN 30 · EMO 1 · CNT 1 · DEN 10</div>
           </div>
           <div class="strip-metric">
-            <div class="strip-number">25<span>perspectives</span></div>
+            <div class="strip-number">26<span>perspectives</span></div>
             <div class="strip-label">内容・構造の読解観点</div>
-            <div class="strip-note">Content 8種 ＋ Structure 17種（12種を自動キュー）</div>
+            <div class="strip-note">Content 8種 ＋ Structure 18種（13種を自動キュー）</div>
           </div>
           <div class="strip-metric">
-            <div class="strip-number">10<span>genres</span></div>
+            <div class="strip-number">11<span>genres</span></div>
             <div class="strip-label">文書ジャンル別チューニング</div>
-            <div class="strip-note">readme / reference / spec / article / pr / template 等</div>
+            <div class="strip-note">readme / reference / spec / article / pr / prompt 等</div>
           </div>
           <div class="strip-metric">
-            <div class="strip-number">610<span>tests</span></div>
+            <div class="strip-number">615<span>tests</span></div>
             <div class="strip-label">オフライン回帰テスト</div>
             <div class="strip-note">make check でルール・ドキュメント整合性を常時検証</div>
           </div>
@@ -226,6 +226,7 @@
                 <option value="message">message (メール・連絡)</option>
                 <option value="changelog">changelog (変更履歴)</option>
                 <option value="template">template (入力テンプレート)</option>
+                <option value="prompt">prompt (AIへの指示・プロンプト)</option>
               </select>
             </div>
 
@@ -348,7 +349,7 @@
             <div class="layer-body">
               <div>
                 <p class="layer-lead">
-                  単語単位の正規表現だけでは見抜けない「文書の骨格のクセ」は、17の構造観点の対象です。<code>detect.py</code>（<code>cues.py</code>）が文書の形状から12種類の構造キューを行番号付きで自動抽出し、エージェントの精読箇所をガイドします。
+                  単語単位の正規表現だけでは見抜けない「文書の骨格のクセ」は、18の構造観点の対象です。<code>detect.py</code>（<code>cues.py</code>）が文書の形状から13種類の構造キューを行番号付きで自動抽出し、エージェントの精読箇所をガイドします。
                 </p>
                 <ul class="four-tests-list">
                   <li class="test-item"><strong>STR-01 Announced opening</strong>：「本記事では〜を解説します」やタイトルの反復で始まる第1段落を削除し、1文目から本題に入る。</li>
@@ -534,7 +535,7 @@
       <div class="container">
         <div class="section-header">
           <span class="section-kicker">GENRE-AWARE DETECTION</span>
-          <h2 class="section-title">10種類の文書ジャンルを理解し、<span class="nowrap">正当な慣習を誤爆しない</span></h2>
+          <h2 class="section-title">11種類の文書ジャンルを理解し、<span class="nowrap">正当な慣習を誤爆しない</span></h2>
           <p class="section-desc">
             APIリファレンスの太字パラメータ名、READMEのインストール手順リスト、メール末尾の <code>お気軽にお問い合わせください</code>、テンプレートの <code>[担当者名]</code> はAIスロップではなく文書の機能です。<code>--genre</code> がジャンルごとの免除規則と密度上限を自動適用します。
           </p>
@@ -551,6 +552,7 @@
             <button type="button" role="tab" class="genre-btn" data-genre-id="message"><span>Email / Message</span><code>message</code></button>
             <button type="button" role="tab" class="genre-btn" data-genre-id="changelog"><span>Changelog</span><code>changelog</code></button>
             <button type="button" role="tab" class="genre-btn" data-genre-id="template"><span>Template</span><code>template</code></button>
+            <button type="button" role="tab" class="genre-btn" data-genre-id="prompt"><span>AI Prompt</span><code>prompt</code></button>
             <button type="button" role="tab" class="genre-btn" data-genre-id="general"><span>General Prose</span><code>general</code></button>
           </div>
 
@@ -564,7 +566,7 @@
       <div class="container">
         <div class="section-header">
           <span class="section-kicker">COMPLETE RULE &amp; PERSPECTIVE ATLAS</span>
-          <h2 class="section-title">全81決定論的ルール＋25観点の<span class="nowrap">リファレンス辞典</span></h2>
+          <h2 class="section-title">全87決定論的ルール＋26観点の<span class="nowrap">リファレンス辞典</span></h2>
           <p class="section-desc">
             <code>skills/deslop/scripts/rules.json</code> および <code>reference/patterns.md</code>・<code>structure.md</code>・<code>content.md</code> に定義されたすべての検査項目を検索・フィルタリングできます。
           </p>
@@ -572,16 +574,16 @@
 
         <div class="atlas-toolbar">
           <div class="atlas-filter-tabs" role="group" aria-label="ルールカテゴリ絞り込み">
-            <button type="button" class="filter-chip is-active" data-atlas-filter="all">すべて (106)</button>
+            <button type="button" class="filter-chip is-active" data-atlas-filter="all">すべて (113)</button>
             <button type="button" class="filter-chip" data-atlas-filter="artifact">Artifact 残骸 (9)</button>
-            <button type="button" class="filter-chip" data-atlas-filter="ja">日本語語彙 JA (33)</button>
-            <button type="button" class="filter-chip" data-atlas-filter="en">英語語彙 EN (27)</button>
+            <button type="button" class="filter-chip" data-atlas-filter="ja">日本語語彙 JA (36)</button>
+            <button type="button" class="filter-chip" data-atlas-filter="en">英語語彙 EN (30)</button>
             <button type="button" class="filter-chip" data-atlas-filter="density">密度・統計・絵文字 (12)</button>
-            <button type="button" class="filter-chip" data-atlas-filter="perspective">構造・内容観点 STR/CON (25)</button>
+            <button type="button" class="filter-chip" data-atlas-filter="perspective">構造・内容観点 STR/CON (26)</button>
           </div>
 
           <div class="atlas-search-wrap">
-            <span id="atlas-count" class="atlas-count">106 / 106 件を表示中</span>
+            <span id="atlas-count" class="atlas-count">113 / 113 件を表示中</span>
             <input type="search" id="atlas-search-input" class="atlas-search" placeholder="ルールID・語彙で検索 (例: JA-04, delve, まとめ)" aria-label="ルール検索">
           </div>
         </div>
@@ -674,7 +676,7 @@
         <a href="#three-layers">3 Layers</a>
         <a href="#pipeline">Run Contract</a>
         <a href="#genres">Genres</a>
-        <a href="#rule-atlas">81 Rules</a>
+        <a href="#rule-atlas">87 Rules</a>
         <a href="#install">Install</a>
       </div>
     </div>

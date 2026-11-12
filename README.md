@@ -18,12 +18,22 @@ Each document gets three full candidates before selection. A failed final
 verification returns to rewriting and review.
 
 - **Genre** tunes detection to the kind of document: `readme`, `reference`,
-  `tutorial`, `article`, `spec`, `pr`, `message`, `changelog`, `template` or
-  `general`. Each exempts its own conventions (a reference's bold parameter
-  names, a message's "let me know", a template's unfilled fields) and moves
-  density limits (an article allows fewer
-  headings and bullets than a README). `README*` and `CHANGELOG*` are
-  recognised by name; others are set with `--genre`
+  `tutorial`, `article`, `spec`, `pr`, `message`, `changelog`, `template`,
+  `prompt` or `general`. Each exempts its own conventions (a reference's bold
+  parameter names, a message's "let me know", a template's unfilled fields)
+  and moves density limits (an article allows fewer
+  headings and bullets than a README). `README*`, `CHANGELOG*`, `AGENTS.md`,
+  `CLAUDE.md` and `*.prompt.md` are recognised by name; others are set with
+  `--genre`
+- **Prompts** written for a model (system prompts, prompt templates,
+  `AGENTS.md`, `CLAUDE.md`, skills) are rewritten into a specification the
+  model can check its work against: persona superlatives, exhortations
+  (`think deeply`, `ベストプラクティスを最大限に活用`) and pressure are cut,
+  demanded qualities (`robust`, `保守性に優れた`) become the conditions the
+  prompt already states, and goal, context, constraints and output each get
+  their place. Context the model cannot infer stays, since a prompt cut to
+  "implement it properly" is worse than the original, and a condition the
+  prompt never states is asked of the author, not invented
 - **Snapshot** copies the originals before the first edit. In-place mode is the
   default only when every file is tracked by Git with no uncommitted changes;
   otherwise the rewrite goes to a copy. The run is published only after every
@@ -33,7 +43,7 @@ verification returns to rewriting and review.
   generic voice for another
 - **Detect** runs `scripts/detect.py`: 9 chat-artifact rules (openers, closers,
   citation tokens such as `oaicite` or `utm_source=chatgpt.com`, placeholders),
-  61 lexical rules for English and Japanese model vocabulary and emoji, a
+  67 lexical rules for English and Japanese model vocabulary and emoji, a
   check for statistics with nothing cited in their paragraph, and 10 density
   measures (bold, em dashes, bold-label bullets, heading and list density,
   repeated Japanese sentence endings, uniform sentence length, triads,
@@ -43,10 +53,10 @@ verification returns to rewriting and review.
   matter, code and URLs are masked. Eight content perspectives (sentences
   that tell the reader nothing, content the reader does not need, unsupported
   specifics, invented examples, coverage padding, missing positions, effects
-  without a mechanism, borrowed authority) and seventeen structural perspectives
+  without a mechanism, borrowed authority) and eighteen structural perspectives
   (announced openings, restating summaries, padded triads, generic claims,
   translationese, voice drift…) are read by the agent. The detector cues
-  twelve of them from the document's shape (a title-repeating opening, a
+  thirteen of them from the document's shape (a title-repeating opening, a
   summary-named last section, lists of three again and again, sibling
   sections built alike, mixed `です・ます` and plain endings…), so the
   read starts where they probably apply

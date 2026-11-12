@@ -325,6 +325,33 @@ window.DESLOP_DATA = {
       "doc": "Invented scenario in place of a real example: `Imagine you're a developer who…`, `Picture this`, `Let's say you`, `Consider the following scenario`. Use an example the document actually has, or drop the scenario and state the point (CON-04)."
     },
     {
+      "id": "EN-28",
+      "tier": "lexical",
+      "lang": "en",
+      "flags": "i",
+      "pattern": "(?<!whether )(?<!\\bif )\\b(?:you are|you['’]re|act as|as) (?:a|an|the) (?:world['’]s (?:best|leading|top|greatest)|world-class|top-tier|best-in-class|elite|legendary|renowned|seasoned|highly (?:skilled|experienced)|10x)\\b",
+      "note": "Superlative persona given to a model in place of the task",
+      "doc": "Superlative persona given to a model (`You are a world-class software engineer`, `Act as an elite copywriter`, `As a seasoned expert`). The superlative tells the model nothing it can act on. Keep the role only when it names the task or its domain (`You review pull requests for a TypeScript service`) and cut the rank. In prose about a person it is borrowed authority (CON-08)."
+    },
+    {
+      "id": "EN-29",
+      "tier": "lexical",
+      "lang": "en",
+      "flags": "i",
+      "pattern": "(?:\\btake a deep breath\\b|\\bthink (?:very )?deeply\\b|\\bfrom (?:all|every) (?:possible )?(?:angles?|perspectives?)\\b|\\b(?:highest|top|professional|production)[- ](?:quality|grade|level) (?:code|output|work|answers?|responses?|results?)\\b|\\b(?:follow|apply|use|leverage) (?:industry |all )?best practices\\b)",
+      "note": "Effort or quality demanded with no criterion that says when it is met",
+      "doc": "Effort or quality demanded with no criterion: `think deeply`, `take a deep breath`, `from every angle`, `follow best practices`, `production-grade code`. Replace it with the criterion the document states elsewhere (which errors to handle, which API stays unchanged); when it states none, cut the demand and list the missing criterion under `decisions` (STR-18). Never write a criterion the document does not give."
+    },
+    {
+      "id": "EN-30",
+      "tier": "lexical",
+      "lang": "en",
+      "flags": "i",
+      "pattern": "(?:\\bI(?:['’]ll| will) tip you\\b|\\$\\d+ tip\\b|\\bmy (?:career|job|life) depends on\\b|\\byou(?:['’]ll| will) be (?:penalized|fined|punished|fired)\\b|\\blives (?:depend|are at stake)\\b)",
+      "note": "Pressure, threat or reward aimed at a model",
+      "doc": "Pressure, threat or reward aimed at a model (`I'll tip you $200`, `my career depends on this`, `you will be penalized`). It carries no instruction. Delete it; if it stood for a real stake (a deadline, an audience), keep that stake as a plain statement."
+    },
+    {
       "id": "JA-01",
       "tier": "lexical",
       "lang": "ja",
@@ -622,6 +649,33 @@ window.DESLOP_DATA = {
       "doc": "生成モデル自身の断り書き（`実際の仕様は確認できていません`、`以下のフィールドと 動作を仮定しています`、`一般的な〜を参考にした仮の内容です`、`仕様例です`）。 依頼者に向けた口調は消すが、断り書きそのものは消さない。`本ページは仕様例です。` のように文書の種類を述べる一文も、その限界の一部なので残す。内容が未確認・仮定で あることは文書の本当の限界で、消すと作られた値が確定した仕様に読める。 `以下のオプションと終了コードは未確認の仮案です。` のように平叙文で本文に残し、 `decisions` に挙げる（CON-03）。平叙文がなおこのルールに当たるときは、その理由で 除外する。"
     },
     {
+      "id": "JA-34",
+      "tier": "lexical",
+      "lang": "ja",
+      "flags": "",
+      "pattern": "(?:世界(?:最高峰|最高|トップクラス|トップレベル|屈指|有数)の|超一流の|一流の(?:エンジニア|専門家|プログラマー?|ライター|編集者|コンサルタント|デザイナー|研究者)|百戦錬磨の|伝説的な)",
+      "note": "人物設定や主語を最上級で飾る（AIへの役割指定に多い）",
+      "doc": "最上級で飾った人物設定（`あなたは世界最高峰のエンジニアです`、`超一流のライター として`）。AI への役割指定で特に多い。順位づけは指示として何も伝えない。役割が 作業や領域を示す場合だけ残して飾りを外す（`あなたは社内のコードレビュー担当 です`）。人物の紹介文なら借りた権威（CON-08）として扱う。"
+    },
+    {
+      "id": "JA-35",
+      "tier": "lexical",
+      "lang": "ja",
+      "flags": "",
+      "pattern": "(?:深呼吸して|あらゆる(?:観点|角度|視点)から|深く(?:考え|思考し|考察し)(?:て|、|ながら|た上で)|ベストプラクティスを(?:最大限に?)?(?:活用|踏まえ|適用|取り入れ|駆使)|(?:プロフェッショナル|プロ|最高|最高水準|プロダクション)(?:品質|レベル)の|全力で|ステップバイステップで考え)",
+      "note": "満たしたと判断できる基準のない努力・品質の要求",
+      "doc": "満たしたと判断できる基準のない努力・品質の要求（`あらゆる観点から深く思考し`、 `ベストプラクティスを最大限に活用`、`プロフェッショナル品質の`、`全力で`）。文書の 別の箇所にある基準（どのエラーを処理するか、何を変えてはいけないか）に置き換える。 基準がなければ要求を削り、足りない基準を `decisions` に挙げる（STR-18）。文書に ない基準を書き足さない。"
+    },
+    {
+      "id": "JA-36",
+      "tier": "lexical",
+      "lang": "ja",
+      "flags": "",
+      "pattern": "(?:チップを(?:払|渡|あげ)|(?:私|わたし)の(?:キャリア|仕事|人生|首)がかかって|ペナルティを(?:科|課)|罰(?:を与え|せられ)|あなたの評価が下が)",
+      "note": "AIへの圧力・脅し・報酬",
+      "doc": "AI への圧力・脅し・報酬（`チップを払います`、`私のキャリアがかかっています`、 `ペナルティを科します`）。指示を何も含まないので削る。締切や読み手など本当の事情を 指していたなら、その事情だけを平叙文で残す。"
+    },
+    {
       "id": "EMO-01",
       "tier": "lexical",
       "lang": "any",
@@ -850,6 +904,15 @@ window.DESLOP_DATA = {
       "group": "structure"
     },
     {
+      "id": "STR-18",
+      "name": "Instruction with no checkable outcome",
+      "only": [
+        "prompt"
+      ],
+      "doc": "**Instruction with no checkable outcome.** A prompt or instruction file for a model (`prompt` genre) asks for qualities, effort or judgment instead of saying what has to be true when the work is done: `堅牢で拡張性が高く保守性に 優れたコード`, `適切に実装して`, `write clean, professional code`. A model understands such text and still cannot tell when it has succeeded, so its output varies. Rewrite the prompt toward a specification of the task, using only what the document says: - **Turn qualities into the conditions the document states.** When the prompt says elsewhere that the public API must not change or that tests are required, those are what \"robust\" and \"maintainable\" meant: state them as constraints and drop the adjectives. When it states none, cut the adjectives and list under `decisions` the question the author has to answer (`「堅牢」 とは何を満たすことか: どの入力やエラーを扱うか`). Never supply the condition yourself. - **Give each part of the task its place.** Where the prompt contains them, move the goal, the context the model cannot know, the constraints and the expected output into labelled parts (`目的` / `制約` / `出力`, `Goal` / `Constraints` / `Output`), constraints one per item. Moving sentences under labels is restructuring, not adding. A part the prompt has nothing for is not written: list it under `decisions` (`出力の形式が指定されていない`). - **Shorter is not the goal.** Cut persona superlatives (EN-28, JA-34), exhortations (EN-29, JA-35), pressure (EN-30, JA-36), stacked emphasis (`IMPORTANT`, `絶対に`, bold on every rule: keep one plain imperative) and instructions repeated in other words. Keep everything the model needs and cannot infer: the purpose, who reads the output, the reason behind a constraint, conditions, examples, the output format. A prompt cut to `適切に実装して` is worse than the one it replaced. - **What the model does anyway is noise.** `正しい日本語で`, `be helpful`, `answer accurately` add nothing to a model's default and are cut (CON-02). - **The prompt's literal parts are untouchable**, like code: variables the calling code fills (`{{diff}}`, `{input}`, `$ARGUMENTS`), XML or Markdown tags the code parses, tool and function names, exact strings the output must contain, and quoted examples of input or output.",
+      "group": "structure"
+    },
+    {
       "id": "CON-01",
       "name": "Sentence that tells the reader nothing",
       "doc": "**Sentence that tells the reader nothing.** Fails the information or substitution test: `キャッシュはパフォーマンスにとって重要です`, `Security is a top priority`, `This guide will help you get the most out of X`. Delete it. Do not replace it with a better-sounding sentence of the same emptiness.",
@@ -858,7 +921,7 @@ window.DESLOP_DATA = {
     {
       "id": "CON-02",
       "name": "Content the reader already knows or does not need",
-      "doc": "**Content the reader already knows or does not need.** Definitions of terms the reader uses daily, reminders to test and back up, a history of the field in an installation guide. Judge against the least experienced reader the document names or addresses (a FAQ for all staff includes new hires, who need `報連相` spelled out): an API reference does not explain what an API is. Delete it, or link to where it is explained if the document already links there.",
+      "doc": "**Content the reader already knows or does not need.** Definitions of terms the reader uses daily, reminders to test and back up, a history of the field in an installation guide. Judge against the least experienced reader the document names or addresses (a FAQ for all staff includes new hires, who need `報連相` spelled out): an API reference does not explain what an API is. Delete it, or link to where it is explained if the document already links there. In a `prompt` the reader is a model. It knows general facts and has default behaviour, but nothing about this project, this team or why a rule exists. Cut what it would do anyway (`正しい日本語で書いてください`, `be accurate and helpful`) and definitions of general terms. Keep context it cannot infer: the purpose of the task, who reads its output, the project's conventions, and the reason behind a constraint, even when a human expert would find it obvious (STR-18).",
       "group": "content"
     },
     {
@@ -1044,6 +1107,30 @@ window.DESLOP_DATA = {
         "DEN-04": "each field has its bold label"
       },
       "limits": {}
+    },
+    {
+      "id": "prompt",
+      "name": "AI prompt / instructions",
+      "match": [
+        "agents.md",
+        "claude.md",
+        "gemini.md",
+        "*.prompt.md"
+      ],
+      "exempt": {
+        "DEN-04": "labels such as **Goal**: and **Output**: name the parts of the task",
+        "DEN-05": "one heading per part of the task",
+        "DEN-06": "constraints and output items are lists",
+        "DEN-08": "instructions share one build"
+      },
+      "limits": {
+        "DEN-01": {
+          "max": 1.5
+        },
+        "DEN-03": {
+          "max": 0
+        }
+      }
     }
   ],
   "samples": {
@@ -1613,7 +1700,7 @@ window.DESLOP_DATA = {
           "heading_per_1000": 3.1545741324921135,
           "list_ratio": 0,
           "ending_run": 1,
-          "length_cv": 0.6206096799708022,
+          "length_cv": 0.6206096799708021,
           "triad_count": 2,
           "hr_count": 0
         },
@@ -1998,7 +2085,7 @@ window.DESLOP_DATA = {
           "heading_per_1000": 9.837962962962964,
           "list_ratio": 0.6938775510204082,
           "ending_run": 1,
-          "length_cv": 0.2382464346771293,
+          "length_cv": 0.23824643467712928,
           "triad_count": 0,
           "hr_count": 0
         },

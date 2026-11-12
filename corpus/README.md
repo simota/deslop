@@ -12,7 +12,7 @@ these files, and a changed baseline is a signal to look at, not a failure.
 
 ## Layout
 
-One directory per genre the document is run with, covering all 10 of the
+One directory per genre the document is run with, covering all 11 of the
 skill's genres. The file name says what the document is and its language
 (`-ja`, `-en`).
 
@@ -53,6 +53,7 @@ skill's genres. The file name says what the document is and its language
 | `template/delivery-delay-mail-ja.md` | template | ja | subagent | 取引先対応：納期遅延を伝えるメールの文面 |
 | `template/study-group-proposal-ja.md` | template | ja | subagent | 社内企画：制度の立ち上げ企画書 |
 | `template/tsumiki-release-post-ja.md` | template | ja | subagent | 告知：アプリのリリースを X に投稿 |
+| `prompt/code-review-system-prompt-ja.md` | prompt | ja | subagent | AI 運用：コードレビュー用アシスタントのシステムプロンプト |
 
 Every document was generated from the prompt recorded in the manifest, which
 asks for the document the way an ordinary user would and never mentions this
@@ -85,5 +86,8 @@ follow `skills/deslop/SKILL.md`.
 - No human-written document, no document with a distinct author's voice, and
   no generated draft edited by a person.
 - `readme`, `pr` and `changelog` have two documents each, one per language.
+- `prompt` has one Japanese document, and its generator already wrote it as a
+  specification (0 hits, 0 cues); no persona- or exhortation-heavy prompt is
+  in the corpus yet.
 - Legal text, slides and `.docx`/`.pdf` sources are out of the skill's scope
   and have no entry.

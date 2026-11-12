@@ -32,6 +32,7 @@ cues cover only what the shape of a document can show.
 | STR-14 | A heading ends in a question mark or `とは` |
 | STR-16 | Japanese prose mixes `です・ます` and plain endings, the minority at 15% or more |
 | STR-17 | 20 or more non-blank lines and no `<details>` block; a `<details>` block with no paragraph before it; a non-blank line that is not a tag straight after `</summary>`. Cued only in `pr` |
+| STR-18 | A sentence with no digit demands three or more qualities (`robust`, `maintainable`, `堅牢`, `保守性`…), or leaves the decision to the reader (`appropriately`, `as needed`, `適切に`, `いい感じに`). Cued only in `prompt` |
 
 Cues that compare proportions (STR-03 to STR-06, STR-13, STR-16) need as
 much prose as the density rules. The genres that silence a cue are set as
@@ -167,3 +168,39 @@ that answers those two questions first, then fold the rest into one
   do not convert them to HTML tags.
 - A description under 20 non-blank lines stays flat: a fold over a few lines
   is over-structuring (STR-05). One fold, closed by default (no `open`).
+
+### `STR-18`
+**Instruction with no checkable outcome.** A prompt or instruction file for a
+model (`prompt` genre) asks for qualities, effort or judgment instead of
+saying what has to be true when the work is done: `堅牢で拡張性が高く保守性に
+優れたコード`, `適切に実装して`, `write clean, professional code`. A model
+understands such text and still cannot tell when it has succeeded, so its
+output varies. Rewrite the prompt toward a specification of the task, using
+only what the document says:
+
+- **Turn qualities into the conditions the document states.** When the prompt
+  says elsewhere that the public API must not change or that tests are
+  required, those are what "robust" and "maintainable" meant: state them as
+  constraints and drop the adjectives. When it states none, cut the adjectives
+  and list under `decisions` the question the author has to answer (`「堅牢」
+  とは何を満たすことか: どの入力やエラーを扱うか`). Never supply the condition
+  yourself.
+- **Give each part of the task its place.** Where the prompt contains them,
+  move the goal, the context the model cannot know, the constraints and the
+  expected output into labelled parts (`目的` / `制約` / `出力`, `Goal` /
+  `Constraints` / `Output`), constraints one per item. Moving sentences under
+  labels is restructuring, not adding. A part the prompt has nothing for is
+  not written: list it under `decisions` (`出力の形式が指定されていない`).
+- **Shorter is not the goal.** Cut persona superlatives (EN-28, JA-34),
+  exhortations (EN-29, JA-35), pressure (EN-30, JA-36), stacked emphasis
+  (`IMPORTANT`, `絶対に`, bold on every rule: keep one plain imperative) and
+  instructions repeated in other words. Keep everything the model needs and
+  cannot infer: the purpose, who reads the output, the reason behind a
+  constraint, conditions, examples, the output format. A prompt cut to
+  `適切に実装して` is worse than the one it replaced.
+- **What the model does anyway is noise.** `正しい日本語で`, `be helpful`,
+  `answer accurately` add nothing to a model's default and are cut (CON-02).
+- **The prompt's literal parts are untouchable**, like code: variables the
+  calling code fills (`{{diff}}`, `{input}`, `$ARGUMENTS`), XML or Markdown
+  tags the code parses, tool and function names, exact strings the output
+  must contain, and quoted examples of input or output.

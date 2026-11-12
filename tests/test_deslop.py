@@ -59,6 +59,21 @@ class DetectTests(unittest.TestCase):
         for name in ("after.ja.md", "after.en.md"):
             self.assertEqual(scan((EXAMPLES / name).read_text(encoding="utf-8")), [], name)
 
+    def test_prompt_slop_is_found_in_both_languages(self):
+        en = ("You are a world-class software engineer. Think deeply from every angle, follow best practices "
+              "and write production-grade code. I will tip you $200.\n")
+        self.assertLessEqual({"EN-28", "EN-29", "EN-30"}, rules_of(en))
+        ja = ("あなたは世界最高峰のソフトウェアエンジニアです。あらゆる観点から深く思考し、ベストプラクティスを"
+              "最大限に活用しながら、プロフェッショナル品質のコードを生成してください。私のキャリアがかかっています。\n")
+        self.assertLessEqual({"JA-34", "JA-35", "JA-36"}, rules_of(ja))
+
+    def test_a_plain_role_or_an_audience_aside_is_not_a_persona(self):
+        for text in ("You review pull requests for a TypeScript service.\n",
+                     "It works whether you're a seasoned engineer or just starting.\n",
+                     "If you are a seasoned user, skip ahead.\n",
+                     "あなたは社内のコードレビュー担当です。差分を読み、レビューコメントを書きます。\n"):
+            self.assertFalse(rules_of(text) & {"EN-28", "EN-29", "EN-30", "JA-34", "JA-35", "JA-36"}, text)
+
     def test_code_front_matter_and_urls_are_not_prose(self):
         text = (
             "---\ntitle: delve\n---\n"
@@ -498,6 +513,19 @@ class CueTests(unittest.TestCase):
                          [(5, "no blank line after </summary>, so this is not rendered as Markdown")])
         self.assertEqual(fold_cues("Adds retries.\n\n<details>\n  <summary>Details</summary>\n  <h2>Why</h2>\n</details>\n"), [])
 
+    def test_prompt_demands_with_no_criterion_are_cued(self):
+        def prompt_cues(text, genre="prompt"):
+            return [(c["line"], c["why"]) for c in cues_of(text, genre) if c["perspective"] == "STR-18"]
+        stacked = "堅牢で拡張性が高く、保守性にも優れたコードを書いてください。\n\n適切に実装して。\n"
+        self.assertEqual(prompt_cues(stacked), [(1, "3 qualities demanded and nothing says when they are met"),
+                                                (3, "'適切に' leaves the decision to the model")])
+        self.assertEqual(prompt_cues(stacked, "general"), [], "cued only in prompt")
+        self.assertEqual(prompt_cues("- Write clean, robust and maintainable code.\n- Handle errors properly.\n"),
+                         [(1, "3 qualities demanded and nothing says when they are met"),
+                          (2, "'properly' leaves the decision to the model")])
+        stated = "目的: 応答を 200ms 以内に返す、堅牢で安全な保守性の高い実装にする。\n\n```\n適切に\n```\n"
+        self.assertEqual(prompt_cues(stated), [], "a number or code is a criterion the reader can check")
+
     def test_quiet_lists_name_real_genres(self):
         genres = set(genre_table(RULES))
         for p in RULES["perspectives"]:
@@ -552,6 +580,18 @@ class GenreTests(unittest.TestCase):
         self.assertEqual(infer_genre("README.md", RULES), "readme")
         self.assertEqual(infer_genre("docs/CHANGELOG.md", RULES), "changelog")
         self.assertEqual(infer_genre("docs/readme-notes/guide.md", RULES), "general")
+
+    def test_instruction_files_are_prompts_by_name(self):
+        for name in ("AGENTS.md", "CLAUDE.md", "docs/GEMINI.md", "prompts/review.prompt.md"):
+            self.assertEqual(infer_genre(name, RULES), "prompt", name)
+        self.assertEqual(infer_genre("docs/prompting-guide.md", RULES), "general")
+
+    def test_prompt_genre_keeps_labelled_constraint_lists(self):
+        items = "".join(f"- **Constraint {n}**: do not change the public API of module {n} in this task\n" for n in range(20))
+        form = self.doc("AGENTS.md", "# Task\n\nRefactor the parser.\n\n## Constraints\n\n" + items)
+        hits = detect.scan([form], self.tmp, RULES, [], {"AGENTS.md": "prompt"})["hits"]
+        self.assertTrue(any(h["rule"] in ("DEN-04", "DEN-06") for h in hits))
+        self.assertTrue(all(h["exempt"] for h in hits if h["rule"] in ("DEN-04", "DEN-05", "DEN-06", "DEN-08")))
 
     def test_explicit_genres_override_inference(self):
         readme, guide = self.doc("README.md", "x\n"), self.doc("guide.md", "x\n")

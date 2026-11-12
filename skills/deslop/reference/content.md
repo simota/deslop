@@ -142,6 +142,14 @@ document names or addresses (a FAQ for all staff includes new hires, who need
 reference does not explain what an API is. Delete it, or link to where it is
 explained if the document already links there.
 
+In a `prompt` the reader is a model. It knows general facts and has default
+behaviour, but nothing about this project, this team or why a rule exists.
+Cut what it would do anyway (`正しい日本語で書いてください`, `be accurate and
+helpful`) and definitions of general terms. Keep context it cannot infer: the
+purpose of the task, who reads its output, the project's conventions, and the
+reason behind a constraint, even when a human expert would find it obvious
+(STR-18).
+
 ### `CON-03`
 **Unsupported specifics.** Statistics, study results, quotations, dates, user
 counts and benchmark figures with no source in the document and no way to
