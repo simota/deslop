@@ -288,11 +288,16 @@ def compare(before, after, original, markdown=True):
     return diffs
 
 
-def check(out):
+def check(out, record=None):
+    """Fact changes in each working copy. record is an already-checked
+    findings.json (status.py passes {} for an invalid one); by default it is
+    read and checked from the run directory."""
     out = Path(out)
     snap, work = load_snapshot(out)
     findings = out / "findings.json"
-    acks = check_record(load_json(findings)).get("preservation", []) if findings.exists() else []
+    if record is None:
+        record = check_record(load_json(findings)) if findings.exists() else {}
+    acks = record.get("preservation", [])
     acked = {(a["path"], a["kind"], a["value"]) for a in acks if a.get("reason")}
     files, unacked = [], 0
     for entry in snap["files"]:

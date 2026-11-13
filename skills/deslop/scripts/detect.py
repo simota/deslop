@@ -698,12 +698,13 @@ def github_lines(result, notes):
             yield f"::warning {where},title={_gh_escape('deslop-ignore', True)}::{_gh_escape(why)}"
 
 
-def scan_snapshot(out, rules, exemptions, originals=False, *, outlines=None):
-    """Scan a run's working copies, or with originals=True its original/ copies."""
+def scan_snapshot(out, rules, exemptions, originals=False, *, outlines=None, only=None):
+    """Scan a run's working copies, or with originals=True its original/ copies.
+    only, when given, narrows the scan to those snapshot paths."""
     snap, work = load_snapshot(out)
     base = Path(out) / "original" if originals else work
     genres = {f["path"]: f["genre"] for f in snap["files"] if "genre" in f}
-    paths = [f["path"] for f in snap["files"]]
+    paths = [f["path"] for f in snap["files"] if only is None or f["path"] in only]
     return scan([base / path for path in paths], base.resolve(), rules, exemptions, genres, paths=paths, outlines=outlines)
 
 

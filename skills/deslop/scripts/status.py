@@ -153,9 +153,11 @@ def collect(out):
         steps.append(_step("comparisons", not todo, f"{len(reviewed & set(paths))} of {len(paths)} documents reviewed and selected",
                            todo, "review A, B and C, select, copy the winner to the working file, then merge the comparison"))
 
-    after = detect.scan_snapshot(out, rules, exemptions)
+    # A missing working copy is a verify todo (preserve_check lists it), not
+    # an unreadable run: scan the copies that exist.
+    after = detect.scan_snapshot(out, rules, exemptions, only={p for p in paths if (work / p).is_file()})
     open_hits = [h for h in after["hits"] if not h["exempt"]]
-    kept = preserve_check.check(out)
+    kept = preserve_check.check(out, data)
     facts = [f"{f['path']}: {d['change']} {d['kind']} {d['value']!r}"
              for f in kept["files"] for d in f["diffs"] if not d["acknowledged"]]
     facts += [f"{f['path']}: {f['missing']} missing" for f in kept["files"] if f.get("missing")]
@@ -174,6 +176,8 @@ def collect(out):
     report = out / "report.md"
     if not data:
         todo.append("report.md needs a valid findings.json first")
+    elif len(current) < len(paths):
+        todo.append("report.md needs every working copy first")
     elif not report.is_file() or read_text(report) != findings.build_report(out)[0]:
         todo.append("report.md is missing or differs from a fresh render of findings.json")
     outputs_cmd = " && ".join([
