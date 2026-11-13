@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "baseline_commit": "cf48e07",
+  "baseline_commit": "c22d215",
   "documents": [
     {
       "id": "job-change-linkedin-en",
@@ -580,11 +580,12 @@
       },
       "notes": "Asked in English; the generator answered in Japanese.",
       "baseline": {
-        "hits": 4,
-        "open": 2,
+        "hits": 5,
+        "open": 3,
         "exempt": 2,
         "prose_chars": 4343,
         "by_rule": {
+          "CNT-01": 1,
           "DEN-01": 1,
           "DEN-04": 1
         }
@@ -676,12 +677,12 @@
         "edited": false
       },
       "baseline": {
-        "hits": 4,
-        "open": 4,
+        "hits": 2,
+        "open": 2,
         "exempt": 0,
         "prose_chars": 1371,
         "by_rule": {
-          "CNT-01": 4
+          "CNT-01": 2
         }
       }
     },
@@ -727,7 +728,7 @@
         "hits": 0,
         "open": 0,
         "exempt": 0,
-        "prose_chars": 986,
+        "prose_chars": 776,
         "by_rule": {}
       }
     },
