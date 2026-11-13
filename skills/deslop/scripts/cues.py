@@ -77,10 +77,12 @@ def code_lines(text, markdown=True):
     return code
 
 
-def parse(text, prose, markdown=True):
+def parse(text, prose, markdown=True, *, code=None):
     """Headings and blocks (para, list, code, table, quote) in document order.
-    prose is text with code and URLs blanked, so offsets and lines agree."""
-    code = code_lines(text, markdown)
+    prose is text with code and URLs blanked, so offsets and lines agree.
+    code, if given, is code_lines(text, markdown), already computed."""
+    if code is None:
+        code = code_lines(text, markdown)
     out, cur, gap = [], None, False
     for i, line in enumerate(prose.split("\n")):
         n, s = i + 1, line.strip()
@@ -190,7 +192,10 @@ def find(text, prose, lang, split, markdown=True, chars=0, min_chars=0, quiet=()
     """Return the cues for one document. split(text, lang) gives sentences;
     quiet names perspectives the document's genre does not cue. Cues that
     rest on proportions need min_chars of prose, as density rules do."""
-    entries = parse(text, prose, markdown)
+    # Splitting sentences parses other texts in between, so the code block
+    # cache no longer holds this one when STR-17 needs it: compute it once.
+    code = code_lines(text, markdown)
+    entries = parse(text, prose, markdown, code=code)
     blocks = [e for e in entries if e["kind"] != "heading"]
     paras = [b for b in blocks if b["kind"] == "para"]
     secs = sections(entries)
@@ -261,7 +266,6 @@ def find(text, prose, lang, split, markdown=True, chars=0, min_chars=0, quiet=()
 
     # STR-17: a long description with nothing folded, or a fold that hides its point or its Markdown.
     if markdown:
-        code = code_lines(text, markdown)
         live = [(i, line) for i, line in enumerate(raw) if i not in code and line.strip()]
         folds = [i for i, line in live if DETAILS.match(line)]
         filled = sum(1 for line in raw if line.strip())

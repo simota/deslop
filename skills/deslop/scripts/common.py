@@ -174,13 +174,14 @@ def _code_blocks(text, indented):
             html_end, in_para = None, False
         continued = matched == len(containers)
         remaining = flat[offset:]
-        marker = LIST_MARKER.match(remaining) if indent(remaining) < 4 else None
+        shallow = indent(remaining) < 4
+        marker = LIST_MARKER.match(remaining) if shallow else None
         # A following item in the same list can start at any number. The
         # start-at-one restriction applies only when opening a new list.
         sibling = (matched < len(containers) and marker
                    and containers[matched][0] == "list" + marker.group(1)[-1])
         interrupt = in_para and not sibling
-        block_start = indent(remaining) < 4 and (
+        block_start = shallow and (
             any(rx.match(remaining) for rx in (THEMATIC_BREAK, HEADING_LINE, OPEN_FENCE, QUOTE_MARKER))
             or _list_marker(remaining, 0, interrupt)
             or _html_closer(remaining.rstrip("\r"), in_para=interrupt))
