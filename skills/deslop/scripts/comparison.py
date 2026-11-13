@@ -177,6 +177,9 @@ def _candidate_problems(file, candidate, entry, original, rules):
     content = file.read_bytes()
     if sha256_bytes(content) != candidate["sha256"]:
         errors.append(f"{prefix}: SHA-256 differs from the reviewed text; review and score again")
+    if label in CANDIDATE_IDS and sha256_bytes(content) == entry["sha256"]:
+        # Eligible or not, a copy of the original is not one of the three versions.
+        errors.append(f"{prefix}: is still the original; write a complete version from it")
     if not candidate["eligible"]:
         return errors
     genres = {path: entry["genre"]} if "genre" in entry else {}

@@ -640,7 +640,9 @@ def baseline_key(hit):
 
 
 def load_baseline(path):
-    """Return the open hits a saved detect.py result accepted, as a multiset."""
+    """Return the hits a saved detect.py result accepted, as a multiset: its
+    open hits, and those an earlier baseline accepted, so a result written
+    with --baseline and --out is itself the tightened baseline."""
     data = load_json(path)
     if not isinstance(data, dict) or data.get("tool") != "deslop-detect" or not isinstance(data.get("hits"), list):
         raise ValueError(f"{path} is not a detect.py result (write one with --out)")
@@ -648,14 +650,16 @@ def load_baseline(path):
     for i, h in enumerate(data["hits"]):
         if not isinstance(h, dict) or not all(isinstance(h.get(k), str) for k in ("path", "rule", "tier", "text")):
             raise ValueError(f"{path}: hits[{i}] lacks path, rule, tier or text")
-        if not h.get("exempt"):
+        if not h.get("exempt") or h.get("exempt_by") == "baseline":
             keys[baseline_key(h)] += 1
     return keys
 
 
-def apply_baseline(result, keys):
+def apply_baseline(result, keys, rule_ids):
     """Exempt open hits the baseline already holds, one for one, and count
-    the baseline hits no longer found so the baseline can be tightened."""
+    the baseline hits no longer found so the baseline can be tightened.
+    Only hits this scan could have found count as gone: a hit in a file it
+    did not read, or under a rule --select or --ignore left out, is not."""
     remaining = Counter(keys)
     for h in result["hits"]:
         key = baseline_key(h)
@@ -664,7 +668,9 @@ def apply_baseline(result, keys):
             h["exempt"], h["exempt_by"] = "baseline: present when the baseline was recorded", "baseline"
     result["summary"] = summarize(result)
     result["summary"]["baseline"] = sum(1 for h in result["hits"] if h.get("exempt_by") == "baseline")
-    result["summary"]["baseline_resolved"] = sum(remaining.values())
+    scanned = {f["path"] for f in result["files"]}
+    result["summary"]["baseline_resolved"] = sum(n for (path, rule, *_), n in remaining.items()
+                                                 if path in scanned and rule in rule_ids)
     return result
 
 
@@ -692,12 +698,13 @@ def github_lines(result, notes):
             yield f"::warning {where},title={_gh_escape('deslop-ignore', True)}::{_gh_escape(why)}"
 
 
-def scan_snapshot(out, rules, exemptions, originals=False, *, outlines=None):
-    """Scan a run's working copies, or with originals=True its original/ copies."""
+def scan_snapshot(out, rules, exemptions, originals=False, *, outlines=None, only=None):
+    """Scan a run's working copies, or with originals=True its original/ copies.
+    only, when given, narrows the scan to those snapshot paths."""
     snap, work = load_snapshot(out)
     base = Path(out) / "original" if originals else work
     genres = {f["path"]: f["genre"] for f in snap["files"] if "genre" in f}
-    paths = [f["path"] for f in snap["files"]]
+    paths = [f["path"] for f in snap["files"] if only is None or f["path"] in only]
     return scan([base / path for path in paths], base.resolve(), rules, exemptions, genres, paths=paths, outlines=outlines)
 
 
@@ -829,7 +836,7 @@ def main(argv=None):
         if selection:
             result["selection"] = selection
         if baseline is not None:
-            apply_baseline(result, baseline)
+            apply_baseline(result, baseline, {r["id"] for r in rules["rules"]})
         if a.out:
             write_json(a.out, result)
     except (OSError, ValueError) as e:

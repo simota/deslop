@@ -4,6 +4,7 @@ import io
 import json
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -11,7 +12,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = ROOT / "examples"
-sys.path.insert(0, str(ROOT / "skills" / "deslop" / "scripts"))
+SCRIPTS = ROOT / "skills" / "deslop" / "scripts"
+sys.path.insert(0, str(SCRIPTS))
 
 import common  # noqa: E402
 import detect  # noqa: E402
@@ -76,6 +78,25 @@ class DirectoryGenreTests(Workspace):
             self.assertEqual(g["docs/api/a.md"], "spec")
             self.assertEqual(g["docs/api/v2/b.md"], "reference")
             self.assertEqual(g["docs/guide.md"], "tutorial")
+
+    def test_a_path_naming_two_directories_with_the_same_targets_is_deterministic(self):
+        # Run from docs/api, "." is docs/api itself or, under the root, the whole
+        # tree; both hold the same targets here, so either reading applies.
+        # "docs/api" names docs/api under the root. Which genre wins must not
+        # follow set order, which string hashing randomises per process: the
+        # deeper reading of "." ties with docs/api and keeps the first given.
+        files = [str(self.tmp / p) for p in ("docs/api/a.md", "docs/api/v2/b.md")]
+        code = ("import common, json; from pathlib import Path; "
+                f"print(json.dumps(common.assign_genres(['.=article', 'docs/api=readme'], "
+                f"[Path(p) for p in {files!r}], Path({str(self.tmp)!r}), common.load_rules())))")
+        seen = set()
+        for seed in range(1, 9):
+            proc = subprocess.run([sys.executable, "-c", code], cwd=self.tmp / "docs/api", capture_output=True,
+                                  text=True, env={**os.environ, "PYTHONHASHSEED": str(seed), "PYTHONPATH": str(SCRIPTS)})
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            seen.add(proc.stdout)
+        self.assertEqual(len(seen), 1, seen)
+        self.assertEqual(json.loads(seen.pop()), {"docs/api/a.md": "article", "docs/api/v2/b.md": "article"})
 
     def test_a_directory_with_no_target_or_a_missing_path_is_refused(self):
         self.write("empty/x.txt.bak", "")

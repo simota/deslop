@@ -388,7 +388,10 @@ def assign_genres(values, files, root, rules):
         if len(set(below.values())) > 1:
             raise ValueError(f"--genre names {path}, which is ambiguous between "
                              f"{', '.join(sorted(map(str, below)))}; use an absolute path")
-        directory, inside = next(iter(below.items()))
+        # Both meanings hold the same targets: take the deeper directory, so
+        # the result does not follow set order (string hashing).
+        directory = max(below, key=lambda c: (len(c.parts), str(c)))
+        inside = below[directory]
         for rel in inside:
             if chosen.get(rel, (-1,))[0] < len(directory.parts):
                 chosen[rel] = (len(directory.parts), gid)

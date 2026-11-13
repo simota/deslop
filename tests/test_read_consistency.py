@@ -75,9 +75,10 @@ class ReadConsistencyTests(RunFixture):
         for identity in comparison.CANDIDATE_IDS:
             path = self.out / "candidates" / identity / "guide.md"
             path.parent.mkdir(parents=True)
-            path.write_bytes(original)
+            draft = original + f"Candidate {identity} ends here.\n".encode()  # each a rewrite, not the original
+            path.write_bytes(draft)
             candidates.append({
-                "id": identity, "sha256": common.sha256_bytes(original), "eligible": True,
+                "id": identity, "sha256": common.sha256_bytes(draft), "eligible": True,
                 "approach": f"Candidate {identity} retains the original order.",
                 "strengths": "Keeps the cache expiry claim.",
                 "weaknesses": "The transition could be shorter.",

@@ -127,6 +127,27 @@ class StatusTests(unittest.TestCase):
         self.assertEqual(len(by_step["candidates"]["todo"]), 2)
         self.assertEqual(by_step["comparisons"]["todo"], ["no comparison for guide.md"])
 
+    def test_an_invalid_record_or_missing_working_copy_is_todo_not_unreadable(self):
+        # contract_check reports both as failures; status must list them as
+        # work to do (exit 1), not refuse the run (exit 2).
+        self.complete_run()
+        record = self.out / "findings.json"
+        valid = record.read_bytes()
+        data = load_json(record)
+        data["voice"]["source"] = "guess"
+        record.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+        code, text = self.main()
+        self.assertEqual(code, 1, text)
+        self.assertIn("[todo] record        findings.json is invalid", text)
+        self.assertIn("voice.source", text)
+
+        record.write_bytes(valid)
+        (self.out / "rewritten" / "guide.md").unlink()
+        code, text = self.main()
+        self.assertEqual(code, 1, text)
+        self.assertIn("[todo] verify", text)
+        self.assertIn("guide.md: working copy missing", text)
+
     def test_a_directory_that_is_not_a_run_exits_2(self):
         self.out.mkdir()
         self.assertEqual(self.main()[0], 2)

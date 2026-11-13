@@ -17,7 +17,7 @@ import snapshot
 LIMITS = {"fidelity": 30, "structure": 25, "clarity": 20, "voice": 15, "concision": 10}
 ORIGINAL = "Cache entries expire after 30 seconds.\nRead fresh values after expiry.\n"
 DRAFTS = {
-    "A": ORIGINAL,
+    "A": "Cache entries expire after 30 seconds.\nAfter expiry, read fresh values.\n",
     "B": "After 30 seconds, cache entries expire.\nRead fresh values after expiry.\n",
     "C": "Read fresh values after expiry.\nCache entries expire after 30 seconds.\n",
     "merged": "After expiry, read fresh values.\nCache entries expire after 30 seconds.\n",
@@ -59,8 +59,8 @@ class ComparisonTests(RunFixture):
             "candidates": [self.candidate(identity, penalty=penalty)
                            for identity, penalty in (("A", 2), ("B", 4), ("C", 6))],
             "selected": "A", "reason": "A keeps the condition beside the action.",
-            "final_sha256": common.sha256_file(self.out / "rewritten" / "guide.md"),
         }
+        self.choose("A")
         self.save()
         self.assertEqual(contract_check.problems(self.out), [])
 
@@ -138,6 +138,18 @@ class ComparisonTests(RunFixture):
         with self.assertRaises(ValueError):
             comparison.init(self.out)
         self.assertFalse((self.out / "candidates").exists())
+
+    def test_a_candidate_left_as_the_original_fails_even_when_ineligible(self):
+        # status.py lists such a candidate as unfinished; the contract must not
+        # pass it by recording it as ineligible.
+        self.make_comparison()
+        unchanged = self.candidate("B", text=ORIGINAL)
+        unchanged["eligible"] = False
+        self.entry["candidates"][1] = unchanged
+        self.save()
+        self.assertEqual(self.errors(), ["candidate B guide.md: is still the original; write a complete version from it"])
+        self.assertIn("candidate B guide.md: is still the original; write a complete version from it",
+                      contract_check.problems(self.out))
 
     def test_exactly_three_different_candidate_ids_are_required(self):
         self.make_comparison()
