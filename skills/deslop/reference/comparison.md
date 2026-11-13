@@ -68,6 +68,8 @@ loses required information, has unresolved detector hits, or fails that
 semantic review. Explain the blocking issue in `review_note`. A high score
 cannot offset it. Repair the candidate and review it again, or retain it as
 a rejected alternative. At least one standalone candidate must be eligible.
+Marking a candidate ineligible does not excuse writing it: the contract
+fails while `A`, `B` or `C` is still a copy of the original.
 
 Use the same rubric for all candidates, including any combined version:
 
