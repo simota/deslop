@@ -113,11 +113,12 @@ def inline_block_spans(text, quote_prefixes=None, *, source=None, markdown=True)
             start, in_paragraph = offset, False
             continue
         remaining = flat[content:]
-        marker = LIST_MARKER.match(remaining) if indent(remaining) < 4 else None
+        shallow = indent(remaining) < 4
+        marker = LIST_MARKER.match(remaining) if shallow else None
         sibling = (matched < len(containers) and marker
                    and containers[matched][0] == "list" + marker.group(1)[-1])
         interrupt = in_paragraph and not sibling
-        block_start = indent(remaining) < 4 and (
+        block_start = shallow and (
             LINE_BLOCK.match(remaining) or QUOTE_MARKER.match(remaining)
             or _list_marker(remaining, 0, interrupt) or _html_closer(remaining, in_para=interrupt))
         lazy = (matched < len(containers) and in_paragraph

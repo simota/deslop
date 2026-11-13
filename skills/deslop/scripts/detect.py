@@ -177,13 +177,15 @@ def language(text):
 
 def paragraph_langs(prose, default):
     """Return a function from an offset to the language of its paragraph, so
-    an English paragraph in a Japanese document gets the English rules."""
+    an English paragraph in a Japanese document gets the English rules.
+    Its languages attribute holds every value it can return."""
     spans = [(m.start(), m.end(), language(m.group(0))) for m in PARAGRAPH.finditer(prose)]
     starts = [s for s, _, _ in spans]
 
     def at(offset):
         i = bisect.bisect_right(starts, offset) - 1
         return spans[i][2] if i >= 0 and offset < spans[i][1] else default
+    at.languages = frozenset(lang for _, _, lang in spans) | {default}
     return at
 
 
@@ -447,6 +449,10 @@ def scan_text(text, compiled, min_chars, markdown=True, limits=None):
     hits = []
     for rule, rx in compiled:
         if "metric" in rule:
+            continue
+        # A hit counts only where its rule applies to the paragraph's
+        # language: skip the pass when no paragraph could keep one.
+        if not any(applies(rule, paragraph_lang) for paragraph_lang in lang_at.languages):
             continue
         source = code_masked if rule["tier"] == "artifact" else prose
         if rx is None:

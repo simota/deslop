@@ -245,6 +245,14 @@ class CodeBlockCacheTests(unittest.TestCase):
 
 
 class LineCountTests(unittest.TestCase):
+    def test_parse_with_given_code_lines_matches_computing_them(self):
+        for path in DOCS:
+            text, markdown = common.read_text(path), common.is_markdown(path)
+            text = detect.mask_front_matter(text)
+            prose = detect.masked_views(text, markdown)[1]
+            self.assertEqual(cues.parse(text, prose, markdown, code=cues.code_lines(text, markdown)),
+                             cues.parse(text, prose, markdown), path)
+
     def test_code_lines_match_counting_from_the_start(self):
         samples = [common.read_text(path) for path in DOCS] + [
             "```\n```", "a\n\n    x\n    y\n\n```\nz\n", "- item\n\n      code\n> ```\n> q\n", "",
@@ -266,6 +274,51 @@ class LineCountTests(unittest.TestCase):
                     rest = rest[:start] + re.sub(r"[^\r\n]", " ", rest[start:end]) + rest[end:]
                 self.assertEqual(preserve_check.code(text, markdown),
                                  ([text[b:e] for _, _, b, e in spans], rest), path)
+
+
+class LanguageGateTests(unittest.TestCase):
+    """Skipping a rule no paragraph's language admits drops no hit."""
+
+    def scan_both(self, text, markdown=True):
+        compiled = detect.compile_rules(RULES)
+        gated = detect.scan_text(text, compiled, RULES["min_chars"], markdown)
+        original = detect.paragraph_langs
+
+        def every_language(prose, default):
+            at = original(prose, default)
+            at.languages = frozenset({"ja", "en"})
+            return at
+        detect.paragraph_langs = every_language
+        try:
+            detect.masked_views.cache_clear()
+            ungated = detect.scan_text(text, compiled, RULES["min_chars"], markdown)
+        finally:
+            detect.paragraph_langs = original
+            detect.masked_views.cache_clear()
+            common.clear_caches()
+        return gated, ungated
+
+    def test_corpus_hits_match_running_every_rule(self):
+        for path in DOCS:
+            gated, ungated = self.scan_both(common.read_text(path), common.is_markdown(path))
+            self.assertEqual(gated, ungated, path)
+
+    def test_mixed_and_single_language_documents(self):
+        for text in ("さらに、これは重要です。\n\nMoreover, this is pivotal.\n",
+                     "Moreover, this is pivotal.\n",
+                     "さらに、これは重要です。\n",
+                     "As an AI language model, I cannot.\n\n```\nさらに、\n```\n",
+                     ""):
+            gated, ungated = self.scan_both(text)
+            self.assertEqual(gated, ungated, text)
+
+    def test_languages_hold_every_value_the_lookup_returns(self):
+        for path in DOCS:
+            prose = detect.masked_views(common.read_text(path), common.is_markdown(path))[1]
+            for default in ("ja", "en"):
+                at = detect.paragraph_langs(prose, default)
+                self.assertLessEqual({at(i) for i in range(0, len(prose) + 1, 7)}, at.languages, path)
+                self.assertIn(default, at.languages)
 
 
 if __name__ == "__main__":
