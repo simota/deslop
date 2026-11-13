@@ -655,9 +655,11 @@ def load_baseline(path):
     return keys
 
 
-def apply_baseline(result, keys):
+def apply_baseline(result, keys, rule_ids):
     """Exempt open hits the baseline already holds, one for one, and count
-    the baseline hits no longer found so the baseline can be tightened."""
+    the baseline hits no longer found so the baseline can be tightened.
+    Only hits this scan could have found count as gone: a hit in a file it
+    did not read, or under a rule --select or --ignore left out, is not."""
     remaining = Counter(keys)
     for h in result["hits"]:
         key = baseline_key(h)
@@ -666,7 +668,9 @@ def apply_baseline(result, keys):
             h["exempt"], h["exempt_by"] = "baseline: present when the baseline was recorded", "baseline"
     result["summary"] = summarize(result)
     result["summary"]["baseline"] = sum(1 for h in result["hits"] if h.get("exempt_by") == "baseline")
-    result["summary"]["baseline_resolved"] = sum(remaining.values())
+    scanned = {f["path"] for f in result["files"]}
+    result["summary"]["baseline_resolved"] = sum(n for (path, rule, *_), n in remaining.items()
+                                                 if path in scanned and rule in rule_ids)
     return result
 
 
@@ -831,7 +835,7 @@ def main(argv=None):
         if selection:
             result["selection"] = selection
         if baseline is not None:
-            apply_baseline(result, baseline)
+            apply_baseline(result, baseline, {r["id"] for r in rules["rules"]})
         if a.out:
             write_json(a.out, result)
     except (OSError, ValueError) as e:

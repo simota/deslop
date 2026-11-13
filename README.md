@@ -206,8 +206,10 @@ once, commit it, and check against it; only hits the baseline does not hold
 fail. Lexical hits match by path, rule and text, one for one, so a second
 copy of an accepted phrase is new; density hits match by path and rule.
 When accepted hits disappear, the summary says so, and rerunning with
-`--baseline .deslop-baseline.json --out .deslop-baseline.json` tightens the
-baseline in place; any new hits that run reports are accepted too.
+`--baseline .deslop-baseline.json --out .deslop-baseline.json` over the same
+paths, with no `--select` or `--ignore`, tightens the baseline in place; any
+new hits that run reports are accepted too. A narrowed scan counts as gone
+only the hits it could have found.
 
 ```sh
 python3 skills/deslop/scripts/detect.py docs/ --out .deslop-baseline.json   # once
