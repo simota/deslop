@@ -640,7 +640,9 @@ def baseline_key(hit):
 
 
 def load_baseline(path):
-    """Return the open hits a saved detect.py result accepted, as a multiset."""
+    """Return the hits a saved detect.py result accepted, as a multiset: its
+    open hits, and those an earlier baseline accepted, so a result written
+    with --baseline and --out is itself the tightened baseline."""
     data = load_json(path)
     if not isinstance(data, dict) or data.get("tool") != "deslop-detect" or not isinstance(data.get("hits"), list):
         raise ValueError(f"{path} is not a detect.py result (write one with --out)")
@@ -648,7 +650,7 @@ def load_baseline(path):
     for i, h in enumerate(data["hits"]):
         if not isinstance(h, dict) or not all(isinstance(h.get(k), str) for k in ("path", "rule", "tier", "text")):
             raise ValueError(f"{path}: hits[{i}] lacks path, rule, tier or text")
-        if not h.get("exempt"):
+        if not h.get("exempt") or h.get("exempt_by") == "baseline":
             keys[baseline_key(h)] += 1
     return keys
 

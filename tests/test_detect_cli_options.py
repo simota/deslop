@@ -114,6 +114,24 @@ class DetectOptionTests(unittest.TestCase):
         summary = json.loads(out.read_text())["summary"]
         self.assertEqual((summary["baseline"], summary["baseline_resolved"]), (21, 1))
 
+    def test_rerunning_with_out_tightens_the_baseline_in_place(self):
+        # The summary's advice: rerun with --out. Written over the baseline it
+        # was checked against, the result must still accept the hits that
+        # remain, and only those.
+        base = self.baseline()
+        self.edit("seamless", "smooth")
+        code, _, err = self.run_detect(self.docs, "--root", self.tmp, "--baseline", base, "--out", base)
+        self.assertEqual(code, 0)
+        self.assertIn("rerun with --out to tighten it", err)
+        code, _, err = self.run_detect(self.docs, "--root", self.tmp, "--baseline", base)
+        self.assertEqual(code, 0, err)
+        self.assertIn("21 in baseline", err)
+        self.assertNotIn("baseline hits gone", err)
+        self.edit("smooth", "seamless")  # the dropped hit is no longer accepted
+        code, out, _ = self.run_detect(self.docs, "--root", self.tmp, "--baseline", base)
+        self.assertEqual(code, 1)
+        self.assertIn("seamless", out)
+
     def test_exempt_baseline_hits_are_not_accepted(self):
         base = self.baseline()
         data = json.loads(base.read_text())
